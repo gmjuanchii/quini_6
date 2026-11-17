@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load formato_ar l10n %}
+{% block titulo %}Estadísticas de frecuencia{% endblock %}
+{% block contenido %}
+<h1>Estadísticas de frecuencia</h1>
+<p class="leyenda">Estadística descriptiva de sorteos pasados. No predice resultados futuros.</p>
+
+{% for e in errores %}<p class="mensaje mensaje--error" role="alert">{{ e }}</p>{% endfor %}
+{% for a in avisos %}<p class="mensaje mensaje--aviso">{{ a }}</p>{% endfor %}
+
+<form method="get" action="/estadisticas/" class="tarjeta">
+  <div class="busqueda">
+    <div class="campo">
+      <label for="est-modalidad">Modalidad</label>
+      <select id="est-modalidad" name="modalidad">
+        {% for m in modalidades %}<option value="{{ m.value }}"{% if m == consulta.modalidad %} selected{% endif %}>{{ m.nombre }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="est-desde">Desde (dd/mm/aaaa)</label>
+      <input type="text" id="est-desde" name="desde" inputmode="numeric" placeholder="dd/mm/aaaa" value="{{ valores.desde }}">
+    </div>
+    <div class="campo">
+      <label for="est-hasta">Hasta (dd/mm/aaaa)</label>
+      <input type="text" id="est-hasta" name="hasta" inputmode="numeric" placeholder="dd/mm/aaaa" value="{{ valores.hasta }}">
+    </div>
+    <div class="campo">
+      <label for="est-numero">Consultar un número (00 a 45)</label>
+      <input type="text" id="est-numero" name="numero" inputmode="numeric" maxlength="2" value="{{ valores.numero }}">
+    </div>
+    {% for nombre, valor in ocultos.items %}<input type="hidden" name="{{ nombre }}" value="{{ valor }}">{% endfor %}
+    <button type="submit" class="boton">Consultar</button>
+  </div>
+  <p class="ayuda">Si no elegís un período, se consideran todos los sorteos publicados de la modalidad.</p>
+</form>
+
+{% if sin_informacion %}
+  <p class="mensaje mensaje--aviso">El período incluye {{ sin_informacion }} concursos sin información disponible para esta modalidad</p>
+{% endif %}
+
+{% if frecuencias %}
+  <section class="tarjeta" aria-labelledby="titulo-resumen">
+    <h2 id="titulo-resumen">{{ consulta.modalidad.nombre }}</h2>
+    <p>{{ frecuencias.cantidad_sorteos }} sorteo{{ frecuencias.cantidad_sorteos|pluralize }} considerado{{ frecuencias.cantidad_sorteos|pluralize }}, del {{ frecuencias.primera_fecha|fecha_ar }} al {{ frecuencias.ultima_fecha|fecha_ar }}.</p>
+    {% if numero_consultado %}
+      <p class="mensaje mensaje--info" id="numero-consultado">El {{ numero_consultado.numero|dos_digitos }} salió en {{ numero_consultado.frecuencia }} de {{ frecuencias.cantidad_sorteos }} sorteos considerados ({{ numero_consultado.porcentaje|porcentaje_ar }}).</p>
+    {% endif %}
+  </section>
+
+  <figure class="grafico">
+    {% localize off %}
+    <svg viewBox="0 0 {{ grafico.ancho }} {{ grafico.alto }}" role="img" aria-label="Gráfico de barras: apariciones de cada número de 00 a 45 en {{ frecuencias.cantidad_sorteos }} sorteos de {{ consulta.modalidad.nombre }}">
+      <line x1="0" y1="{{ grafico.base }}" x2="{{ grafico.ancho }}" y2="{{ grafico.base }}" stroke="currentColor" stroke-width="0.5"/>
+      {% for b in grafico.barras %}
+        <rect class="barra{% if b.consultado %} barra--consultada{% endif %}" x="{{ b.x }}" y="{{ b.y }}" width="{{ b.ancho }}" height="{{ b.alto }}"><title>{{ b.numero|dos_digitos }}: {{ b.frecuencia }} apariciones</title></rect>
+        {% if b.rotulo %}<text x="{{ b.x_texto }}" y="{{ grafico.y_texto }}" text-anchor="middle" aria-hidden="true">{{ b.numero|dos_digitos }}</text>{% endif %}
+      {% endfor %}
+    </svg>
+    {% endlocalize %}
+    <figcaption class="rotulo">Alto de cada barra proporcional a su cantidad de apariciones. La tabla siguiente tiene los mismos datos.</figcaption>
+  </figure>
+
+  <table class="tabla">
+    <caption>Apariciones de cada número en {{ consulta.modalidad.nombre }}</caption>
+    <thead><tr><th scope="col">Número</th><th scope="col" class="num">Apariciones</th><th scope="col" class="num">Porcentaje</th></tr></thead>
+    <tbody>
+      {% for f in frecuencias.numeros %}
+        <tr id="frecuencia-{{ f.numero|dos_digitos }}"><th scope="row">{{ f.numero|dos_digitos }}</th><td class="num">{{ f.frecuencia }}</td><td class="num">{{ f.porcentaje|porcentaje_ar }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="vacio"><p>No hay sorteos publicados de {{ consulta.modalidad.nombre }} en el período seleccionado</p></div>
+{% endif %}
+{% endblock %}

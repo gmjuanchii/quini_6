@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quini6"
+version = "0.1.0"
+description = "QUINI_6 — MVP v0: consulta pública de resultados del Quini 6 y seguimiento de jugadas personales"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "Django==5.2.*",
+    "gunicorn==23.*",
+    "whitenoise==6.*",
+]
+
+[project.optional-dependencies]
+prod = ["psycopg[binary]==3.2.*"]
+dev = [
+    "pytest==8.*",
+    "pytest-django==4.*",
+    "ruff==0.*",
+]
+
+[tool.setuptools]
+packages = ["quini6", "dominio", "cuentas", "resultados", "jugadas", "estadisticas"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "quini6.settings"
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["ignore:No directory at:UserWarning"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [".venv", "*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

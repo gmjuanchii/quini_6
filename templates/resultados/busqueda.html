@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Buscar concursos{% endblock %}
+{% block contenido %}
+<p><a href="/resultados/">← Resultados</a></p>
+<h1>Buscar concursos</h1>
+{% if error %}<p class="mensaje mensaje--error" role="alert">{{ error }}</p>{% endif %}
+{% if mensaje %}<div class="vacio"><p>{{ mensaje }}</p></div>{% endif %}
+{% if resultados %}
+  <h2>Concursos del {{ fecha }}</h2>
+  {% include "resultados/_listado.html" with concursos=resultados %}
+{% endif %}
+{% include "resultados/_busqueda_form.html" %}
+{% endblock %}

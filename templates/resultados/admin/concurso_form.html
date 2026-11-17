@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}{% if modificar %}Modificar concurso{% else %}Crear concurso{% endif %}{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/concursos/">← Concursos</a></p>
+<h1>{% if modificar %}Modificar el concurso N.º {{ concurso.numero }}{% else %}Crear concurso{% endif %}</h1>
+{% if duplicado %}
+  <p class="mensaje mensaje--error" role="alert">El concurso N.º {{ duplicado }} ya existe. <a href="/administracion/concursos/{{ duplicado }}/">Ir al concurso existente</a></p>
+{% endif %}
+{% include "resultados/admin/_errores_form.html" %}
+{% if modificar %}
+  <p class="ayuda">Podés agregar modalidades en cualquier momento. Solo podés quitar una modalidad sin información cargada y cambiar la fecha mientras ninguna extracción esté publicada.</p>
+{% endif %}
+<form method="post" class="formulario tarjeta" novalidate>
+  {% csrf_token %}
+  {% if form.numero %}{% include "_campo.html" with campo=form.numero %}{% endif %}
+  {% include "_campo.html" with campo=form.fecha_sorteo %}
+  <fieldset class="campo{% if form.modalidades.errors %} campo--error{% endif %}"{% if form.modalidades.errors %} aria-describedby="modalidades_error"{% endif %}>
+    <legend>Modalidades aplicables</legend>
+    <p class="ayuda">Premio Extra requiere Primer Sorteo, La Segunda y Revancha.</p>
+    {% for opcion in form.modalidades %}
+      <label class="casilla">{{ opcion.tag }} {{ opcion.choice_label }}</label>
+    {% endfor %}
+    {% if form.modalidades.errors %}<p class="error" id="modalidades_error">{{ form.modalidades.errors|join:" " }}</p>{% endif %}
+  </fieldset>
+  <div class="acciones">
+    <button type="submit" class="boton">{% if modificar %}Guardar cambios{% else %}Crear concurso{% endif %}</button>
+    <a href="/administracion/concursos/{% if modificar %}{{ concurso.numero }}/{% endif %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% load formato_ar %}
+<section class="tarjeta" id="modalidad-{{ m.modalidad.slug }}" aria-labelledby="titulo-{{ m.modalidad.slug }}">
+  <h2 id="titulo-{{ m.modalidad.slug }}">{{ m.nombre }}</h2>
+
+  {% if m.es_premio_extra %}
+    {% if m.conjunto %}
+      <h3>Conjunto de números del Premio Extra</h3>
+      <p class="rotulo">{{ m.conjunto|length }} números distintos, reunidos de Tradicional – Primer Sorteo, Tradicional – La Segunda y Revancha.</p>
+      {% include "resultados/_bolillas.html" with numeros=m.conjunto rotulo="Conjunto de números del Premio Extra" %}
+      {% if m.revision_numeros %}<p><span class="estado estado--revision">Información en revisión</span></p>{% endif %}
+      {% if m.corregido_numeros %}<p><span class="estado estado--corregido">Corregido el {{ m.corregido_numeros|fecha_ar }}</span></p>{% endif %}
+    {% else %}
+      <p><span class="estado estado--pendiente">{{ m.texto_estado_numeros }}</span></p>
+    {% endif %}
+  {% else %}
+    {% if m.numeros_publicados %}
+      {% include "resultados/_bolillas.html" with numeros=m.numeros rotulo="Números ganadores" %}
+      {% if m.revision_numeros %}<p><span class="estado estado--revision">Información en revisión</span></p>{% endif %}
+      {% if m.corregido_numeros %}<p><span class="estado estado--corregido">Corregido el {{ m.corregido_numeros|fecha_ar }}</span></p>{% endif %}
+      {% if m.fuente_numeros %}<p class="rotulo">Fuente: {{ m.fuente_numeros.0 }}{% if m.fuente_numeros.1 %}, consultada el {{ m.fuente_numeros.1|fecha_ar }}{% endif %}</p>{% endif %}
+    {% else %}
+      <p><span class="estado estado--pendiente">{{ m.texto_estado_numeros }}</span></p>
+    {% endif %}
+  {% endif %}
+
+  <h3>Premios</h3>
+  {% if m.premios_publicados %}
+    {% if m.revision_premios %}<p><span class="estado estado--revision">Información en revisión</span></p>{% endif %}
+    {% if m.corregido_premios %}<p><span class="estado estado--corregido">Corregido el {{ m.corregido_premios|fecha_ar }}</span></p>{% endif %}
+    {% for cat in m.categorias %}
+      <div class="tarjeta">
+        <h4>{{ cat.nombre }}</h4>
+        <dl class="datos">
+          <dt>Aciertos o condición</dt><dd>{{ cat.condicion }}</dd>
+          <dt>Ganadores</dt><dd>{% if cat.ganadores is None %}No disponible{% elif cat.ganadores == 1 %}1 ganador{% else %}{{ cat.ganadores }} ganadores{% endif %}</dd>
+          <dt>Importe destinado a la categoría</dt><dd>{% if cat.importe_categoria is None %}No disponible{% else %}{{ cat.importe_categoria|pesos }}{% endif %}</dd>
+          <dt>Importe individual por ganador</dt><dd>{% if cat.importe_individual is None %}Información de premios pendiente de publicación{% else %}{{ cat.importe_individual|pesos }}{% endif %}</dd>
+          {% if cat.pozo_vacante_acumulado is not None %}<dt>Pozo vacante o acumulado</dt><dd>{{ cat.pozo_vacante_acumulado|pesos }}</dd>{% endif %}
+        </dl>
+      </div>
+    {% endfor %}
+    {% if m.fuente_premios %}<p class="rotulo">Fuente de los premios: {{ m.fuente_premios.0 }}{% if m.fuente_premios.1 %}, consultada el {{ m.fuente_premios.1|fecha_ar }}{% endif %}</p>{% endif %}
+  {% else %}
+    <p><span class="estado estado--pendiente">Información de premios pendiente de publicación</span></p>
+  {% endif %}
+</section>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Números de {{ modalidad.nombre }} · Concurso N.º {{ concurso.numero }}{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/concursos/{{ concurso.numero }}/">← Concurso N.º {{ concurso.numero }}</a></p>
+<h1>Números de {{ modalidad.nombre }}</h1>
+<p>{% if es_correccion %}<span class="estado estado--corregido">Corrección en preparación</span> El público sigue viendo los valores publicados hasta que publiques la corrección.{% else %}Lo que guardes queda en Borrador y no es visible para el público.{% endif %}</p>
+{% include "resultados/admin/_errores_form.html" %}
+<form method="post" class="formulario tarjeta" novalidate>
+  {% csrf_token %}
+  <fieldset>
+    <legend>Seis números distintos de 00 a 45</legend>
+    <div class="fila-flex" style="justify-content:flex-start">
+      {% for campo in form.campos_numeros %}
+        <div class="campo" style="width:4.5rem"><label for="{{ campo.id_for_label }}">{{ campo.label }}</label>{{ campo }}</div>
+      {% endfor %}
+    </div>
+  </fieldset>
+  {% include "_campo.html" with campo=form.fuente_descripcion %}
+  {% include "_campo.html" with campo=form.fuente_fecha_consulta %}
+  {% if form.motivo_correccion %}{% include "_campo.html" with campo=form.motivo_correccion %}{% endif %}
+  <div class="acciones">
+    <button type="submit" class="boton">Guardar borrador</button>
+    <a href="/administracion/concursos/{{ concurso.numero }}/">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

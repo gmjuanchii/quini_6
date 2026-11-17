@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Concurso N.º {{ concurso.numero }}{% endblock %}
+{% block contenido %}
+<p><a href="/resultados/">← Resultados</a></p>
+<div class="fila-flex">
+  <h1>Concurso N.º {{ concurso.numero }}</h1>
+  <span class="estado {% if vista.completitud == 'COMPLETO' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ vista.texto_completitud }}</span>
+</div>
+<p>Sorteo del {{ concurso.fecha_sorteo|fecha_ar }}</p>
+{% if admite_jugadas %}
+  <p><a class="boton" href="/mis-jugadas/nueva/?concurso={{ concurso.numero }}">Registrar una jugada</a></p>
+{% endif %}
+
+{% for m in vista.modalidades %}
+  {% include "resultados/_modalidad.html" %}
+{% empty %}
+  <div class="vacio"><p>Este concurso no tiene modalidades aplicables.</p></div>
+{% endfor %}
+{% endblock %}

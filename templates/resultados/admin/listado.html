@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Administración de concursos{% endblock %}
+{% block contenido %}
+<div class="fila-flex">
+  <h1>Concursos</h1>
+  <a class="boton" href="/administracion/concursos/nuevo/">Crear concurso</a>
+</div>
+{% if concursos %}
+  <ul class="lista-simple">
+    {% for item in concursos %}
+      <li>
+        <div class="fila-flex">
+          <h2><a href="/administracion/concursos/{{ item.concurso.numero }}/">Concurso N.º {{ item.concurso.numero }}</a></h2>
+          <span>Sorteo del {{ item.concurso.fecha_sorteo|fecha_ar }} · <strong>{{ item.completitud }}</strong></span>
+        </div>
+        <table class="tabla tabla--apilable">
+          <caption class="visualmente-oculto">Estado de cada bloque del concurso N.º {{ item.concurso.numero }}</caption>
+          <thead><tr><th scope="col">Modalidad</th><th scope="col">Números</th><th scope="col">Premios</th></tr></thead>
+          <tbody>
+            {% for fila in item.filas %}
+              <tr>
+                <th scope="row">{{ fila.modalidad.nombre }}</th>
+                {% if fila.modalidad.tiene_extraccion_propia %}
+                  <td data-rotulo="Números">{% include "resultados/admin/_estado.html" with b=fila.bloques.0 %}</td>
+                  <td data-rotulo="Premios">{% include "resultados/admin/_estado.html" with b=fila.bloques.1 %}</td>
+                {% else %}
+                  <td data-rotulo="Números">No tiene números propios</td>
+                  <td data-rotulo="Premios">{% include "resultados/admin/_estado.html" with b=fila.bloques.0 %}</td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="vacio"><p>Todavía no hay concursos creados.</p></div>
+{% endif %}
+{% endblock %}

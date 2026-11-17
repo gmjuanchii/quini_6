@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Mis jugadas{% endblock %}
+{% block contenido %}
+<div class="fila-flex">
+  <h1>Mis jugadas</h1>
+  {% if filas %}<a class="boton" href="/mis-jugadas/nueva/">Registrar una jugada</a>{% endif %}
+</div>
+{% if filas %}
+  <ul class="lista-simple">
+    {% for fila in filas %}
+      <li>
+        <div class="fila-flex">
+          <h2 style="margin:0"><a href="/mis-jugadas/{{ fila.jugada.pk }}/">Concurso N.º {{ fila.jugada.concurso.numero }} — sorteo del {{ fila.jugada.concurso.fecha_sorteo|fecha_ar }}</a></h2>
+          <span class="estado resumen {{ fila.estado.clase }}">{{ fila.estado.texto }}</span>
+        </div>
+        {% include "resultados/_bolillas.html" with numeros=fila.jugada.numeros_ordenados rotulo="Números de la jugada" %}
+        <p class="rotulo">Costo: {{ fila.jugada.costo|pesos }} · Participa en: {{ fila.modalidades|join:", " }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="vacio">
+    <p>Todavía no registraste jugadas</p>
+    <p><a class="boton" href="/mis-jugadas/nueva/">Registrar mi primera jugada</a></p>
+  </div>
+{% endif %}
+{% endblock %}

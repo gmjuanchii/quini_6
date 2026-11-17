@@ -1,0 +1,21 @@
+<details>
+  <summary>{{ titulo }}</summary>
+  <form method="post" action="{{ accion }}" class="formulario">
+    {% csrf_token %}
+    <div class="campo">
+      <label for="{{ id }}-motivo">{{ rotulo }}</label>
+      <textarea id="{{ id }}-motivo" name="motivo" rows="2" required></textarea>
+    </div>
+    {% if con_fuente %}
+      <div class="campo">
+        <label for="{{ id }}-fuente">Fuente de la corrección (descripción)</label>
+        <input type="text" id="{{ id }}-fuente" name="fuente_descripcion" required>
+      </div>
+      <div class="campo">
+        <label for="{{ id }}-fecha">Fecha de consulta de la fuente</label>
+        <input type="text" id="{{ id }}-fecha" name="fuente_fecha_consulta" placeholder="dd/mm/aaaa" inputmode="numeric" required>
+      </div>
+    {% endif %}
+    <div class="acciones"><button type="submit" class="boton boton--secundario">{{ boton }}</button></div>
+  </form>
+</details>

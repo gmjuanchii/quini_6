@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Ingresar{% endblock %}
+{% block contenido %}
+<h1>Ingresar</h1>
+{% if error %}<p class="mensaje mensaje--error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" action="/ingresar/" class="formulario tarjeta" novalidate>
+  {% csrf_token %}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+  {% include "_campo.html" with campo=form.email %}
+  {% include "_campo.html" with campo=form.password %}
+  <div class="acciones"><button type="submit" class="boton">Ingresar</button></div>
+</form>
+<p><a href="/registrarse/{% if next %}?next={{ next_codificado }}{% endif %}">¿No tenés cuenta? Creá una</a></p>
+{% endblock %}

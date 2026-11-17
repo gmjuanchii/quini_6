@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Concurso N.º {{ concurso.numero }} · Administración{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/concursos/">← Concursos</a></p>
+<div class="fila-flex">
+  <h1>Concurso N.º {{ concurso.numero }}</h1>
+  <div class="acciones">
+    <a class="boton boton--secundario" href="/administracion/concursos/{{ concurso.numero }}/modificar/">Modificar concurso</a>
+    <a class="boton boton--secundario" href="/administracion/concursos/{{ concurso.numero }}/historial/">Ver historial</a>
+    <a class="boton boton--secundario" href="/resultados/{{ concurso.numero }}/">Ver página pública</a>
+  </div>
+</div>
+<p>Sorteo del {{ concurso.fecha_sorteo|fecha_ar }} · Completitud: <strong>{{ completitud }}</strong> · {% if admite_jugadas %}Admite jugadas{% else %}Ya no admite jugadas{% endif %}</p>
+
+{% for fila in filas %}
+  <section class="tarjeta" aria-labelledby="mod-{{ fila.modalidad.slug }}">
+    <h2 id="mod-{{ fila.modalidad.slug }}">{{ fila.modalidad.nombre }}</h2>
+    {% if not fila.modalidad.tiene_extraccion_propia %}<p class="rotulo">Premio Extra no tiene números propios: su conjunto surge de Primer Sorteo, La Segunda y Revancha.</p>{% endif %}
+    {% for b in fila.bloques %}
+      <div class="tarjeta">
+        <h3>{{ b.nombre }}: {% include "resultados/admin/_estado.html" %}</h3>
+        {% if b.vigente %}
+          <p class="rotulo">Publicado el {{ b.vigente.publicada_en|fecha_hora_ar }}{% if b.vigente.fuente_descripcion %} · Fuente: {{ b.vigente.fuente_descripcion }}{% endif %}</p>
+          {% if b.bloque == "numeros" %}<ul class="numeros" aria-label="Números publicados">{% for n in b.vigente.numeros|ordenados %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endfor %}</ul>{% endif %}
+        {% endif %}
+        {% if b.en_revision %}<p class="mensaje mensaje--aviso">En revisión: {{ b.motivo_revision }}</p>{% endif %}
+        {% if b.trabajo %}
+          <p>{% if b.trabajo.es_correccion %}Corrección en preparación{% else %}{{ b.texto_estado }}{% endif %} — actualizado el {{ b.trabajo.actualizada_en|fecha_hora_ar }}.</p>
+          {% if b.bloque == "numeros" %}<ul class="numeros" aria-label="Números en preparación">{% for n in b.trabajo.numeros|ordenados %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endfor %}</ul>{% endif %}
+          {% if b.trabajo.estado == "OBSERVADO" %}<p class="mensaje mensaje--error">Observado: {{ b.trabajo.motivo_observacion }}</p>{% endif %}
+        {% endif %}
+
+        <div class="acciones">
+          {% if b.trabajo or not b.vigente %}
+            <a class="boton boton--secundario" href="{{ b.url }}/">{% if b.trabajo %}Editar{% else %}Cargar{% endif %}</a>
+          {% endif %}
+          {% if b.trabajo and b.trabajo.estado == "BORRADOR" %}
+            <a class="boton" href="{{ b.url }}/publicar/">{% if b.trabajo.es_correccion %}Publicar corrección{% else %}Revisar y publicar{% endif %}</a>
+          {% endif %}
+          {% if b.trabajo and b.trabajo.estado == "OBSERVADO" %}
+            <form method="post" action="{{ b.url }}/resolver/">{% csrf_token %}<button type="submit" class="boton">Resolver observación</button></form>
+          {% endif %}
+        </div>
+
+        {% with base_id=fila.modalidad.slug|add:"-"|add:b.bloque %}
+          {% if b.trabajo and b.trabajo.estado == "BORRADOR" %}
+            {% include "resultados/admin/_form_motivo.html" with titulo="Marcar como Observado" accion=b.url|add:"/observar/" id="obs-"|add:base_id rotulo="Motivo de la observación" boton="Observar" con_fuente=False %}
+          {% endif %}
+          {% if b.vigente and not b.en_revision %}
+            {% include "resultados/admin/_form_motivo.html" with titulo="Marcar en revisión" accion=b.url|add:"/revision/" id="rev-"|add:base_id rotulo="Motivo de la revisión" boton="Marcar en revisión" con_fuente=False %}
+          {% endif %}
+          {% if b.en_revision %}
+            {% include "resultados/admin/_form_motivo.html" with titulo="Quitar revisión" accion=b.url|add:"/quitar-revision/" id="qrev-"|add:base_id rotulo="Motivo para quitar la revisión" boton="Quitar revisión" con_fuente=False %}
+          {% endif %}
+          {% if b.vigente and not b.trabajo %}
+            {% include "resultados/admin/_form_motivo.html" with titulo="Corregir" accion=b.url|add:"/corregir/" id="cor-"|add:base_id rotulo="Motivo de la corrección" boton="Iniciar corrección" con_fuente=True %}
+          {% endif %}
+        {% endwith %}
+      </div>
+    {% endfor %}
+  </section>
+{% empty %}
+  <div class="vacio"><p>El concurso no tiene modalidades aplicables.</p></div>
+{% endfor %}
+{% endblock %}

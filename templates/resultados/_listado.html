@@ -1,0 +1,8 @@
+{% load formato_ar %}<ul class="lista-simple">
+  {% for item in concursos %}
+    <li class="fila-flex">
+      <a href="/resultados/{{ item.concurso.numero }}/">Concurso N.º {{ item.concurso.numero }} — {{ item.concurso.fecha_sorteo|fecha_ar }}</a>
+      <span class="estado {% if item.completitud == 'Completo' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ item.completitud }}</span>
+    </li>
+  {% endfor %}
+</ul>

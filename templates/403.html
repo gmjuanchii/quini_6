@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo|default:"Sin permisos" }}{% endblock %}
+{% block contenido %}
+<h1>{{ titulo|default:"Acceso restringido" }}</h1>
+<p class="mensaje mensaje--error">{{ mensaje|default:"No tenés permisos para acceder a esta sección" }}</p>
+<p><a href="/resultados/">Volver a los resultados</a></p>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load formato_ar cambios %}
+{% block titulo %}Historial del concurso N.º {{ concurso.numero }}{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/concursos/{{ concurso.numero }}/">← Concurso N.º {{ concurso.numero }}</a></p>
+<h1>Historial de cambios del concurso N.º {{ concurso.numero }}</h1>
+{% if cambios %}
+  <table class="tabla tabla--apilable">
+    <caption>Cambios, del más reciente al más antiguo</caption>
+    <thead>
+      <tr>
+        <th scope="col">Fecha y hora</th><th scope="col">Acción</th><th scope="col">Modalidad y bloque</th>
+        <th scope="col">Valor anterior</th><th scope="col">Valor nuevo</th><th scope="col">Autor</th>
+        <th scope="col">Motivo</th><th scope="col">Fuente</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in cambios %}
+        <tr>
+          <td data-rotulo="Fecha y hora">{{ c.fecha_hora|fecha_hora_ar }}</td>
+          <td data-rotulo="Acción">{{ c.get_accion_display }}</td>
+          <td data-rotulo="Modalidad y bloque">{% if c.modalidad %}{{ c.get_modalidad_display }} · {% endif %}{{ c.get_bloque_display }}</td>
+          <td data-rotulo="Valor anterior">{{ c.valor_anterior|valor_cambio }}</td>
+          <td data-rotulo="Valor nuevo">{{ c.valor_nuevo|valor_cambio }}</td>
+          <td data-rotulo="Autor">{{ c.autor.email }}</td>
+          <td data-rotulo="Motivo">{{ c.motivo|default:"—" }}</td>
+          <td data-rotulo="Fuente">{{ c.fuente|default:"—" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="vacio"><p>Todavía no hay cambios registrados.</p></div>
+{% endif %}
+{% endblock %}

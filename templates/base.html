@@ -1,0 +1,66 @@
+{% load static %}<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Resultados del Quini 6{% endblock %} · QUINI_6</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado">
+    <div class="contenedor encabezado__fila">
+      <a class="marca" href="/resultados/">QUINI_6</a>
+      <nav class="nav" aria-label="Navegación principal">
+        <ul class="nav__lista">
+          <li><a href="/resultados/">Resultados</a></li>
+          <li><a href="/estadisticas/">Estadísticas</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="/mis-jugadas/">Mis jugadas</a></li>
+            {% if user.es_administrador %}<li><a href="/administracion/concursos/">Administración</a></li>{% endif %}
+            <li>
+              <form method="post" action="/salir/" class="nav__salir">
+                {% csrf_token %}
+                <button type="submit" class="enlace-boton">Salir</button>
+              </form>
+            </li>
+          {% else %}
+            <li><a href="/ingresar/">Ingresar</a></li>
+            <li><a href="/registrarse/">Crear cuenta</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="cargando" id="cargando" role="status" aria-live="polite" hidden>Cargando…</div>
+
+  <main id="contenido" class="contenedor principal" tabindex="-1">
+    <div class="mensajes" role="status" aria-live="polite">
+      {% for mensaje in messages %}
+        <p class="mensaje mensaje--{{ mensaje.tags|default:'info' }}">{{ mensaje }}</p>
+      {% endfor %}
+    </div>
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <p>Información de consulta. QUINI_6 no vende apuestas ni realiza pagos. La fuente de cada resultado es el extracto oficial indicado.</p>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      var indicador = document.getElementById("cargando");
+      function mostrar() { indicador.hidden = false; }
+      document.addEventListener("submit", function (e) { if (!e.defaultPrevented) { mostrar(); } });
+      document.addEventListener("click", function (e) {
+        var a = e.target.closest && e.target.closest("a[href]");
+        if (a && !a.target && a.getAttribute("href").charAt(0) !== "#" && !e.ctrlKey && !e.metaKey && !e.shiftKey) { mostrar(); }
+      });
+      window.addEventListener("pageshow", function () { indicador.hidden = true; });
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

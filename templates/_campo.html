@@ -1,0 +1,6 @@
+{% load formularios %}<div class="campo{% if campo.errors %} campo--error{% endif %}">
+  <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+  {% if campo.help_text %}<p class="ayuda" id="{{ campo.auto_id }}_ayuda">{{ campo.help_text }}</p>{% endif %}
+  {{ campo|widget_accesible }}
+  {% if campo.errors %}<p class="error" id="{{ campo.auto_id }}_error">{{ campo.errors|join:" " }}</p>{% endif %}
+</div>

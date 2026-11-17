@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Jugada del concurso N.º {{ jugada.concurso.numero }}{% endblock %}
+{% block contenido %}
+<p><a href="/mis-jugadas/">← Mis jugadas</a></p>
+<h1>Jugada del concurso N.º {{ jugada.concurso.numero }}</h1>
+<section class="tarjeta">
+  <dl class="datos">
+    <dt>Concurso</dt><dd><a href="/resultados/{{ jugada.concurso.numero }}/">N.º {{ jugada.concurso.numero }}</a></dd>
+    <dt>Fecha del sorteo</dt><dd>{{ jugada.concurso.fecha_sorteo|fecha_ar }}</dd>
+    <dt>Costo</dt><dd>{{ jugada.costo|pesos }}</dd>
+    <dt>Participa en</dt><dd>{{ modalidades|join:", " }}</dd>
+  </dl>
+  {% include "resultados/_bolillas.html" with numeros=jugada.numeros_ordenados rotulo="Números de la jugada" %}
+  {% if modificable %}
+    <div class="acciones">
+      <a class="boton boton--secundario" href="/mis-jugadas/{{ jugada.pk }}/editar/">Editar</a>
+      <a class="boton boton--secundario" href="/mis-jugadas/{{ jugada.pk }}/eliminar/">Eliminar</a>
+    </div>
+  {% else %}
+    <p class="mensaje mensaje--info">{{ fija }}</p>
+  {% endif %}
+</section>
+{% if resumen %}<p>Estado: <span class="estado resumen {{ resumen.clase }}">{{ resumen.texto }}</span></p>{% endif %}
+{% if comparacion %}
+  <h2>Comparación con los resultados oficiales</h2>
+  {% include "jugadas/_comparacion.html" %}
+{% endif %}
+{% endblock %}

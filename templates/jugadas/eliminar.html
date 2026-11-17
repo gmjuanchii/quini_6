@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Eliminar jugada{% endblock %}
+{% block contenido %}
+<h1>Eliminar jugada</h1>
+<section class="tarjeta">
+  <p>Concurso N.º {{ jugada.concurso.numero }} — sorteo del {{ jugada.concurso.fecha_sorteo|fecha_ar }} · {{ jugada.costo|pesos }}</p>
+  {% include "resultados/_bolillas.html" with numeros=jugada.numeros_ordenados rotulo="Números de la jugada" %}
+  <p class="mensaje mensaje--aviso">¿Querés eliminar esta jugada? Esta acción no se puede deshacer.</p>
+  <form method="post" class="acciones">
+    {% csrf_token %}
+    <button type="submit" class="boton boton--peligro">Eliminar</button>
+    <a class="boton boton--secundario" href="/mis-jugadas/{{ jugada.pk }}/">Cancelar</a>
+  </form>
+</section>
+{% endblock %}

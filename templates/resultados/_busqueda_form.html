@@ -1,0 +1,19 @@
+<section class="tarjeta" aria-labelledby="titulo-buscar">
+  <h2 id="titulo-buscar">Buscar un concurso</h2>
+  <div class="fila-flex" style="align-items:flex-start">
+    <form method="get" action="/resultados/buscar/" class="busqueda" role="search" aria-label="Buscar por número de concurso">
+      <div class="campo">
+        <label for="buscar-numero">Número de concurso</label>
+        <input type="text" id="buscar-numero" name="numero" inputmode="numeric" value="{{ numero|default:'' }}">
+      </div>
+      <button type="submit" class="boton">Buscar</button>
+    </form>
+    <form method="get" action="/resultados/buscar/" class="busqueda" role="search" aria-label="Buscar por fecha del sorteo">
+      <div class="campo">
+        <label for="buscar-fecha">Fecha del sorteo (dd/mm/aaaa)</label>
+        <input type="text" id="buscar-fecha" name="fecha" inputmode="numeric" placeholder="dd/mm/aaaa" value="{{ fecha|default:'' }}">
+      </div>
+      <button type="submit" class="boton">Buscar</button>
+    </form>
+  </div>
+</section>

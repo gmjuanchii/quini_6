@@ -1,0 +1,303 @@
+/* QUINI_6 — hoja de estilos propia (R-12, NFR-001 a NFR-004, NFR-008).
+   Diseño fluido desde 360 px, contraste AA y foco visible. Los estados siempre llevan texto. */
+
+:root {
+  --color-fondo: #f6f7f9;
+  --color-superficie: #ffffff;
+  --color-texto: #1b1f24;
+  --color-texto-suave: #4a5260;
+  --color-borde: #c9ced6;
+  --color-primario: #0b4f8a;
+  --color-primario-oscuro: #083a66;
+  --color-foco: #c25e00;
+  --color-exito-fondo: #e6f4ea;
+  --color-exito-texto: #14532d;
+  --color-error-fondo: #fdecea;
+  --color-error-texto: #8a1c13;
+  --color-aviso-fondo: #fff4d6;
+  --color-aviso-texto: #6b4a00;
+  --color-info-fondo: #e8f0fb;
+  --color-info-texto: #0b3d6e;
+  --color-neutro-fondo: #eceef1;
+  --color-neutro-texto: #333a45;
+
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --tamano-base: 1rem;
+  --interlineado: 1.5;
+
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --radio: 0.5rem;
+  --ancho-maximo: 64rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: var(--tamano-base);
+  line-height: var(--interlineado);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  overflow-wrap: anywhere;
+}
+
+img, svg { max-width: 100%; height: auto; }
+
+a { color: var(--color-primario); }
+a:hover { color: var(--color-primario-oscuro); }
+
+:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: var(--espacio-5) 0 var(--espacio-3); }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: 0 var(--espacio-4);
+}
+
+.saltar {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--color-superficie);
+  padding: var(--espacio-2) var(--espacio-3);
+  z-index: 10;
+}
+.saltar:focus { left: var(--espacio-2); top: var(--espacio-2); }
+
+.visualmente-oculto {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Encabezado y navegación */
+.encabezado { background: var(--color-primario); color: #fff; }
+.encabezado__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  padding-top: var(--espacio-3);
+  padding-bottom: var(--espacio-3);
+}
+.marca { color: #fff; font-weight: 700; font-size: 1.2rem; text-decoration: none; }
+.marca:hover { color: #fff; }
+.nav__lista {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--espacio-1) var(--espacio-4);
+  align-items: center;
+}
+.nav a, .nav .enlace-boton { color: #fff; }
+.nav__salir { margin: 0; }
+.enlace-boton {
+  background: none; border: 0; padding: 0;
+  font: inherit; text-decoration: underline; cursor: pointer;
+  color: var(--color-primario);
+}
+
+.principal { padding-top: var(--espacio-4); padding-bottom: var(--espacio-6); min-height: 60vh; }
+.principal:focus { outline: none; }
+
+.pie { border-top: 1px solid var(--color-borde); color: var(--color-texto-suave); font-size: 0.9rem; }
+
+/* Mensajes y estados de carga, éxito, error y vacío (NFR-008) */
+.cargando {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: var(--color-aviso-fondo); color: var(--color-aviso-texto);
+  text-align: center; padding: var(--espacio-2); font-weight: 600; z-index: 20;
+}
+.mensaje {
+  padding: var(--espacio-3) var(--espacio-4);
+  border-radius: var(--radio);
+  border-left: 6px solid currentColor;
+  margin: var(--espacio-3) 0;
+}
+.mensaje--success, .mensaje--exito { background: var(--color-exito-fondo); color: var(--color-exito-texto); }
+.mensaje--error { background: var(--color-error-fondo); color: var(--color-error-texto); }
+.mensaje--warning, .mensaje--aviso { background: var(--color-aviso-fondo); color: var(--color-aviso-texto); }
+.mensaje--info { background: var(--color-info-fondo); color: var(--color-info-texto); }
+.vacio {
+  padding: var(--espacio-5);
+  text-align: center;
+  background: var(--color-superficie);
+  border: 1px dashed var(--color-borde);
+  border-radius: var(--radio);
+  color: var(--color-texto-suave);
+}
+
+/* Tarjetas */
+.tarjeta {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--espacio-4);
+  margin: var(--espacio-4) 0;
+}
+.tarjeta > h2:first-child, .tarjeta > h3:first-child { margin-top: 0; }
+.rotulo { color: var(--color-texto-suave); font-size: 0.9rem; }
+
+/* Estados: siempre acompañan un texto, nunca lo reemplazan (NFR-003) */
+.estado {
+  display: inline-block;
+  padding: 0.1rem var(--espacio-2);
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--color-neutro-fondo);
+  color: var(--color-neutro-texto);
+}
+.estado--con-premio { background: var(--color-exito-fondo); color: var(--color-exito-texto); }
+.estado--sin-premio { background: var(--color-neutro-fondo); color: var(--color-neutro-texto); }
+.estado--pendiente { background: var(--color-aviso-fondo); color: var(--color-aviso-texto); }
+.estado--revision { background: var(--color-error-fondo); color: var(--color-error-texto); }
+.estado--corregido { background: var(--color-info-fondo); color: var(--color-info-texto); }
+
+/* Bolillas de números */
+.numeros { list-style: none; margin: var(--espacio-2) 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--espacio-2); }
+.bolilla {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 2.5rem; height: 2.5rem; padding: 0 var(--espacio-1);
+  border-radius: 999px;
+  border: 2px solid var(--color-primario);
+  background: var(--color-superficie);
+  color: var(--color-primario-oscuro);
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+
+/* Tablas que no generan desplazamiento horizontal a 360 px */
+.tabla { width: 100%; border-collapse: collapse; margin: var(--espacio-3) 0; font-size: 0.95rem; }
+.tabla caption { text-align: left; font-weight: 600; padding-bottom: var(--espacio-2); }
+.tabla th, .tabla td { border-bottom: 1px solid var(--color-borde); padding: var(--espacio-2); text-align: left; vertical-align: top; }
+.tabla th[scope="col"] { background: var(--color-neutro-fondo); }
+.tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 40rem) {
+  .tabla--apilable thead { position: absolute; left: -9999px; }
+  .tabla--apilable tr { display: block; border: 1px solid var(--color-borde); border-radius: var(--radio); margin-bottom: var(--espacio-3); padding: var(--espacio-2); background: var(--color-superficie); }
+  .tabla--apilable td, .tabla--apilable th[scope="row"] { display: block; border: 0; padding: var(--espacio-1) 0; text-align: left; }
+  .tabla--apilable td[data-rotulo]::before { content: attr(data-rotulo) ": "; font-weight: 600; }
+}
+
+/* Formularios */
+.formulario { display: grid; gap: var(--espacio-4); max-width: 36rem; }
+.campo { display: grid; gap: var(--espacio-1); }
+.campo label, .campo legend { font-weight: 600; }
+.campo input[type="text"], .campo input[type="email"], .campo input[type="password"],
+.campo input[type="number"], .campo select, .campo textarea {
+  width: 100%;
+  font: inherit;
+  padding: var(--espacio-2) var(--espacio-3);
+  border: 1px solid var(--color-texto-suave);
+  border-radius: var(--radio);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+.campo .ayuda { color: var(--color-texto-suave); font-size: 0.9rem; margin: 0; }
+.campo .error, .error-campo { color: var(--color-error-texto); font-weight: 600; margin: 0; }
+.campo--error input, .campo--error select { border-color: var(--color-error-texto); border-width: 2px; }
+fieldset { border: 1px solid var(--color-borde); border-radius: var(--radio); padding: var(--espacio-3); margin: 0; min-width: 0; }
+.casilla { display: flex; gap: var(--espacio-2); align-items: flex-start; }
+.casilla input { margin-top: 0.3rem; width: 1.1rem; height: 1.1rem; }
+
+.acciones { display: flex; flex-wrap: wrap; gap: var(--espacio-2); align-items: center; margin: var(--espacio-3) 0; }
+.acciones form { margin: 0; }
+.boton {
+  display: inline-block;
+  font: inherit; font-weight: 600;
+  padding: var(--espacio-2) var(--espacio-4);
+  border-radius: var(--radio);
+  border: 2px solid var(--color-primario);
+  background: var(--color-primario);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+.boton:hover { background: var(--color-primario-oscuro); color: #fff; }
+.boton--secundario { background: var(--color-superficie); color: var(--color-primario); }
+.boton--secundario:hover { background: var(--color-info-fondo); color: var(--color-primario-oscuro); }
+.boton--peligro { background: var(--color-error-texto); border-color: var(--color-error-texto); }
+
+.busqueda { display: flex; flex-wrap: wrap; gap: var(--espacio-3); align-items: flex-end; }
+.busqueda .campo { flex: 1 1 12rem; }
+
+/* Grilla del selector de números (46 casillas) */
+.grilla-numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+  gap: var(--espacio-2);
+}
+.grilla-numeros label {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 2.75rem;
+  border: 2px solid var(--color-borde);
+  border-radius: var(--radio);
+  background: var(--color-superficie);
+  font-weight: 600; font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.grilla-numeros input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.grilla-numeros input:checked + span { color: #fff; }
+.grilla-numeros label:has(input:checked) { background: var(--color-primario); border-color: var(--color-primario-oscuro); color: #fff; }
+.grilla-numeros label:has(input:focus-visible) { outline: 3px solid var(--color-foco); outline-offset: 2px; }
+
+/* Comparación de jugadas (T068): un bloque por modalidad, apilado a 360 px */
+.comparacion { display: grid; gap: var(--espacio-3); grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.comparacion__bloque {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--espacio-4);
+}
+.comparacion__bloque h3 { margin-top: 0; }
+.comparacion__dato { margin: var(--espacio-1) 0; }
+.bolilla--acertada {
+  background: var(--color-exito-fondo);
+  border: 3px solid var(--color-exito-texto);
+  color: var(--color-exito-texto);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.resumen { font-weight: 700; }
+
+/* Estadísticas */
+.grafico { width: 100%; margin: var(--espacio-4) 0; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: var(--radio); padding: var(--espacio-2); }
+.grafico svg { display: block; width: 100%; height: auto; }
+.grafico .barra { fill: var(--color-primario); }
+.grafico .barra--consultada { fill: var(--color-foco); }
+.grafico text { font-size: 11px; fill: var(--color-texto); font-family: var(--fuente); }
+.leyenda { font-style: italic; color: var(--color-texto-suave); }
+
+.lista-simple { list-style: none; padding: 0; margin: 0; }
+.lista-simple > li { border-bottom: 1px solid var(--color-borde); padding: var(--espacio-3) 0; }
+.fila-flex { display: flex; flex-wrap: wrap; gap: var(--espacio-2) var(--espacio-4); align-items: center; justify-content: space-between; }
+
+dl.datos { display: grid; grid-template-columns: max-content 1fr; gap: var(--espacio-1) var(--espacio-3); margin: var(--espacio-2) 0; }
+dl.datos dt { font-weight: 600; }
+dl.datos dd { margin: 0; }
+@media (max-width: 30rem) {
+  dl.datos { grid-template-columns: 1fr; }
+  dl.datos dd { margin-bottom: var(--espacio-2); }
+}

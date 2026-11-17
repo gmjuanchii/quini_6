@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static formularios %}
+{% block titulo %}{% if jugada %}Editar jugada{% else %}Registrar una jugada{% endif %}{% endblock %}
+{% block contenido %}
+<p><a href="/mis-jugadas/">← Mis jugadas</a></p>
+<h1>{% if jugada %}Editar jugada{% else %}Registrar una jugada{% endif %}</h1>
+<p>Registrá una jugada que hiciste fuera de la aplicación. QUINI_6 no vende apuestas ni realiza pagos.</p>
+{% if error_concurso %}<p class="mensaje mensaje--error" role="alert">{{ error_concurso }}</p>{% endif %}
+
+<form method="post" class="formulario tarjeta" id="form-jugada" novalidate>
+  {% csrf_token %}
+  {% if duplicado %}
+    <div class="mensaje mensaje--aviso" role="alert">
+      <p>Ya registraste una jugada con estos números para este concurso. ¿Querés guardarla igual?</p>
+      <div class="acciones">
+        <button type="submit" class="boton" name="confirmar_duplicado" value="1">Guardar igual</button>
+        <a class="boton boton--secundario" href="/mis-jugadas/">Cancelar</a>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="campo{% if form.concurso.errors %} campo--error{% endif %}">
+    <label for="{{ form.concurso.id_for_label }}">Concurso</label>
+    {{ form.concurso|widget_accesible }}
+    {% if form.concurso.errors %}<p class="error" id="{{ form.concurso.auto_id }}_error">{{ form.concurso.errors|join:" " }}</p>{% endif %}
+    <p class="ayuda" id="vista-modalidades" aria-live="polite">{% if modalidades %}Participará en: {{ modalidades|join:", " }}{% else %}Elegí un concurso para ver en qué modalidades participará tu jugada.{% endif %}</p>
+  </div>
+
+  <fieldset class="campo{% if form.numeros.errors %} campo--error{% endif %}" id="selector-numeros"{% if form.numeros.errors %} aria-describedby="numeros_error"{% endif %}>
+    <legend>Elegí seis números (00 a 45)</legend>
+    <p class="ayuda" id="contador-numeros" aria-live="polite"></p>
+    {% if form.numeros.errors %}<div class="error" id="numeros_error">{% for e in form.numeros.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>{% endif %}
+    <div class="grilla-numeros">
+      {% for opcion in form.numeros %}
+        <label for="{{ opcion.id_for_label }}">{{ opcion.tag }}<span>{{ opcion.choice_label }}</span></label>
+      {% endfor %}
+    </div>
+    <div class="busqueda" style="margin-top:var(--espacio-3)">
+      <div class="campo">
+        <label for="{{ form.numero_escrito.id_for_label }}">{{ form.numero_escrito.label }}</label>
+        {{ form.numero_escrito }}
+      </div>
+      <button type="button" class="boton boton--secundario" id="agregar-numero" hidden>Agregar</button>
+    </div>
+    <p class="error" id="mensaje-selector" aria-live="polite"></p>
+  </fieldset>
+
+  {% include "_campo.html" with campo=form.costo %}
+
+  <div class="acciones">
+    <button type="submit" class="boton">{% if jugada %}Guardar cambios{% else %}Registrar jugada{% endif %}</button>
+    <a href="{% if jugada %}/mis-jugadas/{{ jugada.pk }}/{% else %}/mis-jugadas/{% endif %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/selector-numeros.js' %}" defer></script>{% endblock %}

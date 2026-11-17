@@ -1,0 +1,61 @@
+{% load formato_ar %}
+<div class="comparacion">
+  {% for item in comparacion %}{% with r=item.r %}
+    <section class="comparacion__bloque" id="comparacion-{{ r.modalidad.slug }}" aria-labelledby="comp-titulo-{{ r.modalidad.slug }}">
+      <h3 id="comp-titulo-{{ r.modalidad.slug }}">{{ r.modalidad.nombre }}</h3>
+
+      {% if not r.publicado %}
+        <p class="comparacion__dato"><span class="estado estado--pendiente">{{ r.estado_validacion.texto }}</span></p>
+      {% else %}
+        {% if r.estado_validacion.name == "EN_REVISION" %}
+          <p class="comparacion__dato"><span class="estado estado--revision">Publicado · Información en revisión</span></p>
+        {% else %}
+          <p class="comparacion__dato rotulo">Resultado publicado</p>
+        {% endif %}
+
+        {% if r.conjunto %}
+          <p class="comparacion__dato">Conjunto de números del Premio Extra: {{ r.conjunto|length }} números distintos. Tus números están resaltados.</p>
+          <ul class="numeros" aria-label="Conjunto de números del Premio Extra">
+            {% for n in r.conjunto|ordenados %}
+              {% if n in r.numeros_acertados %}<li class="bolilla bolilla--acertada">{{ n|dos_digitos }}<span class="visualmente-oculto"> (acertado)</span></li>{% else %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endif %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="comparacion__dato">Tu jugada (los números acertados están resaltados):</p>
+          <ul class="numeros" aria-label="Números de tu jugada">
+            {% for n in jugada.numeros_ordenados %}
+              {% if n in r.numeros_acertados %}<li class="bolilla bolilla--acertada">{{ n|dos_digitos }}<span class="visualmente-oculto"> (acertado)</span></li>{% else %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endif %}
+            {% endfor %}
+          </ul>
+          <p class="comparacion__dato rotulo">Números oficiales: {% for n in r.numeros_oficiales|ordenados %}{{ n|dos_digitos }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% endif %}
+
+        <p class="comparacion__dato"><strong>{{ r.aciertos }} aciertos</strong>{% if r.conjunto %} en el conjunto{% endif %}</p>
+
+        {% if r.elegibilidad %}
+          {% if r.elegibilidad.name == "EXCLUIDA" %}
+            <p class="comparacion__dato"><span class="estado estado--sin-premio">Excluida del Premio Extra: obtuvo 6 aciertos en {{ r.excluida_por.nombre }}</span></p>
+          {% else %}
+            <p class="comparacion__dato">Elegibilidad: <span class="estado estado--con-premio">Participa</span></p>
+          {% endif %}
+        {% endif %}
+
+        {% if r.texto_resultado %}
+          <p class="comparacion__dato"><span class="estado {% if r.resultado_premio.name == 'CON_PREMIO' %}estado--con-premio{% elif r.resultado_premio.name == 'SIN_PREMIO' %}estado--sin-premio{% else %}estado--pendiente{% endif %}">{{ r.texto_resultado }}</span></p>
+        {% endif %}
+
+        {% if r.resultado_premio.name == "CON_PREMIO" %}
+          <p class="comparacion__dato">Importe: {% if r.importe_pendiente %}Información de premios pendiente de publicación{% else %}<strong>{{ r.importe|pesos }}</strong>{% endif %}</p>
+        {% endif %}
+
+        {% for aviso in r.textos_avisos %}
+          <p class="mensaje mensaje--aviso">{{ aviso }}</p>
+        {% endfor %}
+      {% endif %}
+
+      {% if item.actualizado %}
+        <p class="comparacion__dato"><span class="estado estado--corregido">Actualizado por corrección del resultado oficial el {{ item.actualizado|fecha_ar }}</span></p>
+      {% endif %}
+    </section>
+  {% endwith %}{% endfor %}
+</div>

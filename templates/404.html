@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Página inexistente{% endblock %}
+{% block contenido %}
+<h1>Página inexistente</h1>
+<p class="mensaje mensaje--error">{{ mensaje|default:"La página que buscás no existe" }}</p>
+<p><a href="/resultados/">Volver a los resultados</a></p>
+{% endblock %}
