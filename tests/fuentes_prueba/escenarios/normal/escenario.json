@@ -1,0 +1,167 @@
+{
+  "descripcion": "Sorteos 3416 a 3427 (oct.-nov. 2026) coherentes en F1, F2 y F3; sin sorteos del 05/11 al 07/11/2026; F2 cubre desde el 2211 (17/12/2014).",
+  "rutas": {
+    "/f1/quini6/sorteos-anteriores.aspx": {
+      "pagina": "f1/listado.html"
+    },
+    "/f2/sorteos": {
+      "pagina": "f2/listado.html"
+    },
+    "/f3/sorteos": {
+      "pagina": "f3/listado.html"
+    },
+    "/f1/quini6/sorteo-3416-del-dia-11-10-2026.htm": {
+      "pagina": "f1/sorteo-3416.html"
+    },
+    "/f2/sorteos/3416": {
+      "pagina": "f2/sorteo-3416.html"
+    },
+    "/f3/sorteos/3416": {
+      "pagina": "f3/sorteo-3416.html"
+    },
+    "/f1/quini6/sorteo-3417-del-dia-14-10-2026.htm": {
+      "pagina": "f1/sorteo-3417.html"
+    },
+    "/f2/sorteos/3417": {
+      "pagina": "f2/sorteo-3417.html"
+    },
+    "/f3/sorteos/3417": {
+      "pagina": "f3/sorteo-3417.html"
+    },
+    "/f1/quini6/sorteo-3418-del-dia-18-10-2026.htm": {
+      "pagina": "f1/sorteo-3418.html"
+    },
+    "/f2/sorteos/3418": {
+      "pagina": "f2/sorteo-3418.html"
+    },
+    "/f3/sorteos/3418": {
+      "pagina": "f3/sorteo-3418.html"
+    },
+    "/f1/quini6/sorteo-3419-del-dia-21-10-2026.htm": {
+      "pagina": "f1/sorteo-3419.html"
+    },
+    "/f2/sorteos/3419": {
+      "pagina": "f2/sorteo-3419.html"
+    },
+    "/f3/sorteos/3419": {
+      "pagina": "f3/sorteo-3419.html"
+    },
+    "/f1/quini6/sorteo-3420-del-dia-25-10-2026.htm": {
+      "pagina": "f1/sorteo-3420.html"
+    },
+    "/f2/sorteos/3420": {
+      "pagina": "f2/sorteo-3420.html"
+    },
+    "/f3/sorteos/3420": {
+      "pagina": "f3/sorteo-3420.html"
+    },
+    "/f1/quini6/sorteo-3421-del-dia-28-10-2026.htm": {
+      "pagina": "f1/sorteo-3421.html"
+    },
+    "/f2/sorteos/3421": {
+      "pagina": "f2/sorteo-3421.html"
+    },
+    "/f3/sorteos/3421": {
+      "pagina": "f3/sorteo-3421.html"
+    },
+    "/f1/quini6/sorteo-3422-del-dia-01-11-2026.htm": {
+      "pagina": "f1/sorteo-3422.html"
+    },
+    "/f2/sorteos/3422": {
+      "pagina": "f2/sorteo-3422.html"
+    },
+    "/f3/sorteos/3422": {
+      "pagina": "f3/sorteo-3422.html"
+    },
+    "/f1/quini6/sorteo-3423-del-dia-04-11-2026.htm": {
+      "pagina": "f1/sorteo-3423.html"
+    },
+    "/f2/sorteos/3423": {
+      "pagina": "f2/sorteo-3423.html"
+    },
+    "/f3/sorteos/3423": {
+      "pagina": "f3/sorteo-3423.html"
+    },
+    "/f1/quini6/sorteo-3424-del-dia-08-11-2026.htm": {
+      "pagina": "f1/sorteo-3424.html"
+    },
+    "/f2/sorteos/3424": {
+      "pagina": "f2/sorteo-3424.html"
+    },
+    "/f3/sorteos/3424": {
+      "pagina": "f3/sorteo-3424.html"
+    },
+    "/f1/quini6/sorteo-3425-del-dia-11-11-2026.htm": {
+      "pagina": "f1/sorteo-3425.html"
+    },
+    "/f2/sorteos/3425": {
+      "pagina": "f2/sorteo-3425.html"
+    },
+    "/f3/sorteos/3425": {
+      "pagina": "f3/sorteo-3425.html"
+    },
+    "/f1/quini6/sorteo-3426-del-dia-15-11-2026.htm": {
+      "pagina": "f1/sorteo-3426.html"
+    },
+    "/f2/sorteos/3426": {
+      "pagina": "f2/sorteo-3426.html"
+    },
+    "/f3/sorteos/3426": {
+      "pagina": "f3/sorteo-3426.html"
+    },
+    "/f1/quini6/sorteo-3427-del-dia-18-11-2026.htm": {
+      "pagina": "f1/sorteo-3427.html"
+    },
+    "/f2/sorteos/3427": {
+      "pagina": "f2/sorteo-3427.html"
+    },
+    "/f3/sorteos/3427": {
+      "pagina": "f3/sorteo-3427.html"
+    },
+    "/f2/sorteos/2211": {
+      "pagina": "f2/sorteo-2211.html"
+    },
+    "/f2/sorteos/2212": {
+      "pagina": "f2/sorteo-2212.html"
+    },
+    "/f2/sorteos/2213": {
+      "pagina": "f2/sorteo-2213.html"
+    },
+    "/f2/sorteos/2214": {
+      "pagina": "f2/sorteo-2214.html"
+    },
+    "/f2/sorteos/2215": {
+      "pagina": "f2/sorteo-2215.html"
+    },
+    "/f2/sorteos/2216": {
+      "pagina": "f2/sorteo-2216.html"
+    },
+    "/f2/sorteos/2217": {
+      "pagina": "f2/sorteo-2217.html"
+    },
+    "/f2/sorteos/2218": {
+      "pagina": "f2/sorteo-2218.html"
+    },
+    "/f2/sorteos/2219": {
+      "pagina": "f2/sorteo-2219.html"
+    },
+    "/f2/sorteos/2220": {
+      "pagina": "f2/sorteo-2220.html"
+    },
+    "/f2/sorteos/2221": {
+      "pagina": "f2/sorteo-2221.html"
+    },
+    "/f2/sorteos/2222": {
+      "pagina": "f2/sorteo-2222.html"
+    },
+    "/f2/sorteos/2223": {
+      "pagina": "f2/sorteo-2223.html"
+    },
+    "/f2/sorteos/2224": {
+      "pagina": "f2/sorteo-2224.html"
+    },
+    "/f2/sorteos/2225": {
+      "pagina": "f2/sorteo-2225.html"
+    }
+  }
+}

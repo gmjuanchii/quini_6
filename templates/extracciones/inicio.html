@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Extracción histórica de sorteos{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/concursos/">← Concursos</a></p>
+<h1>Extracción histórica de sorteos</h1>
+
+{% if en_curso %}
+  {% include "extracciones/_avance.html" with extraccion=en_curso avance=avance %}
+  <p><a class="boton boton--secundario" href="/administracion/extracciones/{{ en_curso.pk }}/">Ver la extracción en curso</a></p>
+{% else %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% include "resultados/admin/_errores_form.html" %}
+    {% include "_campo.html" with campo=form.inicio %}
+    {% include "_campo.html" with campo=form.fin %}
+    <button type="submit" class="boton">Iniciar extracción</button>
+  </form>
+{% endif %}
+
+<h2>Extracciones anteriores</h2>
+{% if extracciones %}
+  <table class="tabla tabla--apilable">
+    <caption class="visualmente-oculto">Extracciones anteriores, de la más reciente a la más antigua</caption>
+    <thead>
+      <tr>
+        <th scope="col">Fecha</th>
+        <th scope="col">Ejecutada por</th>
+        <th scope="col">Período consultado</th>
+        <th scope="col">Estado</th>
+        <th scope="col"><span class="visualmente-oculto">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in extracciones %}
+        <tr>
+          <td data-rotulo="Fecha"><a href="/administracion/extracciones/{{ e.pk }}/">{{ e.iniciada_en|fecha_hora_ar }}</a></td>
+          <td data-rotulo="Ejecutada por">{{ e.creada_por.email }}</td>
+          <td data-rotulo="Período consultado">{{ e.desde|fecha_ar }} al {{ e.hasta|fecha_ar }}</td>
+          <td data-rotulo="Estado">{{ e.estado_enum.texto }}</td>
+          <td class="celda-acciones">
+            {% if not e.en_curso %}
+              <details class="menu-acciones">
+                <summary aria-label="Acciones de la extracción del {{ e.iniciada_en|fecha_hora_ar }}" title="Acciones"><span aria-hidden="true">⋮</span></summary>
+                <ul class="menu-acciones__lista">
+                  <li><a href="/administracion/extracciones/{{ e.pk }}/eliminar/">Eliminar</a></li>
+                </ul>
+              </details>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="vacio"><p>Todavía no hay extracciones.</p></div>
+{% endif %}
+{% endblock %}
+

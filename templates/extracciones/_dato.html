@@ -1,0 +1,6 @@
+{% load formato_ar %}{% spaceless %}
+{% if d.tipo == "importe" %}{{ d.valor|pesos }}
+{% elif d.tipo == "fecha" %}{{ d.valor|fecha_ar }}
+{% elif d.tipo == "numeros" %}{% for n in d.valor %}{{ n|dos_digitos }}{% if not forloop.last %}, {% endif %}{% endfor %}
+{% else %}{{ d.valor }}{% endif %}
+{% endspaceless %}

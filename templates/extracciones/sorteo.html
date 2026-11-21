@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load formato_ar %}
+{% block titulo %}Sorteo N.º {{ numero }} · Extracción {{ extraccion.pk }}{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/extracciones/{{ extraccion.pk }}/">← Extracción {{ extraccion.pk }}</a></p>
+<h1>Sorteo N.º {{ numero }}</h1>
+<p>
+  Fecha: {% include "extracciones/_dato.html" with d=fecha %}
+  {% if fecha.sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
+</p>
+{% if fecha.discrepancia %}
+  <div class="mensaje mensaje--error">
+    <p><strong>Fecha: {{ fecha.discrepancia.tipo }}</strong></p>
+    <ul>{% for v in fecha.discrepancia.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
+  </div>
+{% endif %}
+
+<p>
+  <span class="estado {{ clase_estado }}">{{ estado_texto }}</span>
+  {% if combina_fuentes %}<span class="estado estado--corregido">Combina fuentes</span>{% endif %}
+  {% if sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
+  {% if reglas_no_verificadas %}<span class="estado estado--pendiente">Reglas del período no verificadas</span>{% endif %}
+</p>
+{% if motivos %}
+  <ul class="lista-simple">{% for m in motivos %}<li>{{ m }}</li>{% endfor %}</ul>
+{% endif %}
+
+<p><a href="{{ enlace_oficial }}" target="_blank" rel="noopener noreferrer">Ver extracto oficial (Lotería de Santa Fe)</a></p>
+
+<h2>Fuentes consultadas</h2>
+{% if fuentes %}
+  <table class="tabla tabla--apilable">
+    <caption class="visualmente-oculto">Resultado de la consulta a cada fuente</caption>
+    <thead><tr><th scope="col">Fuente</th><th scope="col">Resultado</th><th scope="col">Dirección consultada</th><th scope="col">Fecha y hora</th></tr></thead>
+    <tbody>
+      {% for f in fuentes %}
+        <tr>
+          <th scope="row" data-rotulo="Fuente">{{ f.nombre }}</th>
+          <td data-rotulo="Resultado">
+            <span class="estado {{ f.clase }}">{{ f.resultado }}</span>
+            {% if f.observaciones %}<ul class="lista-simple">{% for o in f.observaciones %}<li>{{ o }}</li>{% endfor %}</ul>{% endif %}
+          </td>
+          <td data-rotulo="Dirección consultada">{% if f.url %}<span class="url">{{ f.url }}</span>{% else %}No corresponde{% endif %}</td>
+          <td data-rotulo="Fecha y hora">{% if f.consultado_en %}{{ f.consultado_en|fecha_hora_ar }}{% else %}No corresponde{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+{% for m in modalidades %}
+  <section class="tarjeta">
+    <h2>{{ m.nombre }}</h2>
+    {% if not m.informada %}
+      <p class="mensaje mensaje--aviso">{{ no_informada }}</p>
+    {% else %}
+      <p>
+        Números: {% include "extracciones/_dato.html" with d=m.numeros %}
+        {% if m.numeros.calculo %}<span class="ayuda">(Calculado: {{ m.numeros.calculo }})</span>{% endif %}
+        {% if m.numeros.sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
+      </p>
+      {% if m.numeros.discrepancia %}
+        <div class="mensaje mensaje--error">
+          <p><strong>Números: {{ m.numeros.discrepancia.tipo }}</strong></p>
+          <ul>{% for v in m.numeros.discrepancia.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
+        </div>
+      {% endif %}
+      {% for c in m.categorias %}
+        <table class="tabla tabla--apilable">
+          <caption>{{ c.nombre }} · {{ c.estado_pozo }}</caption>
+          <thead><tr><th scope="col">Dato</th><th scope="col">Valor</th></tr></thead>
+          <tbody>
+            {% for d in c.datos %}
+              <tr>
+                <th scope="row" data-rotulo="Dato">{{ d.rotulo }}</th>
+                <td data-rotulo="Valor">
+                  {% include "extracciones/_dato.html" with d=d %}
+                  {% if d.sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
+                  {% if d.discrepancia %}
+                    <div class="mensaje mensaje--error">
+                      <p><strong>{{ d.discrepancia.tipo }}</strong></p>
+                      <ul>{% for v in d.discrepancia.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
+                    </div>
+                  {% endif %}
+                  {% if d.diferencia_tolerada %}
+                    <div class="mensaje mensaje--info">
+                      <p>{{ d.diferencia_tolerada.tipo }}</p>
+                      <ul>{% for v in d.diferencia_tolerada.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
+                    </div>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    {% endif %}
+  </section>
+{% endfor %}
+
+{% if observaciones %}
+  <h2>Observaciones</h2>
+  <ul class="lista-simple">
+    {% for o in observaciones %}<li>{% if o.fuente %}{{ o.fuente }}: {% endif %}{{ o.texto }}</li>{% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

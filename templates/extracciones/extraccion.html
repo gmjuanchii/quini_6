@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static formato_ar %}
+{% block titulo %}Extracción {{ extraccion.pk }}{% endblock %}
+{% block contenido %}
+<p><a href="/administracion/extracciones/">← Extracción histórica de sorteos</a></p>
+<h1>Extracción histórica de sorteos</h1>
+
+{% if avance.en_curso %}
+  {% include "extracciones/_avance.html" %}
+{% elif sin_sorteos %}
+  <div class="vacio" role="status"><p>No se identificaron sorteos en el período consultado</p></div>
+  {% if extraccion.cobertura_desde %}
+    <p class="mensaje mensaje--aviso">Las fuentes no cubren el período anterior al {{ extraccion.cobertura_desde|fecha_ar }}</p>
+  {% endif %}
+{% else %}
+  <div class="mensaje {{ clase_estado }}" role="status"><p><strong>{{ estado_texto }}</strong></p></div>
+  {% if extraccion.cobertura_desde %}
+    <p class="mensaje mensaje--aviso">Las fuentes no cubren el período anterior al {{ extraccion.cobertura_desde|fecha_ar }}</p>
+  {% endif %}
+  {% if resumen.huecos %}
+    <p class="mensaje mensaje--aviso">Hay números de sorteo que ninguna fuente informa: {{ resumen.huecos|join:", " }}</p>
+  {% endif %}
+  {% if puede_descargar %}
+    <p><a class="boton" href="/administracion/extracciones/{{ extraccion.pk }}/csv/">Descargar CSV</a></p>
+  {% endif %}
+
+  <h2>Resumen</h2>
+  <table class="tabla tabla--apilable">
+    <caption class="visualmente-oculto">Resumen de la extracción</caption>
+    <tbody>
+      <tr><th scope="row">Período consultado</th><td>{{ extraccion.desde|fecha_ar }} al {{ extraccion.hasta|fecha_ar }}</td></tr>
+      <tr><th scope="row">Sorteos identificados</th><td>{{ resumen.identificados }}</td></tr>
+      <tr><th scope="row">Recuperados</th><td>{{ resumen.recuperados }}</td></tr>
+      <tr><th scope="row">Recuperados parcialmente</th><td>{{ resumen.parciales }}</td></tr>
+      <tr><th scope="row">Con inconsistencias</th><td>{{ resumen.inconsistencias }}</td></tr>
+      <tr><th scope="row">No recuperados</th><td>{{ resumen.no_recuperados }}</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Fuentes utilizadas</h3>
+  <table class="tabla tabla--apilable">
+    <caption class="visualmente-oculto">Fuentes utilizadas</caption>
+    <thead><tr><th scope="col">Fuente</th><th scope="col">Sorteos aportados</th><th scope="col">Intentos fallidos</th></tr></thead>
+    <tbody>
+      {% for f in resumen.fuentes %}
+        <tr>
+          <th scope="row" data-rotulo="Fuente">
+            {{ f.nombre }}
+            {% if f.requiere_mantenimiento %}<span class="estado estado--revision">Requiere mantenimiento</span>{% endif %}
+          </th>
+          <td data-rotulo="Sorteos aportados">{{ f.aportados }}</td>
+          <td data-rotulo="Intentos fallidos">
+            {% if f.fallidos %}
+              <ul class="lista-simple">{% for x in f.fallidos %}<li>{{ x.texto }}: {{ x.cantidad }}</li>{% endfor %}</ul>
+            {% else %}0{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if resumen.a_revisar %}
+    <h3>Sorteos que requieren revisión</h3>
+    <ul class="lista-simple">
+      {% for s in resumen.a_revisar %}
+        <li>
+          <a href="/administracion/extracciones/{{ extraccion.pk }}/sorteos/{{ s.numero }}/">Sorteo N.º {{ s.numero }}</a>
+          {% if s.fecha %}· {{ s.fecha|fecha_ar }}{% endif %}
+          · <span class="estado {{ s.clase }}">{{ s.estado_texto }}</span>
+          {% if s.motivos %}<ul>{% for m in s.motivos %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endif %}
+
+{% if sorteos %}
+  <h2>Sorteos</h2>
+  <table class="tabla tabla--apilable">
+    <caption class="visualmente-oculto">Sorteos de la extracción con su estado</caption>
+    <thead><tr><th scope="col">Sorteo</th><th scope="col">Fecha</th><th scope="col">Estado</th></tr></thead>
+    <tbody>
+      {% for s in sorteos %}
+        <tr>
+          <td data-rotulo="Sorteo"><a href="/administracion/extracciones/{{ extraccion.pk }}/sorteos/{{ s.numero }}/">N.º {{ s.numero }}</a></td>
+          <td data-rotulo="Fecha">{% if s.fecha %}{{ s.fecha|fecha_ar }}{% else %}No disponible{% endif %}</td>
+          <td data-rotulo="Estado"><span class="estado {{ s.clase }}">{{ s.estado_texto }}</span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if avance.en_curso %}<script src="{% static 'js/avance-extraccion.js' %}" defer></script>{% endif %}{% endblock %}

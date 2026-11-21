@@ -8,4 +8,5 @@ urlpatterns = [
     path("", include("jugadas.urls")),
     path("", include("estadisticas.urls")),
     path("", include("resultados.urls_admin")),
+    path("", include("extracciones.urls")),
 ]
