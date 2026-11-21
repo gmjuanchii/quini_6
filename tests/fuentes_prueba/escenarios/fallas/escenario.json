@@ -1,0 +1,134 @@
+{
+  "descripcion": "Fallas de las fuentes (quickstart §5, escenarios D y E): 3422 F1 500; 3423 sin ninguna fuente (hueco); 3424 F2 sin Revancha y F3 403; 3425 F1 anti-robots y F3 demora 15 s; 3426 fallan las tres; 2700-2701 (2020) antes del 2787 de F3.",
+  "rutas": {
+    "/f1/quini6/sorteos-anteriores.aspx": {
+      "pagina": "f1/listado.html"
+    },
+    "/f2/sorteos": {
+      "pagina": "f2/listado.html"
+    },
+    "/f3/sorteos": {
+      "pagina": "f3/listado.html"
+    },
+    "/f1/quini6/sorteo-3416-del-dia-11-10-2026.htm": {
+      "pagina": "f1/sorteo-3416.html"
+    },
+    "/f2/sorteos/3416": {
+      "pagina": "f2/sorteo-3416.html"
+    },
+    "/f3/sorteos/3416": {
+      "pagina": "f3/sorteo-3416.html"
+    },
+    "/f1/quini6/sorteo-3417-del-dia-14-10-2026.htm": {
+      "pagina": "f1/sorteo-3417.html"
+    },
+    "/f2/sorteos/3417": {
+      "pagina": "f2/sorteo-3417.html"
+    },
+    "/f3/sorteos/3417": {
+      "pagina": "f3/sorteo-3417.html"
+    },
+    "/f1/quini6/sorteo-3418-del-dia-18-10-2026.htm": {
+      "pagina": "f1/sorteo-3418.html"
+    },
+    "/f2/sorteos/3418": {
+      "pagina": "f2/sorteo-3418.html"
+    },
+    "/f3/sorteos/3418": {
+      "pagina": "f3/sorteo-3418.html"
+    },
+    "/f1/quini6/sorteo-3419-del-dia-21-10-2026.htm": {
+      "pagina": "f1/sorteo-3419.html"
+    },
+    "/f2/sorteos/3419": {
+      "pagina": "f2/sorteo-3419.html"
+    },
+    "/f3/sorteos/3419": {
+      "pagina": "f3/sorteo-3419.html"
+    },
+    "/f1/quini6/sorteo-3420-del-dia-25-10-2026.htm": {
+      "pagina": "f1/sorteo-3420.html"
+    },
+    "/f2/sorteos/3420": {
+      "pagina": "f2/sorteo-3420.html"
+    },
+    "/f3/sorteos/3420": {
+      "pagina": "f3/sorteo-3420.html"
+    },
+    "/f1/quini6/sorteo-3421-del-dia-28-10-2026.htm": {
+      "pagina": "f1/sorteo-3421.html"
+    },
+    "/f2/sorteos/3421": {
+      "pagina": "f2/sorteo-3421.html"
+    },
+    "/f3/sorteos/3421": {
+      "pagina": "f3/sorteo-3421.html"
+    },
+    "/f1/quini6/sorteo-3422-del-dia-01-11-2026.htm": {
+      "codigo": 500
+    },
+    "/f2/sorteos/3422": {
+      "pagina": "f2/sorteo-3422.html"
+    },
+    "/f3/sorteos/3422": {
+      "pagina": "f3/sorteo-3422.html"
+    },
+    "/f1/quini6/sorteo-3424-del-dia-08-11-2026.htm": {
+      "pagina": "f1/sorteo-3424.html"
+    },
+    "/f2/sorteos/3424": {
+      "pagina": "f2/sorteo-3424.html"
+    },
+    "/f3/sorteos/3424": {
+      "pagina": "f3/prohibido-403.html",
+      "codigo": 403
+    },
+    "/f1/quini6/sorteo-3425-del-dia-11-11-2026.htm": {
+      "pagina": "f1/antirobots.html"
+    },
+    "/f2/sorteos/3425": {
+      "pagina": "f2/sorteo-3425.html"
+    },
+    "/f3/sorteos/3425": {
+      "pagina": "f3/sorteo-3425.html",
+      "demora": 15
+    },
+    "/f1/quini6/sorteo-3426-del-dia-15-11-2026.htm": {
+      "codigo": 500
+    },
+    "/f2/sorteos/3426": {
+      "codigo": 503
+    },
+    "/f3/sorteos/3426": {
+      "codigo": 503
+    },
+    "/f1/quini6/sorteo-3427-del-dia-18-11-2026.htm": {
+      "pagina": "f1/sorteo-3427.html"
+    },
+    "/f2/sorteos/3427": {
+      "pagina": "f2/sorteo-3427.html"
+    },
+    "/f3/sorteos/3427": {
+      "pagina": "f3/sorteo-3427.html"
+    },
+    "/f2/sorteos/3423": {
+      "pagina": "f2/error-500.html",
+      "codigo": 500
+    },
+    "/f3/sorteos/3423": {
+      "codigo": 404
+    },
+    "/f2/sorteos/2699": {
+      "pagina": "f2/sorteo-2699.html"
+    },
+    "/f2/sorteos/2700": {
+      "pagina": "f2/sorteo-2700.html"
+    },
+    "/f2/sorteos/2701": {
+      "pagina": "f2/sorteo-2701.html"
+    },
+    "/f2/sorteos/2702": {
+      "pagina": "f2/sorteo-2702.html"
+    }
+  }
+}

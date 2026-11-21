@@ -1,0 +1,10 @@
+{% load formato_ar %}<div id="avance-extraccion" class="mensaje mensaje--info" role="status" aria-live="polite"{% if avance.en_curso %} data-en-curso="1"{% endif %}>
+  <p><strong>Extracción en curso</strong></p>
+  <p>Período consultado: {{ extraccion.desde|fecha_ar }} al {{ extraccion.hasta|fecha_ar }}</p>
+  {% if avance.identificando %}
+    <p>Identificando los sorteos del período…</p>
+  {% else %}
+    <p id="avance-texto">{{ avance.procesados }} de {{ avance.total }} sorteos procesados</p>
+    {% if avance.total %}<progress class="barra-avance" value="{{ avance.procesados }}" max="{{ avance.total }}" aria-labelledby="avance-texto">{{ avance.procesados }} de {{ avance.total }}</progress>{% endif %}
+  {% endif %}
+</div>

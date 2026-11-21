@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "resultados",
     "jugadas",
     "estadisticas",
+    "extracciones",
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,9 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# [002] R-05, R-11: direcciones base de reemplazo de las fuentes, SOLO para el servidor de
+# fuentes de prueba (tests/fuentes_prueba). Vacías (None) → se usan las direcciones reales.
+QUINI6_FUENTES_URL_BASE = {
+    clave: (_env(f"QUINI6_FUENTE_{clave}_URL").strip() or None) for clave in ("F1", "F2", "F3")
+}

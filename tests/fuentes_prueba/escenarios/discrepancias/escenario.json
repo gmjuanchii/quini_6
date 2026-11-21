@@ -1,0 +1,83 @@
+{
+  "descripcion": "Discrepancias entre F2 y F3 (quickstart §5, escenario G): 3427 5.015 frente a 5.547,85, 12.060 frente a 12.060,13 y omisión del Primer Premio de Tradicional en F3; 3426 fechas distintas; 3425 números en F2 y premios en F3; 3424 solo en F2. F1 no publica listado (fuera de cobertura).",
+  "rutas": {
+    "/f2/sorteos": {
+      "pagina": "f2/listado.html"
+    },
+    "/f3/sorteos": {
+      "pagina": "f3/listado.html"
+    },
+    "/f2/sorteos/3416": {
+      "pagina": "f2/sorteo-3416.html"
+    },
+    "/f3/sorteos/3416": {
+      "pagina": "f3/sorteo-3416.html"
+    },
+    "/f2/sorteos/3417": {
+      "pagina": "f2/sorteo-3417.html"
+    },
+    "/f3/sorteos/3417": {
+      "pagina": "f3/sorteo-3417.html"
+    },
+    "/f2/sorteos/3418": {
+      "pagina": "f2/sorteo-3418.html"
+    },
+    "/f3/sorteos/3418": {
+      "pagina": "f3/sorteo-3418.html"
+    },
+    "/f2/sorteos/3419": {
+      "pagina": "f2/sorteo-3419.html"
+    },
+    "/f3/sorteos/3419": {
+      "pagina": "f3/sorteo-3419.html"
+    },
+    "/f2/sorteos/3420": {
+      "pagina": "f2/sorteo-3420.html"
+    },
+    "/f3/sorteos/3420": {
+      "pagina": "f3/sorteo-3420.html"
+    },
+    "/f2/sorteos/3421": {
+      "pagina": "f2/sorteo-3421.html"
+    },
+    "/f3/sorteos/3421": {
+      "pagina": "f3/sorteo-3421.html"
+    },
+    "/f2/sorteos/3422": {
+      "pagina": "f2/sorteo-3422.html"
+    },
+    "/f3/sorteos/3422": {
+      "pagina": "f3/sorteo-3422.html"
+    },
+    "/f2/sorteos/3423": {
+      "pagina": "f2/sorteo-3423.html"
+    },
+    "/f3/sorteos/3423": {
+      "pagina": "f3/sorteo-3423.html"
+    },
+    "/f2/sorteos/3424": {
+      "pagina": "f2/sorteo-3424.html"
+    },
+    "/f3/sorteos/3424": {
+      "codigo": 404
+    },
+    "/f2/sorteos/3425": {
+      "pagina": "f2/sorteo-3425.html"
+    },
+    "/f3/sorteos/3425": {
+      "pagina": "f3/sorteo-3425.html"
+    },
+    "/f2/sorteos/3426": {
+      "pagina": "f2/sorteo-3426.html"
+    },
+    "/f3/sorteos/3426": {
+      "pagina": "f3/sorteo-3426.html"
+    },
+    "/f2/sorteos/3427": {
+      "pagina": "f2/sorteo-3427.html"
+    },
+    "/f3/sorteos/3427": {
+      "pagina": "f3/sorteo-3427.html"
+    }
+  }
+}

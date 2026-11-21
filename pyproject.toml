@@ -22,7 +22,17 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["quini6", "dominio", "cuentas", "resultados", "jugadas", "estadisticas"]
+packages = [
+    "quini6",
+    "dominio",
+    "dominio.extraccion",
+    "cuentas",
+    "resultados",
+    "jugadas",
+    "estadisticas",
+    "extracciones",
+    "extracciones.fuentes",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "quini6.settings"
@@ -33,7 +43,7 @@ filterwarnings = ["ignore:No directory at:UserWarning"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-extend-exclude = [".venv", "*/migrations/*"]
+extend-exclude = [".venv", "*/migrations/*", ".specify"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
