@@ -299,6 +299,26 @@ def orden_categorias(modalidad: Modalidad, codigos) -> list[str]:
     return esperadas + extra
 
 
+#: [002] RN-26: aciertos válidos de la categoría ganadora de Premio Extra.
+ACIERTOS_VALIDOS_PREMIO_EXTRA = (6, 5, 4, SIN_GANADORES)
+
+
+def viola_rn_26(modalidad: Modalidad, codigo: str, campo: str, dato: Dato) -> bool:
+    """[002] RN-26, D-29: el dato de la categoría ganadora no es válido. Siempre Sale tiene entre
+    0 y 6 aciertos y al menos un ganador; Premio Extra, 6, 5, 4 o "Sin ganadores" aciertos. Un
+    dato sin valor no viola el control."""
+    if codigo != "GANADORA" or not isinstance(dato, Valor):
+        return False
+    if modalidad is Modalidad.SIEMPRE_SALE:
+        if campo == "aciertos":
+            return not (isinstance(dato.v, int) and 0 <= dato.v <= 6)
+        if campo == "ganadores":
+            return dato.v < 1
+    if modalidad is Modalidad.PREMIO_EXTRA and campo == "aciertos":
+        return dato.v not in ACIERTOS_VALIDOS_PREMIO_EXTRA
+    return False
+
+
 # ---------------------------------------------------------------------------
 # Salida de los intérpretes (solo textos sin interpretar)
 # ---------------------------------------------------------------------------

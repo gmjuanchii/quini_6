@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% load formato_ar %}
-{% block titulo %}Concurso N.º {{ concurso.numero }}{% endblock %}
+{% load formato_ar ui %}
+{% block titulo %}Sorteo N.º {{ concurso.numero }}{% endblock %}
 {% block contenido %}
-<p><a href="/resultados/">← Resultados</a></p>
-<div class="fila-flex">
-  <h1>Concurso N.º {{ concurso.numero }}</h1>
+{% msg "nav.volver_sorteos" as t %}{% include "ui/_volver.html" with href="/resultados/" texto=t %}
+<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+  <h1>Sorteo N.º {{ concurso.numero }}</h1>
   <span class="estado {% if vista.completitud == 'COMPLETO' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ vista.texto_completitud }}</span>
 </div>
 <p>Sorteo del {{ concurso.fecha_sorteo|fecha_ar }}</p>
 {% if admite_jugadas %}
-  <p><a class="boton" href="/mis-jugadas/nueva/?concurso={{ concurso.numero }}">Registrar una jugada</a></p>
+  <p><a class="{% clases 'boton' variante='principal' %}" href="/mis-jugadas/nueva/?concurso={{ concurso.numero }}">Registrar una jugada</a></p>
 {% endif %}
 
 {% for m in vista.modalidades %}
   {% include "resultados/_modalidad.html" %}
 {% empty %}
-  <div class="vacio"><p>Este concurso no tiene modalidades aplicables.</p></div>
+  <div class="rounded-card bg-surface px-6 py-8 text-center text-muted-foreground shadow-1"><p>Este sorteo no tiene modalidades aplicables.</p></div>
 {% endfor %}
 {% endblock %}

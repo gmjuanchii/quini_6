@@ -1,0 +1,44 @@
+/*
+ * QUINI_6 — estilos de Next.js ([003] R-02, R-04). Los mismos tokens, capa base y componentes del
+ * dominio que Django (ui/): el mismo aspecto en ambas interfaces por construcción (CHK013).
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../../../ui/tokens.css";
+@import "../../../ui/base.css";
+@import "../../../ui/dominio.css";
+
+@source "../../../ui/variantes.json";
+
+/*
+ * NFR-007: versión sin scripts (contracts/componentes.md § 4). `html.js` lo pone un script en
+ * <head> antes de pintar (sin corrimientos, NFR-004), igual que templates/base.html.
+ */
+@layer components {
+  html.js .solo-sin-scripts {
+    display: none !important;
+  }
+  html:not(.js) .solo-con-scripts {
+    display: none !important;
+  }
+  @media (max-width: 767.98px) {
+    html.js .nav-q:not([data-abierta]) {
+      display: none;
+    }
+  }
+  /* AccountMenu: panel desplegable con scripts; sin scripts, siempre visible (AC-5.3). */
+  html.js .menu-cuenta-q:not([data-abierto]) {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    html.js .menu-cuenta-q {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      z-index: 40;
+      padding-top: 0.25rem;
+    }
+  }
+}

@@ -300,6 +300,48 @@ description: "Lista de tareas de la feature 002: Extracción histórica de sorte
 
 ---
 
+## Fase 15: Importes que difieren en menos de un peso (Clarifications 23/11/2026, D-28)
+
+**Propósito**: que dos fuentes que redondean o quitan los centavos de un mismo importe coincidan (sorteo 2918).
+
+- [x] T115 Actualizar `spec.md` (Clarifications 2026-11-23, D-28; RN-30, AC-4.5, NFR-007; nuevo AC-4.12) y `research.md` (R-17)
+- [x] T116 [US4] En `dominio/extraccion/consolidacion.py`: dos importes coinciden si difieren en menos de $ 1,00 (también al agrupar la mayoría de D-21), el consolidado toma el prioritario sin centavos con nota informativa si los tenía, y la tolerancia del 1 % se mide sin centavos (RN-30, D-28)
+- [x] T117 [US4] Actualizar las pruebas de RN-30 y D-21 en `tests/unit/extraccion/test_consolidacion.py` y agregar AC-4.12; `ruff check .` y `pytest` en verde
+
+---
+
+## Fase 16: Valores inválidos y pozo de Pozo Extra (Clarifications 23/11/2026, D-29 y D-30)
+
+**Propósito**: que dos fuentes con un dato inválido no ganen la coincidencia de 2 de 3 y que el texto fijo de F1 no se tome como pozo de Pozo Extra (sorteo 3425).
+
+- [x] T118 Actualizar `spec.md` (Clarifications 2026-11-23, D-29 y D-30; RN-07, RN-17, RN-26; nuevos AC-4.13 y AC-4.14), `contracts/fuentes.md` y `quickstart.md`
+- [x] T119 [US4] En `dominio/extraccion/consolidacion.py`: un aciertos o ganadores de la categoría ganadora que viola RN-26 se descarta, junto con los importes de esa categoría en la misma fuente; si otra fuente aporta el valor válido, la observación de dato inválido pasa a ser informativa (D-29). El control de RN-26 queda en `dominio/extraccion/tipos.py` y lo usan la normalización y la consolidación
+- [x] T120 [US3] En `extracciones/fuentes/fichas.py`: F1 no publica el pozo de Pozo Extra (D-30)
+- [x] T121 Pruebas de AC-4.13 y AC-4.14 en `tests/unit/extraccion/test_consolidacion.py` y actualizar las de RN-17 con el texto de F1; `ruff check .` y `pytest` en verde
+
+---
+
+## Fase 17: Puntos de miles mal puestos (Clarifications 23/11/2026, D-31)
+
+**Propósito**: que «1.0867.330» (sorteo 3383) y «2.57.2821.792» (sorteo 3415) se corrijan en vez de quedar "No disponible".
+
+- [x] T122 Actualizar `spec.md` (Clarifications 2026-11-23, D-31; RN-16; nuevo AC-3.19), `research.md` y `contracts/mensajes.md`
+- [x] T123 [US3] En `dominio/extraccion/normalizacion.py` (`corregir_importe_mal_cargado`): reagrupar en tríos desde la derecha la parte entera con puntos mal puestos y último grupo de tres dígitos, conservando los decimales, después de D-18 y D-20 (RN-16, D-31)
+- [x] T124 [US3] Casos de D-31 en `tests/unit/extraccion/test_importe_fuente.py` y AC-3.19 en `tests/unit/extraccion/test_normalizacion.py`; `ruff check .` y `pytest` en verde
+
+---
+
+## Fase 18: Coma en todos los separadores y enlaces a las fuentes (Clarifications 23/11/2026, D-32 y D-33)
+
+**Propósito**: que «494,443,71» (sorteo 3398, Tradicional, Segundo Premio) se corrija en vez de quedar "No disponible", y que el cotejo manual se haga desde las direcciones de "Fuentes consultadas" en lugar del enlace al extracto oficial.
+
+- [x] T125 Actualizar `spec.md` (Clarifications 2026-11-23, D-32 y D-33; RN-16, FR-007, AC-1.12, AC-1.13, AC-3.8; nuevo AC-3.20), `research.md`, `quickstart.md` y `contracts/` (`mensajes.md` sin `ext.enlace_oficial`, `fuentes.md` F0, `rutas.md`), y `specs/003-modernizacion-ui-ux/contracts/api.md` sin `enlace_oficial`
+- [x] T126 [US3] En `dominio/extraccion/normalizacion.py` (`corregir_importe_mal_cargado`): con dos o más comas, ningún punto y dos dígitos después de la última, esos dígitos son los decimales y el resto la parte entera, después de D-18, D-20 y D-31 (RN-16, D-32)
+- [x] T127 [US1] Quitar el enlace al extracto oficial (`extracciones/fuentes/fichas.py`, `extracciones/consultas.py`, `extracciones/api.py`, `dominio/mensajes.py`) y mostrar cada dirección consultada como enlace en una pestaña nueva en `templates/extracciones/sorteo.html` y en la página de Next.js del sorteo; `manage.py exportar_contratos` y `npm run api:tipos -w frontend` (FR-007, AC-1.13, D-33)
+- [x] T128 Casos de D-32 en `tests/unit/extraccion/test_importe_fuente.py`, AC-3.20 en `test_normalizacion.py` y `test_clasificacion.py` con las copias reales del 3398, AC-3.8 con «1,234,567» (también en la variante `f2/variantes/sorteo-3426-normalizacion.html`) y AC-1.13 en `tests/integration/test_extraccion_us1.py`; `ruff check .`, `pytest` y `lint`/`typecheck`/`test` de `frontend/` en verde
+
+---
+
 ## Dependencias y orden de ejecución
 
 ### Dependencias entre fases

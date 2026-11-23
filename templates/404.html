@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block titulo %}Página inexistente{% endblock %}
+{% load ui %}
+{% block titulo %}{% msg "gral.titulo_pagina_inexistente" %}{% endblock %}
 {% block contenido %}
-<h1>Página inexistente</h1>
-<p class="mensaje mensaje--error">{{ mensaje|default:"La página que buscás no existe" }}</p>
-<p><a href="/resultados/">Volver a los resultados</a></p>
+<h1>{% msg "gral.titulo_pagina_inexistente" %}</h1>
+<div class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<p class="m-0 min-w-0 flex-1">{% if mensaje %}{{ mensaje }}{% else %}{% msg "gral.pagina_inexistente" %}{% endif %}</p></div>
+<p><a href="/resultados/">{% msg "gral.volver_resultados" %}</a></p>
 {% endblock %}

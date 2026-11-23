@@ -1,0 +1,21 @@
+{% load ui %}{% comment %}
+EmptyState ([003] contracts/componentes.md, RN-06, AC-8.1 a AC-8.4, FR-025, FR-026).
+Parámetros: variante ("sin_datos" | "sin_resultados"), icono (decorativo; "filter-x" por defecto en
+sin_resultados), titulo (encabezado h2), explicacion, nota (opcional), y la acción:
+  - sin_datos: accion_texto + accion_href (solo si el perfil la tiene permitida) y, opcional,
+    accion2_texto + accion2_href (secundaria);
+  - sin_resultados: limpiar_href ("Limpiar filtros": la dirección sin parámetros).
+{% endcomment %}<div class="{% clases 'vacio' variante=variante|default:'sin_datos' %}" data-estado-vacio="{{ variante|default:'sin_datos' }}" data-icono-vacio="{% if variante == 'sin_resultados' %}{{ icono|default:'filter-x' }}{% else %}{{ icono|default:'info' }}{% endif %}">
+  <span class="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">{% if variante == "sin_resultados" %}{% icono icono|default:"filter-x" clase="size-8" %}{% else %}{% icono icono|default:"info" clase="size-8" %}{% endif %}</span>
+  <h2 class="m-0 text-xl font-semibold">{{ titulo }}</h2>
+  {% if explicacion %}<p class="m-0 max-w-prose text-muted-foreground">{{ explicacion }}</p>{% endif %}
+  {% if variante == "sin_resultados" %}
+    {% if limpiar_href %}{% msg "vacio.filtro.accion" as limpiar %}<div class="mt-2">{% include "ui/_boton.html" with href=limpiar_href texto=limpiar variante="secundario" icono="filter-x" %}</div>{% endif %}
+  {% elif accion_texto or accion2_texto %}
+    <div class="mt-2 flex flex-wrap justify-center gap-3">
+      {% if accion_texto %}{% include "ui/_boton.html" with href=accion_href texto=accion_texto variante="principal" icono=accion_icono|default:"plus" extra="" %}{% endif %}
+      {% if accion2_texto %}{% include "ui/_boton.html" with href=accion2_href texto=accion2_texto variante="secundario" icono="" %}{% endif %}
+    </div>
+  {% endif %}
+  {% if nota %}<p class="m-0 max-w-prose text-sm text-muted-foreground">{{ nota }}</p>{% endif %}
+</div><!-- /estado-vacio -->

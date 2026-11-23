@@ -10,6 +10,7 @@ from django.apps import apps
 from django.core import serializers
 
 from dominio.extraccion.tipos import Fuente
+from dominio.mensajes import mensaje
 from dominio.tipos import Modalidad
 from jugadas.models import Jugada
 from resultados.models import RegistroCambio
@@ -70,8 +71,8 @@ def test_sc_004_y_ac_6_3_a_6_5_la_extraccion_no_toca_la_aplicacion(cliente_admin
 
     # AC-6.3: el 3426 sigue sin existir en la aplicación.
     inexistente = cliente_a.get("/resultados/buscar/?numero=3426").content.decode()
-    assert "No hay información del concurso N.º 3426" in inexistente
-    assert "Concurso N.º 3426" not in pagina(cliente_admin, "/administracion/concursos/")
+    assert mensaje("resultados.concurso_inexistente", N=3426) in inexistente
+    assert "N.º 3426" not in pagina(cliente_admin, "/administracion/concursos/")
     # AC-6.4: el 3425 publicado se muestra igual, sin corrección ni revisión.
     publico_despues = pagina(cliente_a, "/resultados/3425/")
     assert publico_despues == publico_antes

@@ -10,10 +10,11 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
+from dominio.mensajes import MENSAJES
 from dominio.tipos import Numeros
 
 NUMEROS_POSIBLES = range(46)
-PERIODO_INVALIDO = "La fecha desde no puede ser posterior a la fecha hasta. Corregí el período."
+PERIODO_INVALIDO = MENSAJES["est.periodo_invalido"]
 
 
 @dataclass(frozen=True)

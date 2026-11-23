@@ -164,6 +164,16 @@ def _q_publicado() -> Q:
     )
 
 
+def fecha_primer_sorteo_publicado() -> date | None:
+    """Fecha del sorteo publicado más antiguo, para el atajo "Todo el historial" ([003] RN-04)."""
+    return (
+        Concurso.objects.filter(_q_publicado())
+        .order_by("fecha_sorteo")
+        .values_list("fecha_sorteo", flat=True)
+        .first()
+    )
+
+
 def ultimos_resultados() -> tuple[Concurso | None, Concurso | None]:
     """RN-25: (concurso de "últimos resultados", concurso actual pendiente)."""
     orden = ("-fecha_sorteo", "-numero")

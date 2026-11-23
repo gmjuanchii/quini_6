@@ -226,14 +226,15 @@ def test_ac_4_1_gramatica_de_discrepancias():
 
 
 def test_datos_sin_corroborar_y_observaciones_con_fuente():
-    s = sorteo(3426, intento(datos_reales(F1)), intento(datos_reales(F2)))
+    """Los aciertos de Pozo Extra solo los publica numerosganadores.com.ar. El pozo de Pozo Extra
+    se calcula con datos corroborados y no lleva la marca (D-30)."""
+    aviso = Observacion("obs.x", "Aviso de prueba", F1, modalidad=Modalidad.PREMIO_EXTRA)
+    f1 = replace(datos_reales(F1), observaciones=(aviso,))
+    s = sorteo(3426, intento(f1), intento(datos_reales(F2)))
     datos = filas(generar_csv([s], procedencia(3426)))
     extra = next(f for f in datos if f["modalidad"] == "Pozo Extra")
-    assert "pozo_destinado" in extra["datos_sin_corroborar"].split("; ")
-    assert (
-        "quini-6-resultados.com.ar: Pozo Extra publicado como «55 millones de pesos»"
-        in extra["observaciones"]
-    )
+    assert extra["datos_sin_corroborar"].split("; ") == ["aciertos"]
+    assert "quini-6-resultados.com.ar: Aviso de prueba" in extra["observaciones"]
 
 
 def test_ac_5_9_proteccion_contra_formulas():

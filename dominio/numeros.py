@@ -9,6 +9,7 @@ import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.tipos import Numeros
 
 MINIMO = 0
@@ -103,20 +104,20 @@ def conjunto_premio_extra(
 def mensaje_error(error: ErrorNumero) -> str:
     """Texto visible de cada error (contracts/mensajes.md, "Jugadas")."""
     if error.codigo == "FALTAN_N":
-        return f"Te faltan {error.cantidad} números"
+        return mensaje("jugada.faltan", n=error.cantidad)
     if error.codigo == "SOBRAN":
-        return "La jugada admite exactamente seis números"
+        return MENSAJES["jugada.exactamente_seis"]
     if error.codigo == "REPETIDO":
-        return f"El {formatear(error.numero or 0)} ya está en tu jugada"
-    return "Ingresá un número entre 00 y 45"
+        return mensaje("jugada.repetido", nn=formatear(error.numero or 0))
+    return MENSAJES["jugada.fuera_de_rango"]
 
 
 def mensaje_error_extraccion(error: ErrorNumero) -> str:
     """Texto visible de cada error al cargar una extracción (AC-2.3)."""
     if error.codigo == "FALTAN_N":
-        return f"Faltan {error.cantidad} números: la extracción tiene exactamente seis números"
+        return f"Faltan {error.cantidad} números: los números sorteados son exactamente seis"
     if error.codigo == "SOBRAN":
-        return "La extracción tiene exactamente seis números"
+        return "Los números sorteados son exactamente seis"
     if error.codigo == "REPETIDO":
-        return f"El {formatear(error.numero or 0)} está repetido en la extracción"
-    return "Ingresá números entre 00 y 45"
+        return mensaje("admin.numero_repetido", nn=formatear(error.numero or 0))
+    return MENSAJES["admin.numeros_rango"]

@@ -1,0 +1,12 @@
+{% load formato_ar ui %}{% comment %}
+Fila del listado de extracciones ([003] AC-1.1, AC-1.3, AC-2.1). [003] AC-9.3, AC-9.4: tarjeta rotulada
+en el teléfono y fila entera clicable ("Ver detalle →" estirado), salvo el menú ⋮. Mientras la extracción está en curso,
+se actualiza sola cada 3 s con HTMX (R-10); al terminar, la respuesta ya no trae el disparador.
+{% endcomment %}<tr id="fila-extraccion-{{ e.pk }}" class="fila-enlace{% if e.etiqueta.requiere_revision %} border-l-4 {% if e.etiqueta.variante == 'danger' %}border-l-danger{% else %}border-l-warning{% endif %}{% endif %}"{% if e.en_curso %} hx-get="/administracion/extracciones/{{ e.pk }}/?fila=1" hx-trigger="every 3s" hx-swap="outerHTML"{% endif %}{% if e.etiqueta.requiere_revision %} data-requiere-revision{% endif %}>
+  <td data-rotulo="Fecha" class="cifras !text-left">{{ e.iniciada_en|fecha_hora_ar }}{% if e.etiqueta.requiere_revision %}<span class="visualmente-oculto"> · {% msg "ext.requiere_revision" %}</span>{% endif %}</td>
+  {# [003] FR-030: el correo largo se recorta a la vista con su texto completo en title y para lectores. #}
+  <td data-rotulo="Ejecutada por"><span class="block max-w-[12rem] truncate max-md:max-w-full" title="{{ e.creada_por.email }}">{{ e.creada_por.email }}</span></td>
+  <td data-rotulo="Período" class="cifras !text-left">{{ e.desde|fecha_ar }} al {{ e.hasta|fecha_ar }}</td>
+  <td data-rotulo="Estado"><span class="sobre-fila inline-block">{% include "ui/_insignia_estado.html" with etiqueta=e.etiqueta id=e.pk %}</span></td>
+  <td class="whitespace-nowrap md:text-right"><div class="flex items-center justify-between gap-2 md:justify-end"><a href="/administracion/extracciones/{{ e.pk }}/" data-enlace-fila class="ver-detalle text-sm font-medium text-primary no-underline hover:underline">{% msg "ext.ver_detalle" %}</a><span class="sobre-fila">{% include "ui/_menu_acciones.html" with nombre=e.nombre_acciones opciones=e.acciones %}</span></div></td>
+</tr>

@@ -60,16 +60,30 @@ def test_negativo_es_error():
     ("1.410.1156,2", Decimal("1410115.62")),
     ("410.1156", Decimal("410115.60")),
     ("4101156,25", None),  # sin puntos: no es la forma corregible
-    ("494,443,71", None),  # RN-16: sigue sin reconocerse
+    ("494,443,71", Decimal("494443.71")),  # sorteo 3398, las tres fuentes (D-32)
+    ("$ 494,443,71", Decimal("494443.71")),
+    ("1,278,143,11", Decimal("1278143.11")),  # D-32: más de dos comas
+    ("1,234,567", None),  # D-32: el último grupo no tiene dos dígitos
+    ("494,443,7", None),
     ("410.11567,25", None),
     ("12.060,13", None),  # formato válido: no se corrige
     ("1.278.143,114", Decimal("1278143.11")),  # sorteo 3250 (D-20)
     ("$ 1.278.143,115", Decimal("1278143.12")),  # mitad hacia arriba
     ("6407,9749", Decimal("6407.97")),  # cuatro decimales, sin separador de miles
     ("410.1156,254", Decimal("410115.63")),  # D-18 y D-20 a la vez
-    ("1.27.143,114", None),  # la parte entera sigue siendo inválida
+    ("1.27.143,114", Decimal("127143.11")),  # D-31 y D-20 a la vez
+    ("1.0867.330", Decimal("10867330")),  # sorteo 3383 (D-31): sin centavos agregados
+    ("$ 1.0867.330,29", Decimal("10867330.29")),  # sorteo 3383, F1: decimales conservados
+    ("2.57.2821.792", Decimal("2572821792")),  # sorteo 3415 (D-31)
+    ("$ 2472.996,80", Decimal("2472996.80")),  # sorteo 3230, F1 (D-31)
+    ("3.0000", Decimal("3000.00")),  # sorteo 3339: D-18 tiene prioridad sobre D-31
+    ("1.959.871274", None),  # último grupo de seis dígitos: no es la forma corregible
+    ("6.114.53", None),  # último grupo de dos dígitos
+    ("1.234.567", None),  # formato válido: no se corrige
 ])  # fmt: skip
 def test_ac_3_16_correccion_de_importe_mal_cargado(texto, esperado):
     """[002] RN-16: cuatro dígitos en el último grupo → coma un lugar a la izquierda (D-18);
-    tres o más decimales (D-20). Siempre redondeo a centavos, mitad hacia arriba."""
+    tres o más decimales (D-20); puntos de miles mal puestos → tríos desde la derecha (D-31);
+    coma en todos los separadores → los dos últimos dígitos son los decimales (D-32).
+    Con decimales, redondeo a centavos, mitad hacia arriba."""
     assert corregir_importe_mal_cargado(texto) == esperado

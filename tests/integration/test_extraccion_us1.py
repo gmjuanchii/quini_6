@@ -3,14 +3,17 @@
 Sin internet: el trabajador usa ``ClienteHttpFalso`` con páginas armadas desde copias reales.
 """
 
+import re
 from datetime import date
 
 import pytest
 from django.test import Client
 
 from dominio.extraccion.tipos import Fuente
+from dominio.mensajes import MENSAJES, mensaje
 from extracciones import servicios
 from extracciones.models import Extraccion
+from quini6.templatetags.formato_ar import fecha_hora_ar
 from tests.extraccion_falsos import (
     HOY,
     cliente_con_sorteos,
@@ -70,8 +73,9 @@ def test_ac_1_1_acceso_y_pantalla(cliente_admin):
 
 @pytest.mark.parametrize("inicio, fin, mensaje", [
     ("15/11/2026", "01/11/2026", "La fecha de inicio no puede ser posterior a la fecha de finalización"),  # noqa: E501
-    ("", "15/11/2026", "Ingresá una fecha válida (dd/mm/aaaa)"),
-    ("31/02/2026", "15/11/2026", "Ingresá una fecha válida (dd/mm/aaaa)"),
+    # [003] AC-4.5, FR-012: junto al campo, el mensaje concreto (antes, el genérico de formato).
+    ("", "15/11/2026", MENSAJES["fecha.falta_inicio"]),
+    ("31/02/2026", "15/11/2026", mensaje("fecha.inexistente", fecha="31/02/2026")),
     ("01/11/2026", "20/11/2026", "La fecha de finalización no puede ser posterior a hoy"),
     ("01/11/2025", "01/11/2026", "El período no puede superar los 12 meses"),
 ])  # fmt: skip
@@ -186,8 +190,13 @@ def test_ac_1_12_y_1_13_detalle_del_sorteo(cliente_admin):
     assert "19/11/2026 10:15" in texto  # fecha y hora de la consulta, en Buenos Aires
     assert "<h2>Tradicional</h2>" in texto and "01, 02, 10, 13, 38, 39" in texto
     assert "$ 1.100.000.000,00" in texto and "Sin corroborar" in texto
-    assert "Ver extracto oficial (Lotería de Santa Fe)" in texto
-    assert 'target="_blank" rel="noopener noreferrer"' in texto
+    # D-33: sin el enlace al extracto oficial; cada dirección consultada es un enlace a la página
+    # de la fuente, en una pestaña nueva.
+    assert "Ver extracto oficial" not in texto
+    assert (
+        '<a class="break-all" href="https://numerosganadores.com.ar/sorteos/3426" '
+        'target="_blank" rel="noopener noreferrer">https://numerosganadores.com.ar/sorteos/3426</a>'
+    ) in texto
     # D-23: las fuentes solo figuran en "Fuentes consultadas", no junto a cada dato.
     assert 'data-rotulo="Fuentes"' not in texto
     assert "(numerosganadores.com.ar" not in texto
@@ -206,7 +215,11 @@ def test_ac_1_14_y_1_15_extracciones_anteriores_y_otro_administrador(cliente_adm
     texto = html(otro.get(INICIO))
     assert "Extracciones anteriores" in texto
     assert texto.index("01/11/2026 al 15/11/2026") < texto.index("01/10/2026 al 31/10/2026")
-    assert admin.email in texto and "Extracción finalizada" in texto
+    # [003] AC-1.1: el listado muestra la etiqueta corta (RN-01); el texto completo de RN-33 queda
+    # en el detalle ("Relación con las especificaciones 001 y 002" de la spec 003).
+    assert admin.email in texto
+    etiquetas = (MENSAJES["etiqueta.finalizada"], MENSAJES["etiqueta.con_advertencias"])
+    assert any(f">{etiqueta}<" in texto for etiqueta in etiquetas)
     reciente = Extraccion.objects.order_by("-iniciada_en", "-id").first()
     assert otro.get(f"{INICIO}{reciente.pk}/").status_code == 200
     assert otro.get(f"{INICIO}{reciente.pk}/sorteos/3422/").status_code == 200
@@ -222,7 +235,7 @@ def test_numero_que_no_pertenece_a_la_extraccion_da_404(cliente_admin):
     extraccion = Extraccion.objects.get()
     respuesta = cliente_admin.get(f"{INICIO}{extraccion.pk}/sorteos/3427/")
     assert respuesta.status_code == 404
-    assert "La página que buscás no existe" in html(respuesta)
+    assert MENSAJES["gral.pagina_inexistente"] in html(respuesta)
     assert cliente_admin.get(f"{INICIO}999/").status_code == 404
 
 
@@ -238,7 +251,9 @@ def test_ac_1_20_campos_de_fecha_con_calendario(cliente_admin):
     """D-25, D-27: ``type="date"`` sin días futuros (calendario nativo en el ícono), sin script que
     lo abra al hacer clic (tomaba las teclas) y fechas AAAA-MM-DD o dd/mm/aaaa."""
     texto = html(cliente_admin.get(INICIO))
-    assert texto.count('type="date"') == 2 and texto.count('max="2026-11-19"') == 2
+    # [003] FR-010: el calendario de rango también lleva el máximo; se cuentan los campos.
+    campos = [c for c in texto.split("<input")[1:] if 'type="date"' in c.split(">")[0]]
+    assert len(campos) == 2 and all('max="2026-11-19"' in c.split(">")[0] for c in campos)
     assert "data-calendario" not in texto and "selector-fecha.js" not in texto
     respuesta = cliente_admin.post(INICIO, {"inicio": "2026-11-01", "fin": "2026-11-15"})
     assert respuesta.status_code == 303
@@ -254,7 +269,9 @@ def test_ac_1_14_columna_fecha_y_menu_de_acciones(cliente_admin):
     iniciar(cliente_admin)
     en_curso = Extraccion.objects.exclude(pk=terminada.pk).get()
     texto = html(cliente_admin.get(INICIO))
-    assert '<th scope="col">Fecha</th>' in texto and '<th scope="col">Inicio</th>' not in texto
+    # [003] AC-9.1: el encabezado "Fecha" es ahora un enlace para ordenar.
+    assert re.search(r'<th scope="col"[^>]*>\s*(<a [^>]*>)?Fecha', texto)
+    assert not re.search(r'<th scope="col"[^>]*>\s*(<a [^>]*>)?Inicio', texto)
     assert f'href="{INICIO}{terminada.pk}/eliminar/"' in texto
     assert f'href="{INICIO}{en_curso.pk}/eliminar/"' not in texto
     assert 'aria-label="Acciones de la extracción del' in texto
@@ -269,10 +286,17 @@ def test_ac_1_18_eliminar_extraccion_terminada(cliente_admin, admin):
     confirmacion = otro.get(f"{INICIO}{extraccion.pk}/eliminar/")
     texto = html(confirmacion)
     assert confirmacion.status_code == 200 and confirmacion["Cache-Control"] == "no-store"
+    # [003] AC-2.3 (HU-02): la confirmación nombra la extracción y aclara qué se pierde.
+    confirmar = mensaje(
+        "ext.eliminar_confirmar",
+        fecha_hora=fecha_hora_ar(extraccion.iniciada_en),
+        desde="01/11/2026",
+        hasta="15/11/2026",
+    )
     for esperado in (
         "Eliminar extracción",
-        "¿Querés eliminar esta extracción? Se borran su resumen, el detalle de sus sorteos y su "
-        "archivo CSV. Esta acción no se puede deshacer.",
+        confirmar,
+        MENSAJES["ext.eliminar_consecuencias"],
         "01/11/2026 al 15/11/2026",
         admin.email,
         "Cancelar",
@@ -281,13 +305,16 @@ def test_ac_1_18_eliminar_extraccion_terminada(cliente_admin, admin):
     assert Extraccion.objects.count() == 1  # el GET no elimina
     respuesta = otro.post(f"{INICIO}{extraccion.pk}/eliminar/")
     assert respuesta.status_code == 303 and respuesta["Location"] == INICIO
-    assert "Extracción eliminada" in html(otro.get(INICIO))
+    momento = fecha_hora_ar(extraccion.iniciada_en)
+    assert mensaje("ext.eliminada", fecha_hora=momento) in html(otro.get(INICIO))  # [003] AC-2.5
     assert not Extraccion.objects.exists()
     from extracciones.models import IntentoConsulta, SorteoExtraido
 
     assert not SorteoExtraido.objects.exists() and not IntentoConsulta.objects.exists()
-    for ruta in ("", "sorteos/3422/", "csv/", "eliminar/"):
+    for ruta in ("", "sorteos/3422/", "csv/"):
         assert otro.get(f"{INICIO}{extraccion.pk}/{ruta}").status_code == 404
+    # [003] Casos límite: eliminar una que ya no existe avisa y vuelve al listado.
+    assert otro.get(f"{INICIO}{extraccion.pk}/eliminar/")["Location"] == INICIO
 
 
 def test_ac_1_19_no_se_elimina_una_extraccion_en_curso(cliente_admin):

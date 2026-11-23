@@ -1,0 +1,6 @@
+{% load ui %}{% comment %}
+Button ([003] contracts/componentes.md). Parámetros: texto (obligatorio, ya resuelto con {% msg %}),
+variante (principal | secundario | destructivo | fantasma | enlace), tamano (md | sm), icono, href
+(si se pasa, es un enlace), tipo (submit | button), nombre y valor, id, extra (clases adicionales),
+texto_trabajando (estado de trabajo, FR-034), autofocus, etiqueta (nombre accesible distinto del texto).
+{% endcomment %}{% if href %}<a href="{{ href }}" class="{% clases 'boton' variante=variante|default:'principal' tamano=tamano extra=extra %}"{% if id %} id="{{ id }}"{% endif %}{% if etiqueta %} aria-label="{{ etiqueta }}"{% endif %}>{% if icono %}{% icono icono %}{% endif %}<span>{{ texto }}</span></a>{% else %}<button type="{{ tipo|default:'submit' }}" class="{% clases 'boton' variante=variante|default:'principal' tamano=tamano extra=extra %}"{% if id %} id="{{ id }}"{% endif %}{% if nombre %} name="{{ nombre }}" value="{{ valor }}"{% endif %}{% if texto_trabajando %} data-texto-trabajando="{{ texto_trabajando }}"{% endif %}{% if autofocus %} autofocus{% endif %}{% if etiqueta %} aria-label="{{ etiqueta }}"{% endif %}>{% if icono %}{% icono icono %}{% endif %}<span data-texto-boton>{{ texto }}</span></button>{% endif %}

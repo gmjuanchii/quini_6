@@ -9,10 +9,12 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
+from django.db.models import Case, Exists, F, IntegerField, OuterRef, Q, QuerySet, Value, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from dominio.extraccion.clasificacion import NO_INFORMADA
+from dominio.extraccion.etiqueta import EtiquetaEstado, etiqueta_de
 from dominio.extraccion.tipos import (
     MODALIDADES_PROPIAS,
     ORDEN_FUENTES,
@@ -25,10 +27,11 @@ from dominio.extraccion.tipos import (
     nombre_categoria,
     nombre_modalidad,
 )
+from dominio.mensajes import mensaje
 from dominio.tipos import ORDEN_MODALIDADES
-from extracciones.fuentes.fichas import enlace_extracto_oficial
 from extracciones.models import Extraccion, SorteoExtraido
 from extracciones.serializacion import observaciones_de_json, sorteo_de_json
+from quini6.tablas import Pagina, paginar
 
 _CLASE_ESTADO_SORTEO = {
     EstadoSorteo.RECUPERADO.value: "estado--con-premio",
@@ -48,7 +51,7 @@ _CLASE_RESULTADO = {
     ResultadoIntento.NO_REQUERIDA.value: "estado--sin-premio",
     ResultadoIntento.INCOMPLETO.value: "estado--pendiente",
 }
-_CAMPOS = (
+CAMPOS_PREMIO = (
     ("aciertos", "Aciertos"),
     ("ganadores", "Ganadores"),
     ("pozo_destinado", "Pozo destinado"),
@@ -117,22 +120,137 @@ def consolidado_para_pantalla(d: DatoConsolidado) -> dict:
 # -- Extracciones ---------------------------------------------------------------
 
 
-def listado_extracciones():
-    """AC-1.14: de la más reciente a la más antigua, con quién la ejecutó."""
-    return Extraccion.objects.select_related("creada_por").order_by("-iniciada_en", "-id")
+_EN_CURSO = EstadoExtraccion.EN_CURSO.value
+_FINALIZADA = EstadoExtraccion.FINALIZADA.value
+_CON_ADVERTENCIAS = EstadoExtraccion.CON_ADVERTENCIAS.value
+_SIN_SORTEOS = EstadoExtraccion.SIN_SORTEOS.value
+
+#: [003] R-08: condición del ORM de cada etiqueta (sobre la anotación ``tiene_no_recuperados``).
+_FILTRO_ETIQUETA = {
+    EtiquetaEstado.EN_CURSO: Q(estado=_EN_CURSO),
+    EtiquetaEstado.FINALIZADA: Q(estado=_FINALIZADA, tiene_no_recuperados=False),
+    EtiquetaEstado.CON_ADVERTENCIAS: Q(estado=_CON_ADVERTENCIAS, tiene_no_recuperados=False),
+    EtiquetaEstado.SIN_SORTEOS: Q(estado=_SIN_SORTEOS),
+    EtiquetaEstado.CON_ERROR: Q(
+        estado__in=[_FINALIZADA, _CON_ADVERTENCIAS], tiene_no_recuperados=True
+    ),
+}
+
+
+def _con_no_recuperados(qs: QuerySet) -> QuerySet:
+    """Anota si algún sorteo quedó "No recuperado" (subconsulta portable, sin leer JSON)."""
+    return qs.annotate(
+        tiene_no_recuperados=Exists(
+            SorteoExtraido.objects.filter(
+                extraccion=OuterRef("pk"), estado=EstadoSorteo.NO_RECUPERADO.value
+            )
+        )
+    )
+
+
+def etiqueta_de_extraccion(extraccion: Extraccion) -> EtiquetaEstado:
+    tiene = getattr(extraccion, "tiene_no_recuperados", None)
+    if tiene is None:
+        tiene = extraccion.sorteos.filter(estado=EstadoSorteo.NO_RECUPERADO.value).exists()
+    return etiqueta_de(extraccion.estado_enum, bool(tiene))
+
+
+#: [003] AC-9.1, data-model § 2: columnas ordenables del listado y su orden predeterminado.
+COLUMNAS_ORDEN = ("fecha", "periodo", "estado")
+ORDEN_PREDETERMINADO = "-fecha"  # [002] RN-44: de la más reciente a la más antigua
+
+
+def _orden_estado():
+    """Rango de la etiqueta (EN_CURSO < CON_ERROR < CON_ADVERTENCIAS < SIN_SORTEOS < FINALIZADA)
+    con expresiones del ORM, sin leer ningún JSONField ([002] R-08)."""
+    return Case(
+        *[When(_FILTRO_ETIQUETA[e], then=Value(e.orden)) for e in EtiquetaEstado],
+        default=Value(len(EtiquetaEstado)),
+        output_field=IntegerField(),
+    )
+
+
+def _campos_orden(orden: str) -> list:
+    descendente = orden.startswith("-")
+    columna = orden.lstrip("-")
+    if columna == "estado":
+        expresiones = [F("rango_estado")]
+    elif columna == "periodo":
+        expresiones = [F("desde"), F("hasta")]
+    else:
+        expresiones = [F("iniciada_en")]
+    campos = [e.desc() if descendente else e.asc() for e in expresiones]
+    return [*campos, F("id").desc()]  # data-model § 2: todos desempatan por -id
+
+
+def listado_extracciones(
+    filtro: EtiquetaEstado | None = None,
+    orden: str = ORDEN_PREDETERMINADO,
+    pagina: int | str | None = 1,
+) -> Pagina:
+    """AC-1.14: con quién la ejecutó; por defecto, de la más reciente a la más antigua.
+
+    [003] AC-1.1, AC-1.4: cada fila con su ``etiqueta`` (RN-01) y, si se indica, solo las de una
+    etiqueta. [003] AC-9.1, AC-9.2, RN-07: ordenado por ``fecha``, ``periodo`` o ``estado``
+    (ascendente o con ``-``; inválido → ``-fecha``) y paginado de a 20 (fuera de rango → la última).
+    """
+    if orden.lstrip("-") not in COLUMNAS_ORDEN:
+        orden = ORDEN_PREDETERMINADO
+    qs = _con_no_recuperados(Extraccion.objects.select_related("creada_por"))
+    if filtro is not None:
+        qs = qs.filter(_FILTRO_ETIQUETA[filtro])
+    qs = qs.annotate(rango_estado=_orden_estado()).order_by(*_campos_orden(orden))
+    resultado = paginar(qs, pagina, orden=orden, filtro=filtro)
+    for extraccion in resultado.elementos:
+        extraccion.etiqueta = etiqueta_de_extraccion(extraccion)
+    return resultado
 
 
 def obtener_extraccion(id_extraccion: int) -> Extraccion:
     return get_object_or_404(Extraccion, pk=id_extraccion)
 
 
+#: [003] AC-3.3: aviso al terminar según la etiqueta → (clave, tipo de aviso de RN-09).
+_AVISO_FINAL = {
+    EtiquetaEstado.FINALIZADA: ("ext.termino_finalizada", "success"),
+    EtiquetaEstado.CON_ADVERTENCIAS: ("ext.termino_advertencias", "warning"),
+    EtiquetaEstado.CON_ERROR: ("ext.termino_error", "error"),
+    EtiquetaEstado.SIN_SORTEOS: ("ext.termino_sin_sorteos", "info"),
+}
+
+
+def _aviso_final(extraccion: Extraccion, etiqueta: EtiquetaEstado) -> dict | None:
+    if etiqueta is EtiquetaEstado.EN_CURSO:
+        return None
+    clave, tipo = _AVISO_FINAL[etiqueta]
+    por_estado = (extraccion.resumen or {}).get("por_estado", {})
+    if etiqueta is EtiquetaEstado.CON_ERROR:
+        texto = mensaje(clave, n=por_estado.get(EstadoSorteo.NO_RECUPERADO.value, 0))
+    elif etiqueta is EtiquetaEstado.CON_ADVERTENCIAS:
+        a_revisar = sum(n for e, n in por_estado.items() if e != EstadoSorteo.RECUPERADO.value)
+        texto = mensaje(clave, n=a_revisar)
+    else:
+        texto = mensaje(clave)
+    enlace = f"/administracion/extracciones/{extraccion.pk}/"
+    return {"tipo": tipo, "texto": texto, "enlace": enlace}
+
+
 def avance(extraccion: Extraccion) -> dict:
+    etiqueta = etiqueta_de_extraccion(extraccion)
     return {
         "en_curso": extraccion.en_curso,
         "identificando": extraccion.identificando,
         "procesados": extraccion.procesados,
         "total": extraccion.total_identificados,
+        "etiqueta": etiqueta,
+        "aviso_final": _aviso_final(extraccion, etiqueta),
     }
+
+
+def ninguna_fuente_respondio(extraccion: Extraccion) -> bool:
+    """[003] AC-3.4: terminó y ninguna fuente aportó sorteos ([002] RN-33)."""
+    fuentes = (extraccion.resumen or {}).get("fuentes") or []
+    return bool(fuentes) and all(not f.get("aportados") for f in fuentes)
 
 
 def _resumen_para_pantalla(resumen: dict) -> dict:
@@ -174,6 +292,8 @@ def datos_pagina(extraccion: Extraccion) -> dict:
         "extraccion": extraccion,
         "estado_texto": estado.texto,
         "clase_estado": _CLASE_ESTADO_EXTRACCION[estado.value],
+        "etiqueta": etiqueta_de_extraccion(extraccion),
+        "ninguna_fuente": ninguna_fuente_respondio(extraccion),
         "avance": avance(extraccion),
         "terminada": not extraccion.en_curso,
         "sin_sorteos": estado is EstadoExtraccion.SIN_SORTEOS,
@@ -217,7 +337,7 @@ def detalle_sorteo(extraccion: Extraccion, numero: int) -> dict:
         .first()
     )
     if fila is None:
-        raise Http404("La página que buscás no existe")
+        raise Http404(mensaje("gral.pagina_inexistente"))
     sorteo = sorteo_de_json(fila.consolidado)
     intentos = {i.fuente: i for i in fila.intentos.all()}
     fuentes = []
@@ -248,7 +368,7 @@ def detalle_sorteo(extraccion: Extraccion, numero: int) -> dict:
                     "estado_pozo": cat.estado_pozo.texto,
                     "datos": [
                         {"rotulo": rotulo, **consolidado_para_pantalla(getattr(cat, campo))}
-                        for campo, rotulo in _CAMPOS
+                        for campo, rotulo in CAMPOS_PREMIO
                     ],
                 }
             )
@@ -278,11 +398,10 @@ def detalle_sorteo(extraccion: Extraccion, numero: int) -> dict:
             {"fuente": o.fuente.nombre if o.fuente else None, "texto": o.texto}
             for o in sorteo.observaciones
         ],
-        "enlace_oficial": enlace_extracto_oficial(sorteo.numero),
     }
 
 
 def archivo(extraccion: Extraccion) -> tuple[str, str]:
     if not puede_descargar(extraccion):
-        raise Http404("La página que buscás no existe")
+        raise Http404(mensaje("gral.pagina_inexistente"))
     return extraccion.nombre_archivo, extraccion.archivo_csv

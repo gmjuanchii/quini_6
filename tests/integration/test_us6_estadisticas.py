@@ -5,6 +5,7 @@ from datetime import date
 
 import pytest
 
+from dominio.mensajes import MENSAJES
 from dominio.tipos import Modalidad
 from tests.fabricas import cargar_numeros, crear_concurso, marcar_en_revision
 
@@ -74,7 +75,9 @@ class TestMensajes:
         assert (
             "No hay sorteos publicados de Tradicional – Primer Sorteo en el período seleccionado"
         ) in contenido
-        assert "<svg" not in contenido and 'id="frecuencia-' not in contenido
+        # [003] La página trae íconos SVG (avisos); lo que no debe estar es el gráfico.
+        assert 'aria-label="Gráfico de barras' not in contenido
+        assert 'id="frecuencia-' not in contenido
         assert LEYENDA in contenido
 
     def test_ac_6_4_sin_datos(self, client, db):
@@ -95,10 +98,7 @@ class TestMensajes:
         cargar_numeros(otro, PS, frozenset({1, 2, 3, 4, 5, 6}), estado="BORRADOR")
         crear_concurso(202, date(2025, 1, 31), modalidades=[LS])  # no aplica a Primer Sorteo
         contenido = _get(client)
-        assert (
-            "El período incluye 2 concursos sin información disponible para esta modalidad"
-            in contenido
-        )
+        assert MENSAJES["est.huecos"].format(n=2) in contenido
 
     def test_ac_6_8_periodo_invalido_repite_consulta_anterior(self, client, sorteos):
         contenido = _get(
@@ -112,10 +112,7 @@ class TestMensajes:
             anterior_hasta="10/01/2025",
             anterior_numero="14",
         )
-        assert (
-            "La fecha desde no puede ser posterior a la fecha hasta. Corregí el período."
-            in contenido
-        )
+        assert MENSAJES["est.periodo_invalido"] in contenido
         assert "3 sorteos considerados" in contenido
         assert _fila(contenido, 14) == "14 3 100,00 %"
         assert 'name="anterior_modalidad" value="LA_SEGUNDA"' in contenido
@@ -124,7 +121,7 @@ class TestMensajes:
 
     def test_ac_6_8_sin_consulta_anterior_usa_predeterminados(self, client, sorteos):
         contenido = _get(client, desde="10/01/2025", hasta="01/01/2025")
-        assert "La fecha desde no puede ser posterior a la fecha hasta." in contenido
+        assert MENSAJES["est.periodo_invalido"] in contenido
         assert "8 sorteos considerados" in contenido
 
     def test_campos_ocultos_con_la_consulta_mostrada(self, client, sorteos):
@@ -168,6 +165,7 @@ class TestDatos:
 def test_grafico_sin_decimales_localizados(client, sorteos):
     """Los atributos del SVG usan punto decimal aunque la página esté en es-AR."""
     contenido = _get(client, desde="04/01/2025", hasta="10/01/2025")
-    svg = contenido[contenido.index("<svg") : contenido.index("</svg>")]
+    inicio = contenido.index('<svg viewBox="0 0 ')  # [003] el gráfico, no los íconos
+    svg = contenido[inicio : contenido.index("</svg>", inicio)]
     assert not re.search(r'(?:x|y|width|height)="[\d.]*,', svg)
     assert svg.count('class="barra') == 46

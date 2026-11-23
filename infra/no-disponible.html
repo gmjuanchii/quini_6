@@ -1,0 +1,104 @@
+<!doctype html>
+<!-- [003] AC-14.6, R-20: página estática que sirve el enrutador cuando ninguna aplicación responde.
+     Sin recursos externos: estilos en línea con los valores de ui/tokens.css (ambos temas por
+     prefers-color-scheme), logotipo en línea, textos gral.no_disponible y pie.legal del catálogo.
+     Si cambian esos textos o tokens, actualizar también este archivo. -->
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>QUINI_6</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --q-background: #f3f4f6;
+      --q-surface: #ffffff;
+      --q-foreground: #1f2937;
+      --q-muted-foreground: #4b5563;
+      --q-primary: #1e40af;
+      --q-primary-foreground: #ffffff;
+      --q-border: #d1d5db;
+      --q-warning: #d97706;
+      --q-warning-soft: #fef3c7;
+      --q-warning-on-soft: #92400e;
+      --q-warning-icon: #b45309;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --q-background: #0f172a;
+        --q-surface: #1e293b;
+        --q-foreground: #f3f4f6;
+        --q-muted-foreground: #94a3b8;
+        --q-primary: #93c5fd;
+        --q-primary-foreground: #0f172a;
+        --q-border: #334155;
+        --q-warning: #fbbf24;
+        --q-warning-soft: #78350f;
+        --q-warning-on-soft: #fde68a;
+        --q-warning-icon: #fbbf24;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--q-background);
+      color: var(--q-foreground);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .contenedor { width: 100%; max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
+    header { border-bottom: 1px solid var(--q-border); background: var(--q-surface); }
+    header .contenedor { min-height: 4rem; display: flex; align-items: center; }
+    .logotipo { color: var(--q-primary); display: inline-flex; }
+    .logotipo svg { height: 2rem; width: auto; }
+    main { flex: 1; padding: 2rem 0; }
+    .aviso {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      max-width: 40rem;
+      padding: 1rem;
+      border: 1px solid var(--q-warning);
+      border-left-width: 4px;
+      border-radius: 0.75rem;
+      background: var(--q-warning-soft);
+      color: var(--q-warning-on-soft);
+    }
+    .aviso svg { flex-shrink: 0; width: 1.25rem; height: 1.25rem; color: var(--q-warning-icon); margin-top: 0.125rem; }
+    .aviso h1 { margin: 0; min-width: 0; font-size: 1.125rem; font-weight: 600; line-height: 1.5; }
+    footer {
+      border-top: 1px solid var(--q-border);
+      background: var(--q-surface);
+      color: var(--q-muted-foreground);
+      font-size: 0.875rem;
+      padding: 1.5rem 0;
+    }
+    footer p { margin: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="contenedor">
+      <span class="logotipo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 32" role="img" aria-label="QUINI_6"><rect width="32" height="32" rx="8" fill="currentColor"/><text x="16" y="22" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="800" style="fill: var(--q-primary-foreground)">Q6</text><text x="40" y="22.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="800" letter-spacing="-0.3" fill="currentColor">QUINI_6</text></svg></span>
+    </div>
+  </header>
+  <main id="contenido">
+    <div class="contenedor">
+      <div class="aviso" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <h1>El servicio no está disponible en este momento. Es posible volver a intentarlo en unos minutos.</h1>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="contenedor">
+      <p>Información de consulta. QUINI_6 no vende apuestas ni realiza pagos. La fuente de cada resultado es el extracto oficial indicado.</p>
+    </div>
+  </footer>
+</body>
+</html>

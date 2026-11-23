@@ -1,24 +1,24 @@
 {% extends "base.html" %}
-{% load formato_ar %}
+{% load formato_ar ui %}
 {% block titulo %}Publicar {{ nombre_bloque|lower }} de {{ modalidad.nombre }}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/concursos/{{ concurso.numero }}/">← Concurso N.º {{ concurso.numero }}</a></p>
+{# [003] D-04: "Sorteo" en los textos visibles. #}{% url "admin_panel" concurso.numero as href %}{% with n=concurso.numero|stringformat:"s" %}{% include "ui/_volver.html" with href=href texto="Sorteo N.º "|add:n %}{% endwith %}
 <h1>{% if trabajo.es_correccion %}Publicar corrección{% else %}Publicar{% endif %}: {{ nombre_bloque|lower }} de {{ modalidad.nombre }}</h1>
 
 {% if errores %}
-  <div class="mensaje mensaje--error" role="alert">
+  <div class="{% clases 'aviso' variante='danger' %}" role="alert">{% icono "circle-x" %}<div class="m-0 min-w-0 flex-1">
     <p>No se publicó la información:</p>
     <ul>{% for e in errores %}<li>{{ e }}</li>{% endfor %}</ul>
-  </div>
+  </div></div>
 {% endif %}
 
-<section class="tarjeta">
+<section class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6">
   <h2>Información a publicar</h2>
   {% if bloque == "numeros" %}
     <ul class="numeros">{% for n in trabajo.numeros|ordenados %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endfor %}</ul>
   {% else %}
     {% if trabajo.sin_ganadores %}<p>Categoría ganadora: Sin ganadores</p>{% elif trabajo.aciertos_categoria_ganadora is not None %}<p>Categoría ganadora: {{ trabajo.aciertos_categoria_ganadora }} aciertos</p>{% endif %}
-    <table class="tabla tabla--apilable">
+    <table class="apilable">
       <thead><tr><th scope="col">Categoría</th><th scope="col">Ganadores</th><th scope="col">Importe destinado</th><th scope="col">Importe individual</th><th scope="col">Pozo vacante o acumulado</th></tr></thead>
       <tbody>
         {% for item in categorias %}{% with c=item.datos %}
@@ -33,33 +33,33 @@
       </tbody>
     </table>
   {% endif %}
-  <p class="rotulo">Fuente: {{ trabajo.fuente_descripcion|default:"sin registrar" }}{% if trabajo.fuente_fecha_consulta %}, consultada el {{ trabajo.fuente_fecha_consulta|fecha_ar }}{% endif %}</p>
-  {% if trabajo.es_correccion %}<p class="rotulo">Motivo de la corrección: {{ trabajo.motivo_correccion }}</p>{% endif %}
+  <p class="text-sm text-muted-foreground">Fuente: {{ trabajo.fuente_descripcion|default:"sin registrar" }}{% if trabajo.fuente_fecha_consulta %}, consultada el {{ trabajo.fuente_fecha_consulta|fecha_ar }}{% endif %}</p>
+  {% if trabajo.es_correccion %}<p class="text-sm text-muted-foreground">Motivo de la corrección: {{ trabajo.motivo_correccion }}</p>{% endif %}
 </section>
 
 {% if bloqueantes %}
-  <section class="mensaje mensaje--error">
-    <h2>Errores que impiden publicar</h2>
-    <ul>{% for b in bloqueantes %}<li>{{ b.texto }}</li>{% endfor %}</ul>
-  </section>
+  <section class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<div class="min-w-0 flex-1">
+    <h2 class="m-0 text-base font-semibold">Errores que impiden publicar</h2>
+    <ul class="mb-0">{% for b in bloqueantes %}<li>{{ b.texto }}</li>{% endfor %}</ul>
+  </div></section>
 {% else %}
-  <p class="mensaje mensaje--exito">No hay errores bloqueantes.</p>
+  <div class="{% clases 'aviso' variante='success' %}">{% icono "circle-check" %}<p class="m-0 min-w-0 flex-1">No hay errores bloqueantes.</p></div>
 {% endif %}
 
-<form method="post" class="formulario tarjeta">
+<form method="post" action="{% accion_formulario %}" class="grid max-w-xl gap-4 my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" novalidate data-validar-formulario data-trabajando>
   {% csrf_token %}
   {% if advertencias %}
-    <section class="mensaje mensaje--aviso">
-      <h2>Advertencias</h2>
-      <ul>{% for a in advertencias %}<li>{{ a.texto }}</li>{% endfor %}</ul>
-    </section>
+    <section class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<div class="min-w-0 flex-1">
+      <h2 class="m-0 text-base font-semibold">Advertencias</h2>
+      <ul class="mb-0">{% for a in advertencias %}<li>{{ a.texto }}</li>{% endfor %}</ul>
+    </div></section>
     <label class="casilla">{{ form.confirmar_advertencias }} {{ form.confirmar_advertencias.label }}</label>
   {% endif %}
   <label class="casilla">{{ form.cotejo }} {{ form.cotejo.label }}</label>
-  <div class="acciones">
-    <button type="submit" class="boton">{% if trabajo.es_correccion %}Publicar corrección{% else %}Publicar{% endif %}</button>
+  <div class="my-3 flex flex-wrap items-center gap-2">
+    <button type="submit" class="{% clases 'boton' variante='principal' %}" data-texto-trabajando="{% msg 'form.trabajando_publicar' %}">{% if trabajo.es_correccion %}Publicar corrección{% else %}Publicar{% endif %}</button>
     <a href="/administracion/concursos/{{ concurso.numero }}/">Cancelar</a>
   </div>
-  {% if bloqueantes %}<p class="ayuda">Corregí los errores bloqueantes antes de publicar.</p>{% endif %}
+  {% if bloqueantes %}<p class="ayuda">{% msg "admin.corregir_bloqueantes" %}</p>{% endif %}
 </form>
 {% endblock %}

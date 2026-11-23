@@ -1,75 +1,74 @@
 {% extends "base.html" %}
-{% load formato_ar l10n %}
+{% load formato_ar ui %}
 {% block titulo %}Estadísticas de frecuencia{% endblock %}
 {% block contenido %}
-<h1>Estadísticas de frecuencia</h1>
-<p class="leyenda">Estadística descriptiva de sorteos pasados. No predice resultados futuros.</p>
+{# [003] HU-07: filtros legibles y alineados (AC-7.1 a AC-7.4, AC-7.6), aviso de AC-10.1 y tabla ordenable (AC-7.5). #}
+<div class="flex flex-col gap-6">
+<h1 class="m-0 text-3xl font-semibold">Estadísticas de frecuencia</h1>
+{% msg "est.leyenda" as leyenda %}{% include "ui/_aviso.html" with variante="info" texto=leyenda id="est-leyenda" %}
 
-{% for e in errores %}<p class="mensaje mensaje--error" role="alert">{{ e }}</p>{% endfor %}
-{% for a in avisos %}<p class="mensaje mensaje--aviso">{{ a }}</p>{% endfor %}
+{% for e in errores %}{% include "ui/_aviso.html" with variante="danger" rol="alert" texto=e %}{% endfor %}
+{% for a in avisos %}{% include "ui/_aviso.html" with variante="warning" texto=a %}{% endfor %}
 
-<form method="get" action="/estadisticas/" class="tarjeta">
-  <div class="busqueda">
-    <div class="campo">
-      <label for="est-modalidad">Modalidad</label>
-      <select id="est-modalidad" name="modalidad">
+<form method="get" action="/estadisticas/" class="flex flex-col gap-5 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" novalidate data-validar-formulario data-trabajando>
+  <div class="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-start md:gap-x-6">
+    <div class="campo flex min-w-0 flex-col gap-1.5">
+      <label for="est-modalidad" class="font-medium">Modalidad</label>
+      <select id="est-modalidad" name="modalidad" class="min-h-control !w-auto max-w-full">
         {% for m in modalidades %}<option value="{{ m.value }}"{% if m == consulta.modalidad %} selected{% endif %}>{{ m.nombre }}</option>{% endfor %}
       </select>
     </div>
-    <div class="campo">
-      <label for="est-desde">Desde (dd/mm/aaaa)</label>
-      <input type="text" id="est-desde" name="desde" inputmode="numeric" placeholder="dd/mm/aaaa" value="{{ valores.desde }}">
-    </div>
-    <div class="campo">
-      <label for="est-hasta">Hasta (dd/mm/aaaa)</label>
-      <input type="text" id="est-hasta" name="hasta" inputmode="numeric" placeholder="dd/mm/aaaa" value="{{ valores.hasta }}">
-    </div>
-    <div class="campo">
-      <label for="est-numero">Consultar un número (00 a 45)</label>
-      <input type="text" id="est-numero" name="numero" inputmode="numeric" maxlength="2" value="{{ valores.numero }}">
-    </div>
-    {% for nombre, valor in ocultos.items %}<input type="hidden" name="{{ nombre }}" value="{{ valor }}">{% endfor %}
-    <button type="submit" class="boton">Consultar</button>
+    {# [003] FR-010, FR-011, AC-4.4: período con calendario de rango y los tres atajos (RN-04). #}
+    <div class="min-w-0">{% periodo periodo.desde periodo.hasta atajos=atajos parametros=parametros_atajo %}</div>
   </div>
-  <p class="ayuda">Si no elegís un período, se consideran todos los sorteos publicados de la modalidad.</p>
+  <p class="m-0 text-sm text-muted-foreground">{% msg "est.ayuda_periodo" %}</p>
+
+  {# AC-7.4: "Consultar un número", separado de los filtros del período. #}
+  <fieldset class="m-0 min-w-0 border-0 border-t border-border p-0 pt-5" data-consultar-numero>
+    <legend class="float-left mb-3 w-full p-0 pt-5 text-lg font-semibold">{% msg "est.consultar_numero" %}</legend>
+    <div class="campo clear-left flex flex-col gap-1.5{% if numero.error %} campo--error{% endif %}" data-campo="numero">
+      <label for="est-numero" class="font-medium">Número</label>
+      {# AC-7.2: el campo y "Consultar" comparten la línea base; a 360 px siguen en una fila sin superponerse. #}
+      <div class="flex flex-wrap items-center gap-3">
+        <input type="text" id="est-numero" name="numero" inputmode="numeric" maxlength="2" autocomplete="off" value="{{ numero.valor }}" class="cifras min-h-control !w-[7ch]" data-validar="{{ numero.reglas }}" aria-describedby="est-numero_ayuda{% if numero.error %} est-numero_error{% endif %}"{% if numero.error %} aria-invalid="true"{% endif %}>
+        {% msg "form.trabajando_consultar" as consultando %}{% include "ui/_boton.html" with texto="Consultar" icono="chart-column" texto_trabajando=consultando %}
+      </div>
+      <p class="ayuda m-0 text-sm text-muted-foreground" id="est-numero_ayuda">{% msg "est.numero_ayuda" %}</p>
+      <p class="error m-0 flex items-start gap-1.5 text-sm font-medium text-danger-text" id="est-numero_error"{% if not numero.error %} hidden{% endif %}>{% icono "circle-x" clase="mt-0.5 size-4 shrink-0" %}<span data-texto-error>{{ numero.error }}</span></p>
+    </div>
+  </fieldset>
+  {% for nombre, valor in ocultos.items %}<input type="hidden" name="{{ nombre }}" value="{{ valor }}">{% endfor %}
 </form>
 
 {% if sin_informacion %}
-  <p class="mensaje mensaje--aviso">El período incluye {{ sin_informacion }} concursos sin información disponible para esta modalidad</p>
+  {% msg "est.huecos" n=sin_informacion as huecos %}{% include "ui/_aviso.html" with variante="warning" texto=huecos %}
 {% endif %}
 
 {% if frecuencias %}
-  <section class="tarjeta" aria-labelledby="titulo-resumen">
-    <h2 id="titulo-resumen">{{ consulta.modalidad.nombre }}</h2>
-    <p>{{ frecuencias.cantidad_sorteos }} sorteo{{ frecuencias.cantidad_sorteos|pluralize }} considerado{{ frecuencias.cantidad_sorteos|pluralize }}, del {{ frecuencias.primera_fecha|fecha_ar }} al {{ frecuencias.ultima_fecha|fecha_ar }}.</p>
+  <section class="flex flex-col gap-2" aria-labelledby="titulo-resumen">
+    <h2 id="titulo-resumen" class="m-0 text-xl font-semibold">{{ consulta.modalidad.nombre }}</h2>
+    <p class="m-0">{{ frecuencias.cantidad_sorteos }} sorteo{{ frecuencias.cantidad_sorteos|pluralize }} considerado{{ frecuencias.cantidad_sorteos|pluralize }}, del {{ frecuencias.primera_fecha|fecha_ar }} al {{ frecuencias.ultima_fecha|fecha_ar }}.</p>
     {% if numero_consultado %}
-      <p class="mensaje mensaje--info" id="numero-consultado">El {{ numero_consultado.numero|dos_digitos }} salió en {{ numero_consultado.frecuencia }} de {{ frecuencias.cantidad_sorteos }} sorteos considerados ({{ numero_consultado.porcentaje|porcentaje_ar }}).</p>
+      <p class="m-0 rounded-card border-l-4 border-accent bg-surface p-4 font-medium shadow-1" id="numero-consultado">El {{ numero_consultado.numero|dos_digitos }} salió en {{ numero_consultado.frecuencia }} de {{ frecuencias.cantidad_sorteos }} sorteos considerados ({{ numero_consultado.porcentaje|porcentaje_ar }}).</p>
     {% endif %}
   </section>
 
-  <figure class="grafico">
-    {% localize off %}
-    <svg viewBox="0 0 {{ grafico.ancho }} {{ grafico.alto }}" role="img" aria-label="Gráfico de barras: apariciones de cada número de 00 a 45 en {{ frecuencias.cantidad_sorteos }} sorteos de {{ consulta.modalidad.nombre }}">
-      <line x1="0" y1="{{ grafico.base }}" x2="{{ grafico.ancho }}" y2="{{ grafico.base }}" stroke="currentColor" stroke-width="0.5"/>
-      {% for b in grafico.barras %}
-        <rect class="barra{% if b.consultado %} barra--consultada{% endif %}" x="{{ b.x }}" y="{{ b.y }}" width="{{ b.ancho }}" height="{{ b.alto }}"><title>{{ b.numero|dos_digitos }}: {{ b.frecuencia }} apariciones</title></rect>
-        {% if b.rotulo %}<text x="{{ b.x_texto }}" y="{{ grafico.y_texto }}" text-anchor="middle" aria-hidden="true">{{ b.numero|dos_digitos }}</text>{% endif %}
-      {% endfor %}
-    </svg>
-    {% endlocalize %}
-    <figcaption class="rotulo">Alto de cada barra proporcional a su cantidad de apariciones. La tabla siguiente tiene los mismos datos.</figcaption>
-  </figure>
+  {% include "estadisticas/_grafico.html" %}
 
-  <table class="tabla">
-    <caption>Apariciones de cada número en {{ consulta.modalidad.nombre }}</caption>
-    <thead><tr><th scope="col">Número</th><th scope="col" class="num">Apariciones</th><th scope="col" class="num">Porcentaje</th></tr></thead>
+  <div class="overflow-hidden rounded-card border border-border bg-surface shadow-1">
+  <table class="w-full border-collapse text-sm">
+    <caption class="px-3 py-3 text-left font-semibold">Apariciones de cada número en {{ consulta.modalidad.nombre }}</caption>
+    <thead class="bg-muted"><tr>{% for e in encabezados %}{% include "ui/_encabezado_ordenable.html" %}{% endfor %}</tr></thead>
     <tbody>
-      {% for f in frecuencias.numeros %}
-        <tr id="frecuencia-{{ f.numero|dos_digitos }}"><th scope="row">{{ f.numero|dos_digitos }}</th><td class="num">{{ f.frecuencia }}</td><td class="num">{{ f.porcentaje|porcentaje_ar }}</td></tr>
+      {% for f in filas %}
+        <tr id="frecuencia-{{ f.numero|dos_digitos }}"><th scope="row" class="cifras border-t border-border px-3 py-2 text-left font-semibold{% if f.numero == consulta.numero %} bg-info-soft text-info-on-soft{% endif %}">{{ f.numero|dos_digitos }}</th><td class="cifras border-t border-border px-3 py-2 text-right">{{ f.frecuencia }}</td><td class="cifras border-t border-border px-3 py-2 text-right">{{ f.porcentaje|porcentaje_ar }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 {% else %}
-  <div class="vacio"><p>No hay sorteos publicados de {{ consulta.modalidad.nombre }} en el período seleccionado</p></div>
+  {% msg "est.sin_sorteos" modalidad=consulta.modalidad.nombre as titulo_vacio %}{% msg "vacio.estadisticas.explicacion" as explicacion_vacio %}
+  {% include "ui/_estado_vacio.html" with variante="sin_datos" icono="chart-column" titulo=titulo_vacio explicacion=explicacion_vacio %}
 {% endif %}
+</div>
 {% endblock %}

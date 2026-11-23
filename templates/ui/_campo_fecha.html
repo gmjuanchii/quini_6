@@ -1,0 +1,25 @@
+{% load ui %}{% comment %}
+DateField ([003] contracts/componentes.md, R-07; AC-4.1, AC-4.2, AC-4.6, AC-4.7, FR-010, FR-013).
+Sin scripts: <input type="date"> del navegador con min/max (envía AAAA-MM-DD). Con scripts, el
+componente "campoFecha" de static/js/ui.js lo convierte en un campo dd/mm/aaaa con barras automáticas
+([002] D-27: sin showPicker) y muestra el botón "Abrir calendario" con el calendario propio (Cally).
+Dentro de un período ("en_periodo"), el botón abre el calendario de rango del período.
+Datos en "f": nombre, id, etiqueta, valor (AAAA-MM-DD), min, max, ayuda, error, reglas (JSON).
+{% endcomment %}<div class="campo flex min-w-0 max-w-full flex-col gap-1.5{% if f.error %} campo--error{% endif %}" data-campo="{{ f.nombre }}" data-campo-fecha="{{ f.nombre }}" x-data="campoFecha({% if f.en_periodo %}{ enPeriodo: true }{% endif %})">
+  <label for="{{ f.id }}" id="{{ f.id }}_etiqueta" class="font-medium">{{ f.etiqueta }}</label>
+  {% if f.ayuda %}<p class="ayuda text-sm text-muted-foreground" id="{{ f.id }}_ayuda">{{ f.ayuda }}</p>{% endif %}
+  {# [003] SC-006: con el texto al 200 % el campo se achica en lugar de desbordar a 360 px. #}
+  <div class="flex min-w-0 max-w-full items-center gap-2">
+    <input type="date" name="{{ f.nombre }}" id="{{ f.id }}"{% if f.valor %} value="{{ f.valor }}"{% endif %}{% if f.min %} min="{{ f.min }}"{% endif %}{% if f.max %} max="{{ f.max }}"{% endif %} autocomplete="off" class="min-h-control min-w-0 !w-40 max-w-full shrink" x-ref="entrada" @input="alEscribir($event)"{% if f.reglas %} data-validar="{{ f.reglas }}"{% endif %}{% if f.ayuda or f.error %} aria-describedby="{% if f.ayuda %}{{ f.id }}_ayuda{% endif %}{% if f.ayuda and f.error %} {% endif %}{% if f.error %}{{ f.id }}_error{% endif %}"{% endif %}{% if f.error %} aria-invalid="true"{% endif %}>
+    <button type="button" class="{% clases 'boton' variante='secundario' extra='solo-con-scripts !px-2.5' %}" aria-haspopup="dialog" :aria-expanded="abierto ? 'true' : 'false'" x-ref="boton" @click="abierto ? cerrar(true) : abrir()">{% icono "calendar" %}<span class="visualmente-oculto">{% msg "fecha.abrir_calendario" %}</span></button>
+  </div>
+  {% if not f.en_periodo %}
+  <div style="display: none" x-show="abierto" x-anchor.bottom-start="$refs.entrada" @keydown.escape.prevent.stop="cerrar(true)" @click.outside="cerrar(false)" role="dialog" aria-labelledby="{{ f.id }}_etiqueta" class="calendario-popover z-50 py-1"><div class="rounded-card border border-border bg-surface p-3 shadow-2">
+    <calendar-date class="calendario" locale="es-AR" first-day-of-week="1"{% if f.min %} min="{{ f.min }}"{% endif %}{% if f.max %} max="{{ f.max }}"{% endif %} x-ref="calendario" @change="elegir($event.target.value)">
+      {% include "ui/_calendario_flechas.html" %}
+      <calendar-month></calendar-month>
+    </calendar-date>
+  </div></div>
+  {% endif %}
+  <p class="error flex items-start gap-1.5 text-sm font-medium text-danger-text" id="{{ f.id }}_error"{% if not f.error %} hidden{% endif %}>{% icono "circle-x" clase="mt-0.5 size-4 shrink-0" %}<span data-texto-error>{{ f.error }}</span></p>
+</div>

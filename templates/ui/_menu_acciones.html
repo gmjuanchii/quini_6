@@ -1,0 +1,16 @@
+{% load ui %}{% comment %}
+ActionMenu (⋮) ([003] AC-2.1, AC-2.2, FR-007, contracts/componentes.md). Parámetros: nombre (nombre
+accesible, por ejemplo "Acciones de la extracción del …") y opciones: lista de
+{texto, href, icono, destructivo, confirmar}. Sin scripts es un <details> nativo; con Alpine se ancla
+al botón, se recorre con flechas, Escape lo cierra y devuelve el foco, y un clic afuera lo cierra.
+{% endcomment %}<details class="menu-acciones relative inline-block" x-data="menuAcciones" @toggle="alCambiar" @keydown.escape.prevent.stop="cerrar(true)" @click.outside="cerrar(false)" @menu-abierto.window="otroAbierto($event)">
+  <summary x-ref="disparador" aria-label="{{ nombre }}" title="{{ nombre }}" class="{% clases 'boton' variante='fantasma' extra='list-none min-w-control cursor-pointer px-2 [&::-webkit-details-marker]:hidden' %}">{% icono "ellipsis-vertical" %}</summary>
+  {# El espacio con el botón es relleno del envoltorio (no "offset"): así Alpine Anchor lo cuenta al decidir si el menú cabe debajo o va encima. #}
+  <div class="absolute right-0 top-full z-30 py-1 max-sm:right-auto max-sm:left-0" x-anchor.bottom-end="$refs.disparador">
+  <ul role="menu" aria-label="{{ nombre }}" x-ref="menu" @keydown.arrow-down.prevent="mover(1)" @keydown.arrow-up.prevent="mover(-1)" @keydown.home.prevent="mover('primero')" @keydown.end.prevent="mover('ultimo')" class="menu-acciones__lista !static !m-0 min-w-48 rounded-control border border-border bg-surface py-1 shadow-2">
+    {% for opcion in opciones %}
+      <li role="none"><a role="menuitem" href="{{ opcion.href }}"{% if opcion.confirmar %} data-confirmar{% endif %} class="flex min-h-control items-center gap-2 px-3 font-medium no-underline hover:bg-muted focus-visible:bg-muted {% if opcion.destructivo %}text-danger-text{% else %}text-foreground{% endif %}">{% if opcion.icono %}{% icono opcion.icono clase="size-4 shrink-0" %}{% endif %}<span>{{ opcion.texto }}</span></a></li>
+    {% endfor %}
+  </ul>
+  </div>
+</details>

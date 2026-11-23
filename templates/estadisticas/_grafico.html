@@ -1,0 +1,17 @@
+{% load formato_ar l10n %}{% comment %}
+Gráfico de frecuencias en SVG generado en el servidor ([001] R-11; [003] AC-7.5). role="img" con
+título y descripción; colores de los tokens (ambos temas); el número consultado con el acento.
+{% endcomment %}<figure class="m-0 rounded-card border border-border bg-surface p-3 shadow-1">
+  {% localize off %}
+  <svg viewBox="0 0 {{ grafico.ancho }} {{ grafico.alto }}" role="img" aria-labelledby="grafico-titulo grafico-descripcion" class="block h-auto w-full" preserveAspectRatio="xMidYMid meet">
+    <title id="grafico-titulo">Frecuencia de cada número en {{ consulta.modalidad.nombre }}</title>
+    <desc id="grafico-descripcion">Gráfico de barras con las apariciones de cada número de 00 a 45 en {{ frecuencias.cantidad_sorteos }} sorteo{{ frecuencias.cantidad_sorteos|pluralize }} considerado{{ frecuencias.cantidad_sorteos|pluralize }}{% if numero_consultado %}; el {{ numero_consultado.numero|dos_digitos }} aparece resaltado{% endif %}.</desc>
+    <line x1="0" y1="{{ grafico.base }}" x2="{{ grafico.ancho }}" y2="{{ grafico.base }}" class="stroke-border" stroke-width="0.5"/>
+    {% for b in grafico.barras %}
+      <rect class="barra {% if b.consultado %}barra--consultada fill-accent{% else %}fill-primary{% endif %}" x="{{ b.x }}" y="{{ b.y }}" width="{{ b.ancho }}" height="{{ b.alto }}" rx="1"><title>{{ b.numero|dos_digitos }}: {{ b.frecuencia }} apariciones</title></rect>
+      {% if b.rotulo %}<text x="{{ b.x_texto }}" y="{{ grafico.y_texto }}" text-anchor="middle" font-size="9" class="cifras fill-current {% if b.consultado %}font-bold text-accent-text{% else %}text-muted-foreground{% endif %}">{{ b.numero|dos_digitos }}</text>{% endif %}
+    {% endfor %}
+  </svg>
+  {% endlocalize %}
+  <figcaption class="mt-2 text-sm text-muted-foreground">Alto de cada barra proporcional a su cantidad de apariciones. La tabla siguiente tiene los mismos datos.</figcaption>
+</figure>

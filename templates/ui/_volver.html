@@ -1,0 +1,5 @@
+{% load ui %}{% comment %}
+BackLink ([003] contracts/componentes.md, AC-5.6, FR-017): camino de regreso con el nombre del destino.
+Parámetros: href y texto (del catálogo, p. ej. nav.volver_sorteos: la "← " del texto la reemplaza el
+icono arrow-left, decorativo).
+{% endcomment %}<p class="mb-4"><a data-volver href="{{ href }}" class="inline-flex min-h-control items-center gap-1.5 rounded-control font-medium text-primary no-underline hover:underline focus-visible:underline">{% icono "arrow-left" clase="size-4 shrink-0" %}<span>{{ texto|sin_flecha }}</span></a></p>

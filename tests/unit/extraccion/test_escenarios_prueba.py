@@ -50,9 +50,9 @@ def test_el_servidor_responde_lo_declarado(servidor):
     carpeta, escenario = cargar_escenario("fallas")
     codigo, texto = obtener(f"{servidor}/f2/sorteos/3422")
     assert codigo == 200
-    assert texto == (carpeta / escenario["rutas"]["/f2/sorteos/3422"]["pagina"]).read_text(
-        encoding="utf-8"
-    )
+    # Bytes tal cual: las copias reales traen algún "\r" suelto que read_text normalizaría.
+    pagina = carpeta / escenario["rutas"]["/f2/sorteos/3422"]["pagina"]
+    assert texto == pagina.read_bytes().decode("utf-8")
     assert obtener(f"{servidor}/f2/sorteos/3423")[0] == 500
     assert obtener(f"{servidor}/f3/sorteos/3423")[0] == 404
     assert obtener(f"{servidor}/f9/no-declarada")[0] == 404

@@ -10,13 +10,15 @@ from django.utils import timezone
 from dominio.extraccion.clasificacion import aplicar_clasificacion
 from dominio.extraccion.consolidacion import modalidades_no_informadas
 from dominio.extraccion.tipos import NO_DISPONIBLE_CONSOLIDADO, SorteoConsolidado
+from dominio.mensajes import MENSAJES
 from extracciones.models import Extraccion, SorteoExtraido
 from extracciones.serializacion import sorteo_a_json
 from tests.fabricas import CLAVE, crear_usuario
+from tests.paginas import es_ingreso_con_pendiente, es_reanudable, sin_variables
 
 pytestmark = pytest.mark.django_db
 
-SIN_PERMISO = "No tenés permisos para acceder a esta sección"
+SIN_PERMISO = MENSAJES["admin.sin_permiso"]
 A = "/administracion/extracciones"
 
 
@@ -78,8 +80,11 @@ def test_visitante_es_llevado_a_ingresar(extraccion):
     visitante = Client()
     for metodo, ruta in rutas(extraccion):
         respuesta = pedir(visitante, metodo, ruta)
-        assert respuesta.status_code == 302, ruta
-        assert respuesta["Location"].startswith("/ingresar/?next=")
+        if metodo == "POST" and es_reanudable(ruta):  # [003] FR-032: lo escrito se conserva
+            assert es_ingreso_con_pendiente(respuesta), ruta
+        else:
+            assert respuesta.status_code == 302, ruta
+            assert respuesta["Location"].startswith("/ingresar/?next=")
         assert respuesta["Cache-Control"] == "no-store"
 
 
@@ -90,7 +95,7 @@ def test_usuario_sin_permiso_403_sin_datos(extraccion, usuario_a):
     for metodo, ruta in rutas(extraccion):
         respuesta = pedir(cliente, metodo, ruta)
         assert respuesta.status_code == 403, ruta
-        texto = respuesta.content.decode()
+        texto = sin_variables(respuesta.content.decode())
         assert SIN_PERMISO in texto
         assert "Extracciones anteriores" not in texto and "3422" not in texto
         assert "version_contrato" not in texto
@@ -139,5 +144,6 @@ def test_sc_005_ningun_acceso_no_autorizado_pasa(extraccion):
             cliente.force_login(usuario)
         for metodo, ruta in rutas(extraccion):
             intentos += 1
-            rechazados += pedir(cliente, metodo, ruta).status_code in (302, 403)
+            respuesta = pedir(cliente, metodo, ruta)
+            rechazados += respuesta.status_code in (302, 403) or es_ingreso_con_pendiente(respuesta)
     assert rechazados == intentos

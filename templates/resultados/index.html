@@ -1,23 +1,34 @@
 {% extends "base.html" %}
-{% load formato_ar %}
+{% load formato_ar ui %}
 {% block titulo %}Resultados del Quini 6{% endblock %}
 {% block contenido %}
 <h1>Resultados del Quini 6</h1>
 
+{% if not pendiente and not ultimos and not concursos %}
+  {# [003] AC-8.4, RN-06: un único estado vacío; los accesos solo para administración. #}
+  {% msg "vacio.resultados.titulo" as titulo_vacio %}{% msg "vacio.resultados.explicacion" as explicacion_vacio %}
+  {% if user.es_administrador %}
+    {% msg "vacio.resultados.accion_cargar" as accion_vacio %}{% msg "vacio.resultados.accion_extraccion" as accion2_vacio %}{% msg "vacio.resultados_nota_admin" as nota_vacio %}
+    {% include "ui/_estado_vacio.html" with variante="sin_datos" icono="list-ordered" titulo=titulo_vacio explicacion=explicacion_vacio accion_texto=accion_vacio accion_href="/administracion/concursos/nuevo/" accion2_texto=accion2_vacio accion2_href="/administracion/extracciones/" nota=nota_vacio %}
+  {% else %}
+    {% include "ui/_estado_vacio.html" with variante="sin_datos" icono="list-ordered" titulo=titulo_vacio explicacion=explicacion_vacio %}
+  {% endif %}
+{% else %}
+
 {% if pendiente %}
-  <section class="tarjeta" id="concurso-actual" aria-labelledby="titulo-actual">
-    <h2 id="titulo-actual">Concurso N.º {{ pendiente.numero }} — sorteo del {{ pendiente.fecha_sorteo|fecha_ar }}</h2>
+  <section class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" id="concurso-actual" aria-labelledby="titulo-actual">
+    <h2 id="titulo-actual">Sorteo N.º {{ pendiente.numero }} — sorteo del {{ pendiente.fecha_sorteo|fecha_ar }}</h2>
     <p><span class="estado estado--pendiente">Resultados pendientes</span></p>
-    <p><a href="/resultados/{{ pendiente.numero }}/">Ver el concurso</a></p>
+    <p><a href="/resultados/{{ pendiente.numero }}/">Ver el sorteo</a></p>
   </section>
 {% endif %}
 
 {% if ultimos %}
-  <section class="tarjeta" id="ultimos-resultados" aria-labelledby="titulo-ultimos">
-    <h2 id="titulo-ultimos">Últimos resultados: Concurso N.º {{ ultimos.concurso.numero }} — sorteo del {{ ultimos.concurso.fecha_sorteo|fecha_ar }}</h2>
-    <p>Estado del concurso: <span class="estado {% if ultimos.completitud == 'COMPLETO' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ ultimos.texto_completitud }}</span></p>
+  <section class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" id="ultimos-resultados" aria-labelledby="titulo-ultimos">
+    <h2 id="titulo-ultimos">Últimos resultados: Sorteo N.º {{ ultimos.concurso.numero }} — sorteo del {{ ultimos.concurso.fecha_sorteo|fecha_ar }}</h2>
+    <p>Estado del sorteo: <span class="estado {% if ultimos.completitud == 'COMPLETO' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ ultimos.texto_completitud }}</span></p>
     {% for m in ultimos.modalidades %}
-      <div class="fila-flex">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h3>{{ m.nombre }}</h3>
         {% if m.es_premio_extra %}
           {% if m.conjunto %}<span>{{ m.conjunto|length }} números distintos</span>{% else %}<span class="estado estado--pendiente">{{ m.texto_estado_numeros }}</span>{% endif %}
@@ -29,20 +40,19 @@
       </div>
       {% if m.revision_numeros %}<p><span class="estado estado--revision">Información en revisión</span></p>{% endif %}
     {% endfor %}
-    <p><a class="boton" href="/resultados/{{ ultimos.concurso.numero }}/">Ver premios y detalle</a></p>
+    <p><a class="{% clases 'boton' variante='principal' %}" href="/resultados/{{ ultimos.concurso.numero }}/">Ver premios y detalle</a></p>
   </section>
 {% else %}
-  <div class="vacio"><p>Todavía no hay resultados publicados</p></div>
+  <p class="text-muted-foreground">{% msg "vacio.resultados.titulo" %}</p>
 {% endif %}
 
 {% include "resultados/_busqueda_form.html" %}
 
 <section aria-labelledby="titulo-listado">
-  <h2 id="titulo-listado">Todos los concursos</h2>
+  <h2 id="titulo-listado">Todos los sorteos</h2>
   {% if concursos %}
     {% include "resultados/_listado.html" %}
-  {% else %}
-    <div class="vacio"><p>Todavía no hay concursos registrados.</p></div>
   {% endif %}
 </section>
+{% endif %}
 {% endblock %}

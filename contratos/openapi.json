@@ -1,0 +1,4882 @@
+{
+  "components": {
+    "schemas": {
+      "Atajo": {
+        "properties": {
+          "clave": {
+            "title": "Clave",
+            "type": "string"
+          },
+          "desde": {
+            "format": "date",
+            "title": "Desde",
+            "type": "string"
+          },
+          "hasta": {
+            "format": "date",
+            "title": "Hasta",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clave",
+          "texto",
+          "desde",
+          "hasta"
+        ],
+        "title": "Atajo",
+        "type": "object"
+      },
+      "AvanceDatos": {
+        "properties": {
+          "aviso_final": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AvisoFinal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "en_curso": {
+            "title": "En Curso",
+            "type": "boolean"
+          },
+          "etiqueta": {
+            "$ref": "#/components/schemas/Etiqueta"
+          },
+          "identificando": {
+            "title": "Identificando",
+            "type": "boolean"
+          },
+          "procesados": {
+            "title": "Procesados",
+            "type": "integer"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          }
+        },
+        "required": [
+          "en_curso",
+          "identificando",
+          "procesados",
+          "total",
+          "etiqueta",
+          "aviso_final"
+        ],
+        "title": "AvanceDatos",
+        "type": "object"
+      },
+      "Aviso": {
+        "properties": {
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "exito",
+              "info",
+              "advertencia",
+              "error"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipo",
+          "texto"
+        ],
+        "title": "Aviso",
+        "type": "object"
+      },
+      "AvisoFinal": {
+        "properties": {
+          "enlace": {
+            "title": "Enlace",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "success",
+              "warning",
+              "error",
+              "info"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipo",
+          "texto",
+          "enlace"
+        ],
+        "title": "AvisoFinal",
+        "type": "object"
+      },
+      "BloqueAdmin": {
+        "properties": {
+          "acciones": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Acciones",
+            "type": "array"
+          },
+          "bloque": {
+            "title": "Bloque",
+            "type": "string"
+          },
+          "correccion_en_preparacion": {
+            "title": "Correccion En Preparacion",
+            "type": "boolean"
+          },
+          "en_revision": {
+            "title": "En Revision",
+            "type": "boolean"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoAdmin"
+          },
+          "motivo_revision": {
+            "title": "Motivo Revision",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "trabajo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionTrabajo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vigente": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionVigente"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "bloque",
+          "nombre",
+          "estado",
+          "en_revision",
+          "motivo_revision",
+          "correccion_en_preparacion",
+          "vigente",
+          "trabajo",
+          "acciones"
+        ],
+        "title": "BloqueAdmin",
+        "type": "object"
+      },
+      "CambioRegistrado": {
+        "properties": {
+          "accion": {
+            "title": "Accion",
+            "type": "string"
+          },
+          "autor": {
+            "title": "Autor",
+            "type": "string"
+          },
+          "fuente": {
+            "title": "Fuente",
+            "type": "string"
+          },
+          "modalidad_y_bloque": {
+            "title": "Modalidad Y Bloque",
+            "type": "string"
+          },
+          "momento": {
+            "title": "Momento",
+            "type": "string"
+          },
+          "motivo": {
+            "title": "Motivo",
+            "type": "string"
+          },
+          "valor_anterior": {
+            "title": "Valor Anterior",
+            "type": "string"
+          },
+          "valor_nuevo": {
+            "title": "Valor Nuevo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "momento",
+          "accion",
+          "modalidad_y_bloque",
+          "valor_anterior",
+          "valor_nuevo",
+          "autor",
+          "motivo",
+          "fuente"
+        ],
+        "title": "CambioRegistrado",
+        "type": "object"
+      },
+      "CampoFormulario": {
+        "properties": {
+          "ayuda": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ayuda"
+          },
+          "errores": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Errores",
+            "type": "array"
+          },
+          "etiqueta": {
+            "title": "Etiqueta",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "opciones": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Opcion"
+            },
+            "title": "Opciones",
+            "type": "array"
+          },
+          "requerido": {
+            "default": false,
+            "title": "Requerido",
+            "type": "boolean"
+          },
+          "tipo": {
+            "title": "Tipo",
+            "type": "string"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          }
+        },
+        "required": [
+          "nombre",
+          "etiqueta",
+          "tipo",
+          "valor"
+        ],
+        "title": "CampoFormulario",
+        "type": "object"
+      },
+      "Categoria": {
+        "properties": {
+          "datos": {
+            "items": {
+              "$ref": "#/components/schemas/DatoConRotulo"
+            },
+            "title": "Datos",
+            "type": "array"
+          },
+          "estado_pozo": {
+            "title": "Estado Pozo",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nombre",
+          "estado_pozo",
+          "datos"
+        ],
+        "title": "Categoria",
+        "type": "object"
+      },
+      "CategoriaPublica": {
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "condicion": {
+            "title": "Condicion",
+            "type": "string"
+          },
+          "ganadores": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ganadores"
+          },
+          "importe_categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importe Categoria"
+          },
+          "importe_individual": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importe Individual"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "pozo_vacante_acumulado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pozo Vacante Acumulado"
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre",
+          "condicion",
+          "ganadores",
+          "importe_categoria",
+          "importe_individual",
+          "pozo_vacante_acumulado"
+        ],
+        "title": "CategoriaPublica",
+        "type": "object"
+      },
+      "CategoriaRevision": {
+        "properties": {
+          "ganadores": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ganadores"
+          },
+          "importe_categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importe Categoria"
+          },
+          "importe_individual": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importe Individual"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "pozo_vacante_acumulado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pozo Vacante Acumulado"
+          }
+        },
+        "required": [
+          "nombre",
+          "ganadores",
+          "importe_categoria",
+          "importe_individual",
+          "pozo_vacante_acumulado"
+        ],
+        "title": "CategoriaRevision",
+        "type": "object"
+      },
+      "CodigoComparacion": {
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "texto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          }
+        },
+        "required": [
+          "codigo",
+          "texto"
+        ],
+        "title": "CodigoComparacion",
+        "type": "object"
+      },
+      "ComparacionModalidad": {
+        "properties": {
+          "aciertos": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aciertos"
+          },
+          "actualizado_el": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actualizado El"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avisos",
+            "type": "array"
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "conjunto": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conjunto"
+          },
+          "elegibilidad": {
+            "anyOf": [
+              {
+                "enum": [
+                  "participa",
+                  "excluida"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elegibilidad"
+          },
+          "estado_validacion": {
+            "$ref": "#/components/schemas/CodigoComparacion"
+          },
+          "excluida_por": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excluida Por"
+          },
+          "importe": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importe"
+          },
+          "importe_pendiente": {
+            "title": "Importe Pendiente",
+            "type": "boolean"
+          },
+          "modalidad": {
+            "$ref": "#/components/schemas/ModalidadBreve"
+          },
+          "numeros_acertados": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeros Acertados"
+          },
+          "numeros_oficiales": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeros Oficiales"
+          },
+          "publicado": {
+            "title": "Publicado",
+            "type": "boolean"
+          },
+          "resultado_premio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodigoComparacion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "modalidad",
+          "publicado",
+          "estado_validacion",
+          "aciertos",
+          "numeros_acertados",
+          "numeros_oficiales",
+          "conjunto",
+          "elegibilidad",
+          "excluida_por",
+          "resultado_premio",
+          "categoria",
+          "importe",
+          "importe_pendiente",
+          "avisos",
+          "actualizado_el"
+        ],
+        "title": "ComparacionModalidad",
+        "type": "object"
+      },
+      "Completitud": {
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "texto"
+        ],
+        "title": "Completitud",
+        "type": "object"
+      },
+      "ConsultaEstadistica": {
+        "properties": {
+          "desde": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desde"
+          },
+          "hasta": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hasta"
+          },
+          "modalidad": {
+            "title": "Modalidad",
+            "type": "string"
+          },
+          "modalidad_nombre": {
+            "title": "Modalidad Nombre",
+            "type": "string"
+          },
+          "numero": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero"
+          }
+        },
+        "required": [
+          "modalidad",
+          "modalidad_nombre",
+          "desde",
+          "hasta",
+          "numero"
+        ],
+        "title": "ConsultaEstadistica",
+        "type": "object"
+      },
+      "Dato": {
+        "description": "[002] ``Dato`` con estado explícito: un dato desconocido nunca es ``null``→0.",
+        "properties": {
+          "estado": {
+            "enum": [
+              "valor",
+              "no_disponible",
+              "no_corresponde",
+              "sin_determinar"
+            ],
+            "title": "Estado",
+            "type": "string"
+          },
+          "texto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          },
+          "tipo": {
+            "anyOf": [
+              {
+                "enum": [
+                  "entero",
+                  "importe",
+                  "fecha",
+                  "numeros",
+                  "texto"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          }
+        },
+        "required": [
+          "estado",
+          "tipo",
+          "valor",
+          "texto"
+        ],
+        "title": "Dato",
+        "type": "object"
+      },
+      "DatoConRotulo": {
+        "properties": {
+          "calculo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calculo"
+          },
+          "diferencia_tolerada": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diferencia"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "discrepancia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diferencia"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "estado": {
+            "enum": [
+              "valor",
+              "no_disponible",
+              "no_corresponde",
+              "sin_determinar"
+            ],
+            "title": "Estado",
+            "type": "string"
+          },
+          "fuentes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fuentes",
+            "type": "array"
+          },
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "sin_corroborar": {
+            "title": "Sin Corroborar",
+            "type": "boolean"
+          },
+          "texto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          },
+          "tipo": {
+            "anyOf": [
+              {
+                "enum": [
+                  "entero",
+                  "importe",
+                  "fecha",
+                  "numeros",
+                  "texto"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          }
+        },
+        "required": [
+          "estado",
+          "tipo",
+          "valor",
+          "texto",
+          "fuentes",
+          "sin_corroborar",
+          "discrepancia",
+          "diferencia_tolerada",
+          "calculo",
+          "rotulo"
+        ],
+        "title": "DatoConRotulo",
+        "type": "object"
+      },
+      "DatoConsolidado": {
+        "properties": {
+          "calculo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calculo"
+          },
+          "diferencia_tolerada": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diferencia"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "discrepancia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diferencia"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "estado": {
+            "enum": [
+              "valor",
+              "no_disponible",
+              "no_corresponde",
+              "sin_determinar"
+            ],
+            "title": "Estado",
+            "type": "string"
+          },
+          "fuentes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fuentes",
+            "type": "array"
+          },
+          "sin_corroborar": {
+            "title": "Sin Corroborar",
+            "type": "boolean"
+          },
+          "texto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          },
+          "tipo": {
+            "anyOf": [
+              {
+                "enum": [
+                  "entero",
+                  "importe",
+                  "fecha",
+                  "numeros",
+                  "texto"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          }
+        },
+        "required": [
+          "estado",
+          "tipo",
+          "valor",
+          "texto",
+          "fuentes",
+          "sin_corroborar",
+          "discrepancia",
+          "diferencia_tolerada",
+          "calculo"
+        ],
+        "title": "DatoConsolidado",
+        "type": "object"
+      },
+      "DatosFormulario": {
+        "description": "Lo enviado, con los nombres de los campos del formulario de Django.",
+        "properties": {
+          "campos": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "default": {},
+            "title": "Campos",
+            "type": "object"
+          }
+        },
+        "title": "DatosFormulario",
+        "type": "object"
+      },
+      "Diferencia": {
+        "properties": {
+          "tipo": {
+            "title": "Tipo",
+            "type": "string"
+          },
+          "valores": {
+            "items": {
+              "$ref": "#/components/schemas/ValorDeFuente"
+            },
+            "title": "Valores",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tipo",
+          "valores"
+        ],
+        "title": "Diferencia",
+        "type": "object"
+      },
+      "EstadoAdmin": {
+        "properties": {
+          "clase": {
+            "title": "Clase",
+            "type": "string"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "texto",
+          "clase"
+        ],
+        "title": "EstadoAdmin",
+        "type": "object"
+      },
+      "EstadoJugada": {
+        "properties": {
+          "clase": {
+            "title": "Clase",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "texto",
+          "clase"
+        ],
+        "title": "EstadoJugada",
+        "type": "object"
+      },
+      "EstadoPublico": {
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "texto"
+        ],
+        "title": "EstadoPublico",
+        "type": "object"
+      },
+      "Etiqueta": {
+        "properties": {
+          "explicacion": {
+            "title": "Explicacion",
+            "type": "string"
+          },
+          "requiere_revision": {
+            "title": "Requiere Revision",
+            "type": "boolean"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          },
+          "valor": {
+            "enum": [
+              "en_curso",
+              "finalizada",
+              "con_advertencias",
+              "sin_sorteos",
+              "con_error"
+            ],
+            "title": "Valor",
+            "type": "string"
+          },
+          "variante": {
+            "enum": [
+              "info",
+              "success",
+              "warning",
+              "neutral",
+              "danger"
+            ],
+            "title": "Variante",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valor",
+          "slug",
+          "texto",
+          "explicacion",
+          "variante",
+          "requiere_revision"
+        ],
+        "title": "Etiqueta",
+        "type": "object"
+      },
+      "Extraccion": {
+        "properties": {
+          "avance": {
+            "$ref": "#/components/schemas/AvanceDatos"
+          },
+          "creada_por": {
+            "title": "Creada Por",
+            "type": "string"
+          },
+          "descargable": {
+            "title": "Descargable",
+            "type": "boolean"
+          },
+          "desde": {
+            "format": "date",
+            "title": "Desde",
+            "type": "string"
+          },
+          "eliminable": {
+            "title": "Eliminable",
+            "type": "boolean"
+          },
+          "en_curso": {
+            "title": "En Curso",
+            "type": "boolean"
+          },
+          "estado_texto": {
+            "title": "Estado Texto",
+            "type": "string"
+          },
+          "etiqueta": {
+            "$ref": "#/components/schemas/Etiqueta"
+          },
+          "finalizada_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finalizada En"
+          },
+          "hasta": {
+            "format": "date",
+            "title": "Hasta",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "iniciada_en": {
+            "title": "Iniciada En",
+            "type": "string"
+          },
+          "ninguna_fuente": {
+            "title": "Ninguna Fuente",
+            "type": "boolean"
+          },
+          "nombre_acciones": {
+            "title": "Nombre Acciones",
+            "type": "string"
+          },
+          "resumen": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResumenExtraccion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sorteos": {
+            "items": {
+              "$ref": "#/components/schemas/SorteoDeLaExtraccion"
+            },
+            "title": "Sorteos",
+            "type": "array"
+          },
+          "url_csv": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Csv"
+          }
+        },
+        "required": [
+          "id",
+          "iniciada_en",
+          "desde",
+          "hasta",
+          "creada_por",
+          "etiqueta",
+          "en_curso",
+          "avance",
+          "eliminable",
+          "descargable",
+          "url_csv",
+          "nombre_acciones",
+          "finalizada_en",
+          "estado_texto",
+          "ninguna_fuente",
+          "resumen",
+          "sorteos"
+        ],
+        "title": "Extraccion",
+        "type": "object"
+      },
+      "ExtraccionResumen": {
+        "properties": {
+          "avance": {
+            "$ref": "#/components/schemas/AvanceDatos"
+          },
+          "creada_por": {
+            "title": "Creada Por",
+            "type": "string"
+          },
+          "descargable": {
+            "title": "Descargable",
+            "type": "boolean"
+          },
+          "desde": {
+            "format": "date",
+            "title": "Desde",
+            "type": "string"
+          },
+          "eliminable": {
+            "title": "Eliminable",
+            "type": "boolean"
+          },
+          "en_curso": {
+            "title": "En Curso",
+            "type": "boolean"
+          },
+          "etiqueta": {
+            "$ref": "#/components/schemas/Etiqueta"
+          },
+          "hasta": {
+            "format": "date",
+            "title": "Hasta",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "iniciada_en": {
+            "title": "Iniciada En",
+            "type": "string"
+          },
+          "nombre_acciones": {
+            "title": "Nombre Acciones",
+            "type": "string"
+          },
+          "url_csv": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Csv"
+          }
+        },
+        "required": [
+          "id",
+          "iniciada_en",
+          "desde",
+          "hasta",
+          "creada_por",
+          "etiqueta",
+          "en_curso",
+          "avance",
+          "eliminable",
+          "descargable",
+          "url_csv",
+          "nombre_acciones"
+        ],
+        "title": "ExtraccionResumen",
+        "type": "object"
+      },
+      "Fallido": {
+        "properties": {
+          "cantidad": {
+            "title": "Cantidad",
+            "type": "integer"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "texto",
+          "cantidad"
+        ],
+        "title": "Fallido",
+        "type": "object"
+      },
+      "FilaAdmin": {
+        "properties": {
+          "bloques": {
+            "items": {
+              "$ref": "#/components/schemas/BloqueAdmin"
+            },
+            "title": "Bloques",
+            "type": "array"
+          },
+          "modalidad": {
+            "$ref": "#/components/schemas/ModalidadAdmin"
+          }
+        },
+        "required": [
+          "modalidad",
+          "bloques"
+        ],
+        "title": "FilaAdmin",
+        "type": "object"
+      },
+      "FilaPremios": {
+        "properties": {
+          "campos": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Campos",
+            "type": "array"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre",
+          "campos"
+        ],
+        "title": "FilaPremios",
+        "type": "object"
+      },
+      "FormularioBloque": {
+        "properties": {
+          "bloque": {
+            "title": "Bloque",
+            "type": "string"
+          },
+          "es_correccion": {
+            "title": "Es Correccion",
+            "type": "boolean"
+          },
+          "formulario": {
+            "$ref": "#/components/schemas/FormularioDTO"
+          },
+          "modalidad": {
+            "$ref": "#/components/schemas/ModalidadAdmin"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "modalidad",
+          "bloque",
+          "es_correccion",
+          "formulario"
+        ],
+        "title": "FormularioBloque",
+        "type": "object"
+      },
+      "FormularioDTO": {
+        "properties": {
+          "campos": {
+            "items": {
+              "$ref": "#/components/schemas/CampoFormulario"
+            },
+            "title": "Campos",
+            "type": "array"
+          },
+          "errores": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Errores",
+            "type": "array"
+          },
+          "filas": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/FilaPremios"
+            },
+            "title": "Filas",
+            "type": "array"
+          }
+        },
+        "required": [
+          "campos"
+        ],
+        "title": "FormularioDTO",
+        "type": "object"
+      },
+      "FormularioPendiente": {
+        "properties": {
+          "campos": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Campos",
+            "type": "object"
+          },
+          "ruta": {
+            "title": "Ruta",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruta",
+          "campos"
+        ],
+        "title": "FormularioPendiente",
+        "type": "object"
+      },
+      "FormularioSorteo": {
+        "properties": {
+          "formulario": {
+            "$ref": "#/components/schemas/FormularioDTO"
+          },
+          "numero": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero"
+          }
+        },
+        "required": [
+          "numero",
+          "formulario"
+        ],
+        "title": "FormularioSorteo",
+        "type": "object"
+      },
+      "FrecuenciaNumero": {
+        "properties": {
+          "frecuencia": {
+            "title": "Frecuencia",
+            "type": "integer"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "porcentaje": {
+            "title": "Porcentaje",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numero",
+          "frecuencia",
+          "porcentaje"
+        ],
+        "title": "FrecuenciaNumero",
+        "type": "object"
+      },
+      "FrecuenciasDTO": {
+        "properties": {
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Avisos",
+            "type": "array"
+          },
+          "cantidad_sorteos": {
+            "title": "Cantidad Sorteos",
+            "type": "integer"
+          },
+          "consulta": {
+            "$ref": "#/components/schemas/ConsultaEstadistica"
+          },
+          "modalidades": {
+            "items": {
+              "$ref": "#/components/schemas/ModalidadEstadistica"
+            },
+            "title": "Modalidades",
+            "type": "array"
+          },
+          "numero_consultado": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FrecuenciaNumero"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "numeros": {
+            "items": {
+              "$ref": "#/components/schemas/FrecuenciaNumero"
+            },
+            "title": "Numeros",
+            "type": "array"
+          },
+          "primera_fecha": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primera Fecha"
+          },
+          "sorteos_sin_informacion": {
+            "title": "Sorteos Sin Informacion",
+            "type": "integer"
+          },
+          "ultima_fecha": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ultima Fecha"
+          }
+        },
+        "required": [
+          "consulta",
+          "modalidades",
+          "cantidad_sorteos",
+          "primera_fecha",
+          "ultima_fecha",
+          "sorteos_sin_informacion",
+          "numeros",
+          "numero_consultado",
+          "avisos"
+        ],
+        "title": "FrecuenciasDTO",
+        "type": "object"
+      },
+      "FuentePublica": {
+        "properties": {
+          "descripcion": {
+            "title": "Descripcion",
+            "type": "string"
+          },
+          "fecha_consulta": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Consulta"
+          }
+        },
+        "required": [
+          "descripcion",
+          "fecha_consulta"
+        ],
+        "title": "FuentePublica",
+        "type": "object"
+      },
+      "FuenteResumen": {
+        "properties": {
+          "aportados": {
+            "title": "Aportados",
+            "type": "integer"
+          },
+          "fallidos": {
+            "items": {
+              "$ref": "#/components/schemas/Fallido"
+            },
+            "title": "Fallidos",
+            "type": "array"
+          },
+          "fuente": {
+            "title": "Fuente",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "requiere_mantenimiento": {
+            "title": "Requiere Mantenimiento",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "fuente",
+          "nombre",
+          "aportados",
+          "fallidos",
+          "requiere_mantenimiento"
+        ],
+        "title": "FuenteResumen",
+        "type": "object"
+      },
+      "GuardarJugada": {
+        "properties": {
+          "confirmar_duplicado": {
+            "default": false,
+            "title": "Confirmar Duplicado",
+            "type": "boolean"
+          },
+          "costo": {
+            "default": "",
+            "title": "Costo",
+            "type": "string"
+          },
+          "numeros": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Numeros",
+            "type": "array"
+          },
+          "sorteo": {
+            "default": "",
+            "title": "Sorteo",
+            "type": "string"
+          }
+        },
+        "title": "GuardarJugada",
+        "type": "object"
+      },
+      "Ingreso": {
+        "properties": {
+          "contrasena": {
+            "default": "",
+            "title": "Contrasena",
+            "type": "string"
+          },
+          "correo": {
+            "default": "",
+            "title": "Correo",
+            "type": "string"
+          },
+          "pendiente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pendiente"
+          }
+        },
+        "title": "Ingreso",
+        "type": "object"
+      },
+      "IniciarExtraccion": {
+        "properties": {
+          "fin": {
+            "default": "",
+            "title": "Fin",
+            "type": "string"
+          },
+          "inicio": {
+            "default": "",
+            "title": "Inicio",
+            "type": "string"
+          }
+        },
+        "title": "IniciarExtraccion",
+        "type": "object"
+      },
+      "IntentoFuente": {
+        "properties": {
+          "consultado_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consultado En"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "observaciones": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Observaciones",
+            "type": "array"
+          },
+          "resultado": {
+            "title": "Resultado",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nombre",
+          "resultado",
+          "url",
+          "consultado_en",
+          "observaciones"
+        ],
+        "title": "IntentoFuente",
+        "type": "object"
+      },
+      "JugadaDTO": {
+        "properties": {
+          "comparacion": {
+            "items": {
+              "$ref": "#/components/schemas/ComparacionModalidad"
+            },
+            "title": "Comparacion",
+            "type": "array"
+          },
+          "costo": {
+            "title": "Costo",
+            "type": "string"
+          },
+          "creada_en": {
+            "title": "Creada En",
+            "type": "string"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoJugada"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "modalidades": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Modalidades",
+            "type": "array"
+          },
+          "modificable": {
+            "title": "Modificable",
+            "type": "boolean"
+          },
+          "modificada_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modificada En"
+          },
+          "numeros": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Numeros",
+            "type": "array"
+          },
+          "resumen": {
+            "$ref": "#/components/schemas/EstadoJugada"
+          },
+          "sorteo": {
+            "$ref": "#/components/schemas/SorteoBreve"
+          }
+        },
+        "required": [
+          "id",
+          "sorteo",
+          "numeros",
+          "costo",
+          "modalidades",
+          "estado",
+          "modificable",
+          "creada_en",
+          "modificada_en",
+          "comparacion",
+          "resumen"
+        ],
+        "title": "JugadaDTO",
+        "type": "object"
+      },
+      "JugadaResumen": {
+        "properties": {
+          "costo": {
+            "title": "Costo",
+            "type": "string"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoJugada"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "modalidades": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Modalidades",
+            "type": "array"
+          },
+          "modificable": {
+            "title": "Modificable",
+            "type": "boolean"
+          },
+          "numeros": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Numeros",
+            "type": "array"
+          },
+          "sorteo": {
+            "$ref": "#/components/schemas/SorteoBreve"
+          }
+        },
+        "required": [
+          "id",
+          "sorteo",
+          "numeros",
+          "costo",
+          "modalidades",
+          "estado",
+          "modificable"
+        ],
+        "title": "JugadaResumen",
+        "type": "object"
+      },
+      "ModalidadAdmin": {
+        "properties": {
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "tiene_extraccion_propia": {
+            "title": "Tiene Extraccion Propia",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "slug",
+          "nombre",
+          "tiene_extraccion_propia"
+        ],
+        "title": "ModalidadAdmin",
+        "type": "object"
+      },
+      "ModalidadBreve": {
+        "properties": {
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "nombre"
+        ],
+        "title": "ModalidadBreve",
+        "type": "object"
+      },
+      "ModalidadEstadistica": {
+        "properties": {
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valor",
+          "nombre"
+        ],
+        "title": "ModalidadEstadistica",
+        "type": "object"
+      },
+      "ModalidadExtraida": {
+        "properties": {
+          "categorias": {
+            "items": {
+              "$ref": "#/components/schemas/Categoria"
+            },
+            "title": "Categorias",
+            "type": "array"
+          },
+          "informada": {
+            "title": "Informada",
+            "type": "boolean"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "numeros": {
+            "$ref": "#/components/schemas/DatoConsolidado"
+          },
+          "propia": {
+            "title": "Propia",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "nombre",
+          "informada",
+          "propia",
+          "numeros",
+          "categorias"
+        ],
+        "title": "ModalidadExtraida",
+        "type": "object"
+      },
+      "ModalidadPublica": {
+        "properties": {
+          "categorias": {
+            "items": {
+              "$ref": "#/components/schemas/CategoriaPublica"
+            },
+            "title": "Categorias",
+            "type": "array"
+          },
+          "conjunto": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conjunto"
+          },
+          "corregido_numeros": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corregido Numeros"
+          },
+          "corregido_premios": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corregido Premios"
+          },
+          "es_premio_extra": {
+            "title": "Es Premio Extra",
+            "type": "boolean"
+          },
+          "estado_numeros": {
+            "$ref": "#/components/schemas/EstadoPublico"
+          },
+          "estado_premios": {
+            "$ref": "#/components/schemas/EstadoPublico"
+          },
+          "fuente_numeros": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FuentePublica"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fuente_premios": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FuentePublica"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "numeros": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeros"
+          },
+          "revision_numeros": {
+            "title": "Revision Numeros",
+            "type": "boolean"
+          },
+          "revision_premios": {
+            "title": "Revision Premios",
+            "type": "boolean"
+          },
+          "sin_ganadores": {
+            "title": "Sin Ganadores",
+            "type": "boolean"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "nombre",
+          "es_premio_extra",
+          "estado_numeros",
+          "numeros",
+          "conjunto",
+          "fuente_numeros",
+          "revision_numeros",
+          "corregido_numeros",
+          "estado_premios",
+          "categorias",
+          "sin_ganadores",
+          "fuente_premios",
+          "revision_premios",
+          "corregido_premios"
+        ],
+        "title": "ModalidadPublica",
+        "type": "object"
+      },
+      "NuevaCuenta": {
+        "properties": {
+          "contrasena": {
+            "default": "",
+            "title": "Contrasena",
+            "type": "string"
+          },
+          "contrasena_repetida": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contrasena Repetida"
+          },
+          "correo": {
+            "default": "",
+            "title": "Correo",
+            "type": "string"
+          }
+        },
+        "title": "NuevaCuenta",
+        "type": "object"
+      },
+      "NuevoAviso": {
+        "properties": {
+          "clave": {
+            "title": "Clave",
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "exito",
+              "info",
+              "advertencia",
+              "error"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          },
+          "valores": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "default": {},
+            "title": "Valores",
+            "type": "object"
+          }
+        },
+        "required": [
+          "tipo",
+          "clave"
+        ],
+        "title": "NuevoAviso",
+        "type": "object"
+      },
+      "Observacion": {
+        "properties": {
+          "fuente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fuente"
+          },
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fuente",
+          "texto"
+        ],
+        "title": "Observacion",
+        "type": "object"
+      },
+      "Opcion": {
+        "properties": {
+          "texto": {
+            "title": "Texto",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valor",
+          "texto"
+        ],
+        "title": "Opcion",
+        "type": "object"
+      },
+      "PaginaExtracciones": {
+        "properties": {
+          "elementos": {
+            "items": {
+              "$ref": "#/components/schemas/ExtraccionResumen"
+            },
+            "title": "Elementos",
+            "type": "array"
+          },
+          "en_curso_propia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExtraccionResumen"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "filtro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filtro"
+          },
+          "orden": {
+            "title": "Orden",
+            "type": "string"
+          },
+          "pagina": {
+            "title": "Pagina",
+            "type": "integer"
+          },
+          "paginas": {
+            "title": "Paginas",
+            "type": "integer"
+          },
+          "tiene_anterior": {
+            "title": "Tiene Anterior",
+            "type": "boolean"
+          },
+          "tiene_siguiente": {
+            "title": "Tiene Siguiente",
+            "type": "boolean"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "elementos",
+          "pagina",
+          "paginas",
+          "total",
+          "orden",
+          "filtro",
+          "tiene_anterior",
+          "tiene_siguiente",
+          "en_curso_propia"
+        ],
+        "title": "PaginaExtracciones",
+        "type": "object"
+      },
+      "PaginaSorteos": {
+        "properties": {
+          "elementos": {
+            "items": {
+              "$ref": "#/components/schemas/SorteoResumen"
+            },
+            "title": "Elementos",
+            "type": "array"
+          },
+          "mensaje": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mensaje"
+          },
+          "pagina": {
+            "title": "Pagina",
+            "type": "integer"
+          },
+          "paginas": {
+            "title": "Paginas",
+            "type": "integer"
+          },
+          "redirigir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redirigir"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "elementos",
+          "pagina",
+          "paginas",
+          "total"
+        ],
+        "title": "PaginaSorteos",
+        "type": "object"
+      },
+      "PanelSorteo": {
+        "properties": {
+          "admite_jugadas": {
+            "title": "Admite Jugadas",
+            "type": "boolean"
+          },
+          "completitud": {
+            "$ref": "#/components/schemas/Completitud"
+          },
+          "fecha": {
+            "format": "date",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "filas": {
+            "items": {
+              "$ref": "#/components/schemas/FilaAdmin"
+            },
+            "title": "Filas",
+            "type": "array"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "tiene_publicaciones": {
+            "title": "Tiene Publicaciones",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "completitud",
+          "filas",
+          "admite_jugadas",
+          "tiene_publicaciones"
+        ],
+        "title": "PanelSorteo",
+        "type": "object"
+      },
+      "PedidoPendiente": {
+        "properties": {
+          "pendiente": {
+            "title": "Pendiente",
+            "type": "string"
+          },
+          "ruta": {
+            "title": "Ruta",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pendiente",
+          "ruta"
+        ],
+        "title": "PedidoPendiente",
+        "type": "object"
+      },
+      "Reanudar": {
+        "properties": {
+          "campos": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Campos",
+            "type": "object"
+          },
+          "ruta": {
+            "title": "Ruta",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruta",
+          "campos"
+        ],
+        "title": "Reanudar",
+        "type": "object"
+      },
+      "ResumenExtraccion": {
+        "properties": {
+          "a_revisar": {
+            "items": {
+              "$ref": "#/components/schemas/SorteoARevisar"
+            },
+            "title": "A Revisar",
+            "type": "array"
+          },
+          "cobertura_desde": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cobertura Desde"
+          },
+          "fuentes": {
+            "items": {
+              "$ref": "#/components/schemas/FuenteResumen"
+            },
+            "title": "Fuentes",
+            "type": "array"
+          },
+          "huecos": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Huecos",
+            "type": "array"
+          },
+          "identificados": {
+            "title": "Identificados",
+            "type": "integer"
+          },
+          "inconsistencias": {
+            "title": "Inconsistencias",
+            "type": "integer"
+          },
+          "no_recuperados": {
+            "title": "No Recuperados",
+            "type": "integer"
+          },
+          "parciales": {
+            "title": "Parciales",
+            "type": "integer"
+          },
+          "recuperados": {
+            "title": "Recuperados",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "identificados",
+          "recuperados",
+          "parciales",
+          "inconsistencias",
+          "no_recuperados",
+          "fuentes",
+          "huecos",
+          "cobertura_desde",
+          "a_revisar"
+        ],
+        "title": "ResumenExtraccion",
+        "type": "object"
+      },
+      "RevisionPublicacion": {
+        "properties": {
+          "aciertos_categoria_ganadora": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aciertos Categoria Ganadora"
+          },
+          "advertencias": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Advertencias",
+            "type": "array"
+          },
+          "bloque": {
+            "title": "Bloque",
+            "type": "string"
+          },
+          "bloqueantes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Bloqueantes",
+            "type": "array"
+          },
+          "categorias": {
+            "items": {
+              "$ref": "#/components/schemas/CategoriaRevision"
+            },
+            "title": "Categorias",
+            "type": "array"
+          },
+          "es_correccion": {
+            "title": "Es Correccion",
+            "type": "boolean"
+          },
+          "formulario": {
+            "$ref": "#/components/schemas/FormularioDTO"
+          },
+          "fuente_descripcion": {
+            "title": "Fuente Descripcion",
+            "type": "string"
+          },
+          "fuente_fecha_consulta": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fuente Fecha Consulta"
+          },
+          "modalidad": {
+            "$ref": "#/components/schemas/ModalidadAdmin"
+          },
+          "motivo_correccion": {
+            "title": "Motivo Correccion",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "numeros": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Numeros",
+            "type": "array"
+          },
+          "sin_ganadores": {
+            "title": "Sin Ganadores",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "numero",
+          "modalidad",
+          "bloque",
+          "es_correccion",
+          "numeros",
+          "categorias",
+          "sin_ganadores",
+          "aciertos_categoria_ganadora",
+          "fuente_descripcion",
+          "fuente_fecha_consulta",
+          "motivo_correccion",
+          "bloqueantes",
+          "advertencias",
+          "formulario"
+        ],
+        "title": "RevisionPublicacion",
+        "type": "object"
+      },
+      "Sesion": {
+        "description": "DTO ``Sesion`` ([003] data-model § 5).",
+        "properties": {
+          "correo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correo"
+          },
+          "es_administrador": {
+            "title": "Es Administrador",
+            "type": "boolean"
+          },
+          "vence_en": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vence En"
+          }
+        },
+        "required": [
+          "correo",
+          "es_administrador",
+          "vence_en"
+        ],
+        "title": "Sesion",
+        "type": "object"
+      },
+      "SesionIniciada": {
+        "properties": {
+          "correo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correo"
+          },
+          "es_administrador": {
+            "title": "Es Administrador",
+            "type": "boolean"
+          },
+          "reanudar": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reanudar"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vence_en": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vence En"
+          }
+        },
+        "required": [
+          "correo",
+          "es_administrador",
+          "vence_en"
+        ],
+        "title": "SesionIniciada",
+        "type": "object"
+      },
+      "SorteoARevisar": {
+        "properties": {
+          "estado": {
+            "title": "Estado",
+            "type": "string"
+          },
+          "estado_texto": {
+            "title": "Estado Texto",
+            "type": "string"
+          },
+          "fecha": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha"
+          },
+          "motivos": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Motivos",
+            "type": "array"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "estado",
+          "estado_texto",
+          "motivos"
+        ],
+        "title": "SorteoARevisar",
+        "type": "object"
+      },
+      "SorteoAdmin": {
+        "properties": {
+          "completitud": {
+            "$ref": "#/components/schemas/Completitud"
+          },
+          "fecha": {
+            "format": "date",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "filas": {
+            "items": {
+              "$ref": "#/components/schemas/FilaAdmin"
+            },
+            "title": "Filas",
+            "type": "array"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "completitud",
+          "filas"
+        ],
+        "title": "SorteoAdmin",
+        "type": "object"
+      },
+      "SorteoBreve": {
+        "properties": {
+          "fecha": {
+            "format": "date",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha"
+        ],
+        "title": "SorteoBreve",
+        "type": "object"
+      },
+      "SorteoDeLaExtraccion": {
+        "properties": {
+          "estado": {
+            "title": "Estado",
+            "type": "string"
+          },
+          "estado_texto": {
+            "title": "Estado Texto",
+            "type": "string"
+          },
+          "fecha": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "estado",
+          "estado_texto"
+        ],
+        "title": "SorteoDeLaExtraccion",
+        "type": "object"
+      },
+      "SorteoDisponible": {
+        "properties": {
+          "fecha": {
+            "format": "date",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "modalidades": {
+            "items": {
+              "$ref": "#/components/schemas/ModalidadBreve"
+            },
+            "title": "Modalidades",
+            "type": "array"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "modalidades"
+        ],
+        "title": "SorteoDisponible",
+        "type": "object"
+      },
+      "SorteoExtraido": {
+        "properties": {
+          "combina_fuentes": {
+            "title": "Combina Fuentes",
+            "type": "boolean"
+          },
+          "estado": {
+            "title": "Estado",
+            "type": "string"
+          },
+          "estado_texto": {
+            "title": "Estado Texto",
+            "type": "string"
+          },
+          "fecha": {
+            "$ref": "#/components/schemas/DatoConsolidado"
+          },
+          "fuentes": {
+            "items": {
+              "$ref": "#/components/schemas/IntentoFuente"
+            },
+            "title": "Fuentes",
+            "type": "array"
+          },
+          "modalidades": {
+            "items": {
+              "$ref": "#/components/schemas/ModalidadExtraida"
+            },
+            "title": "Modalidades",
+            "type": "array"
+          },
+          "motivos": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Motivos",
+            "type": "array"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "observaciones": {
+            "items": {
+              "$ref": "#/components/schemas/Observacion"
+            },
+            "title": "Observaciones",
+            "type": "array"
+          },
+          "reglas_no_verificadas": {
+            "title": "Reglas No Verificadas",
+            "type": "boolean"
+          },
+          "sin_corroborar": {
+            "title": "Sin Corroborar",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "estado",
+          "estado_texto",
+          "motivos",
+          "combina_fuentes",
+          "sin_corroborar",
+          "reglas_no_verificadas",
+          "fuentes",
+          "modalidades",
+          "observaciones"
+        ],
+        "title": "SorteoExtraido",
+        "type": "object"
+      },
+      "SorteoPublico": {
+        "properties": {
+          "admite_jugadas": {
+            "title": "Admite Jugadas",
+            "type": "boolean"
+          },
+          "completitud": {
+            "$ref": "#/components/schemas/EstadoPublico"
+          },
+          "fecha": {
+            "format": "date",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "modalidades": {
+            "items": {
+              "$ref": "#/components/schemas/ModalidadPublica"
+            },
+            "title": "Modalidades",
+            "type": "array"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "completitud",
+          "admite_jugadas",
+          "modalidades"
+        ],
+        "title": "SorteoPublico",
+        "type": "object"
+      },
+      "SorteoResumen": {
+        "properties": {
+          "completitud": {
+            "$ref": "#/components/schemas/EstadoPublico"
+          },
+          "fecha": {
+            "format": "date",
+            "title": "Fecha",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "fecha",
+          "completitud"
+        ],
+        "title": "SorteoResumen",
+        "type": "object"
+      },
+      "Ultimos": {
+        "properties": {
+          "pendiente": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SorteoResumen"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ultimo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SorteoPublico"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "ultimo",
+          "pendiente"
+        ],
+        "title": "Ultimos",
+        "type": "object"
+      },
+      "ValorDeFuente": {
+        "properties": {
+          "fuente": {
+            "title": "Fuente",
+            "type": "string"
+          },
+          "valor": {
+            "$ref": "#/components/schemas/Dato"
+          }
+        },
+        "required": [
+          "fuente",
+          "valor"
+        ],
+        "title": "ValorDeFuente",
+        "type": "object"
+      },
+      "VersionTrabajo": {
+        "properties": {
+          "actualizada_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actualizada En"
+          },
+          "es_correccion": {
+            "title": "Es Correccion",
+            "type": "boolean"
+          },
+          "estado": {
+            "title": "Estado",
+            "type": "string"
+          },
+          "motivo_observacion": {
+            "title": "Motivo Observacion",
+            "type": "string"
+          },
+          "numeros": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Numeros",
+            "type": "array"
+          }
+        },
+        "required": [
+          "estado",
+          "es_correccion",
+          "actualizada_en",
+          "numeros",
+          "motivo_observacion"
+        ],
+        "title": "VersionTrabajo",
+        "type": "object"
+      },
+      "VersionVigente": {
+        "properties": {
+          "fuente_descripcion": {
+            "title": "Fuente Descripcion",
+            "type": "string"
+          },
+          "numeros": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Numeros",
+            "type": "array"
+          },
+          "publicada_en": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publicada En"
+          }
+        },
+        "required": [
+          "publicada_en",
+          "fuente_descripcion",
+          "numeros"
+        ],
+        "title": "VersionVigente",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "API v1 de QUINI_6 ([003] contracts/api.md).",
+    "title": "QUINI_6 API",
+    "version": "1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/admin/sorteos/": {
+      "get": {
+        "operationId": "resultados_api_admin_listar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SorteoAdmin"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Listar",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      },
+      "post": {
+        "description": "[001] AC-2.1, AC-2.2. ⟳ ``Idempotency-Key``.",
+        "operationId": "resultados_api_admin_crear",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "summary": "Crear",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/nuevo/": {
+      "get": {
+        "operationId": "resultados_api_admin_formulario_nuevo",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormularioSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Formulario Nuevo",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/": {
+      "get": {
+        "operationId": "resultados_api_admin_panel",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Panel",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      },
+      "put": {
+        "description": "[001] AC-2.3, RN-14.",
+        "operationId": "resultados_api_admin_modificar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Modificar",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/historial/": {
+      "get": {
+        "description": "[001] US7, AC-7.x: del más reciente al más antiguo.",
+        "operationId": "resultados_api_admin_historial",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CambioRegistrado"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Historial",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/modificar/": {
+      "get": {
+        "operationId": "resultados_api_admin_formulario_modificar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormularioSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Formulario Modificar",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/numeros/": {
+      "get": {
+        "operationId": "resultados_api_admin_formulario_numeros",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormularioBloque"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Formulario Numeros",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      },
+      "put": {
+        "description": "[001] AC-2.4 a AC-2.6.",
+        "operationId": "resultados_api_admin_guardar_numeros",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Guardar Numeros",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/premios/": {
+      "get": {
+        "operationId": "resultados_api_admin_formulario_premios",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormularioBloque"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Formulario Premios",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      },
+      "put": {
+        "description": "[001] AC-2.7 a AC-2.9.",
+        "operationId": "resultados_api_admin_guardar_premios",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Guardar Premios",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/{bloque}/corregir/": {
+      "post": {
+        "description": "[001] US7: inicia la corrección; el público sigue viendo lo publicado.",
+        "operationId": "resultados_api_admin_corregir",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Corregir",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/{bloque}/observar/": {
+      "post": {
+        "operationId": "resultados_api_admin_observar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Observar",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/{bloque}/publicar/": {
+      "get": {
+        "description": "[001] RN-17, RN-22: lo que impide publicar y lo que exige confirmación.",
+        "operationId": "resultados_api_admin_revisar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionPublicacion"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Revisar",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      },
+      "post": {
+        "description": "[001] AC-2.10 a AC-2.12.",
+        "operationId": "resultados_api_admin_publicar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Publicar",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/{bloque}/quitar-revision/": {
+      "post": {
+        "operationId": "resultados_api_admin_quitar_revision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Quitar Revision",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/{bloque}/resolver/": {
+      "post": {
+        "operationId": "resultados_api_admin_resolver",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Resolver",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/admin/sorteos/{numero}/{modalidad}/{bloque}/revision/": {
+      "post": {
+        "operationId": "resultados_api_admin_poner_en_revision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "modalidad",
+            "required": true,
+            "schema": {
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "bloque",
+            "required": true,
+            "schema": {
+              "title": "Bloque",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosFormulario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelSorteo"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Poner En Revision",
+        "tags": [
+          "Administración de sorteos"
+        ]
+      }
+    },
+    "/api/v1/avisos/": {
+      "get": {
+        "description": "Entrega los avisos pendientes de la sesión y los marca como leídos.",
+        "operationId": "quini6_api_avisos_leer_avisos",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Aviso"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Leer Avisos",
+        "tags": [
+          "Avisos"
+        ]
+      },
+      "post": {
+        "description": "Agrega un aviso del catálogo con sus variables; lo muestra la aplicación de destino.",
+        "operationId": "quini6_api_avisos_agregar_aviso",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoAviso"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Agregar Aviso",
+        "tags": [
+          "Avisos"
+        ]
+      }
+    },
+    "/api/v1/cuentas/": {
+      "post": {
+        "description": "[001] AC-3.1 a AC-3.3. ⟳ ``Idempotency-Key``. Crea la cuenta e ingresa (como la vista\nHTML).",
+        "operationId": "cuentas_api_crear_cuenta",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaCuenta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sesion"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "summary": "Crear Cuenta",
+        "tags": [
+          "Sesión y cuentas"
+        ]
+      }
+    },
+    "/api/v1/estadisticas/": {
+      "get": {
+        "description": "[001] AC-6.1 a AC-6.11, RN-41, RN-46, RN-47; [003] AC-7.6.",
+        "operationId": "estadisticas_api_frecuencias",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "modalidad",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "desde",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Desde",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Hasta",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "numero",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Numero",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anterior_modalidad",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Anterior Modalidad",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anterior_desde",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Anterior Desde",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anterior_hasta",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Anterior Hasta",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anterior_numero",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Anterior Numero",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FrecuenciasDTO"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Frecuencias",
+        "tags": [
+          "Estadísticas"
+        ]
+      }
+    },
+    "/api/v1/extracciones/": {
+      "get": {
+        "description": "[003] AC-1.4, AC-9.1, AC-9.2, RN-07: filtro, orden y página como en la vista HTML.",
+        "operationId": "extracciones_api_listar",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "estado",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Estado",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orden",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Orden",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "default": "1",
+              "title": "Pagina",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaExtracciones"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Listar",
+        "tags": [
+          "Extracción histórica"
+        ]
+      },
+      "post": {
+        "description": "[002] AC-1.1 a AC-1.6, AC-1.11; [003] RN-03, AC-3.5. ⟳ ``Idempotency-Key``.",
+        "operationId": "extracciones_api_iniciar",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IniciarExtraccion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtraccionResumen"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "summary": "Iniciar",
+        "tags": [
+          "Extracción histórica"
+        ]
+      }
+    },
+    "/api/v1/extracciones/{id}/": {
+      "delete": {
+        "description": "[002] AC-1.18, AC-1.19; [003] AC-2.5. ⟳ ``Idempotency-Key`` (repetir → 204 sin efecto).",
+        "operationId": "extracciones_api_eliminar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Eliminar",
+        "tags": [
+          "Extracción histórica"
+        ]
+      },
+      "get": {
+        "description": "[002] AC-1.7 a AC-1.10; [003] AC-1.2, AC-3.4.",
+        "operationId": "extracciones_api_detalle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extraccion"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Detalle",
+        "tags": [
+          "Extracción histórica"
+        ]
+      }
+    },
+    "/api/v1/extracciones/{id}/avance/": {
+      "get": {
+        "description": "[003] R-10: se consulta cada 3 s mientras ``en_curso``.",
+        "operationId": "extracciones_api_avance",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvanceDatos"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Avance",
+        "tags": [
+          "Extracción histórica"
+        ]
+      }
+    },
+    "/api/v1/extracciones/{id}/sorteos/{numero}/": {
+      "get": {
+        "description": "[002] AC-2.x: intentos por fuente y datos consolidados con su estado y su cálculo.\n\nLos textos y el orden salen de ``consultas.detalle_sorteo`` (los mismos de la vista HTML); los\nvalores, del sorteo consolidado en formato de máquina (importes como cadena decimal).",
+        "operationId": "extracciones_api_sorteo",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SorteoExtraido"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Sorteo",
+        "tags": [
+          "Extracción histórica"
+        ]
+      }
+    },
+    "/api/v1/formularios/pendiente/": {
+      "post": {
+        "operationId": "quini6_api_pendiente_leer_pendiente",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoPendiente"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormularioPendiente"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Leer Pendiente",
+        "tags": [
+          "Formulario pendiente"
+        ]
+      }
+    },
+    "/api/v1/jugadas/": {
+      "get": {
+        "description": "[001] AC-4.x, AC-5.x: de la más reciente a la más antigua, con su estado resumido.",
+        "operationId": "jugadas_api_listar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JugadaResumen"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Listar",
+        "tags": [
+          "Mis jugadas"
+        ]
+      },
+      "post": {
+        "description": "[001] AC-4.1 a AC-4.9, RN-06, RN-07. ⟳ ``Idempotency-Key``.",
+        "operationId": "jugadas_api_registrar",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarJugada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JugadaDTO"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "summary": "Registrar",
+        "tags": [
+          "Mis jugadas"
+        ]
+      }
+    },
+    "/api/v1/jugadas/sorteos-disponibles/": {
+      "get": {
+        "description": "[001] AC-4.7, AC-4.8, RN-07.",
+        "operationId": "jugadas_api_sorteos_disponibles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SorteoDisponible"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Sorteos Disponibles",
+        "tags": [
+          "Mis jugadas"
+        ]
+      }
+    },
+    "/api/v1/jugadas/{id}/": {
+      "delete": {
+        "description": "[001] AC-4.11, RN-08. ⟳ ``Idempotency-Key`` (repetir → 204 sin efecto).",
+        "operationId": "jugadas_api_eliminar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Eliminar",
+        "tags": [
+          "Mis jugadas"
+        ]
+      },
+      "get": {
+        "description": "[001] AC-5.x: comparación por sorteo y modalidad, calculada en cada consulta.",
+        "operationId": "jugadas_api_detalle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JugadaDTO"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Detalle",
+        "tags": [
+          "Mis jugadas"
+        ]
+      },
+      "put": {
+        "description": "[001] AC-4.10, RN-08. ⟳ ``Idempotency-Key``.",
+        "operationId": "jugadas_api_modificar",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarJugada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JugadaDTO"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Modificar",
+        "tags": [
+          "Mis jugadas"
+        ]
+      }
+    },
+    "/api/v1/periodos/atajos/": {
+      "get": {
+        "operationId": "quini6_api_periodos_atajos",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "formulario",
+            "required": true,
+            "schema": {
+              "enum": [
+                "estadisticas",
+                "extraccion"
+              ],
+              "title": "Formulario",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Atajo"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Atajos",
+        "tags": [
+          "Períodos"
+        ]
+      }
+    },
+    "/api/v1/sesion/": {
+      "delete": {
+        "description": "[001] AC-3.8: cierra la sesión (Django borra la cookie).",
+        "operationId": "cuentas_api_salir",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Salir",
+        "tags": [
+          "Sesión y cuentas"
+        ]
+      },
+      "get": {
+        "description": "Sesión actual; fija la cookie ``csrftoken`` para las mutaciones siguientes.",
+        "operationId": "cuentas_api_consultar_sesion",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sesion"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Consultar Sesion",
+        "tags": [
+          "Sesión y cuentas"
+        ]
+      },
+      "post": {
+        "description": "[001] AC-3.4 a AC-3.7, R-04 (bloqueo); [003] FR-020, R-12. Los mismos servicios y mensajes\nque la vista HTML: credenciales incorrectas sin revelar si el correo existe; con un\n``pendiente`` válido, devuelve lo escrito para reabrir ese formulario (sin enviarlo).",
+        "operationId": "cuentas_api_ingresar",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ingreso"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SesionIniciada"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Ingresar",
+        "tags": [
+          "Sesión y cuentas"
+        ]
+      }
+    },
+    "/api/v1/sorteos/": {
+      "get": {
+        "description": "Todos los sorteos en una sola página, como el listado HTML (contracts/api.md).",
+        "operationId": "resultados_api_listar",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "default": "1",
+              "title": "Pagina",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaSorteos"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Listar",
+        "tags": [
+          "Resultados"
+        ]
+      }
+    },
+    "/api/v1/sorteos/buscar/": {
+      "get": {
+        "description": "[001] AC-1.x: por número (si existe, ``redirigir``) o por fecha.",
+        "operationId": "resultados_api_buscar",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "numero",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Numero",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fecha",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Fecha",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaSorteos"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Buscar",
+        "tags": [
+          "Resultados"
+        ]
+      }
+    },
+    "/api/v1/sorteos/ultimo/": {
+      "get": {
+        "description": "[001] RN-25: últimos resultados publicados y, si hay, el sorteo actual pendiente.",
+        "operationId": "resultados_api_ultimo",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ultimos"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Ultimo",
+        "tags": [
+          "Resultados"
+        ]
+      }
+    },
+    "/api/v1/sorteos/{numero}/": {
+      "get": {
+        "operationId": "resultados_api_detalle",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SorteoPublico"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Detalle",
+        "tags": [
+          "Resultados"
+        ]
+      }
+    }
+  },
+  "servers": []
+}

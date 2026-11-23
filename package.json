@@ -1,0 +1,34 @@
+{
+  "name": "quini6",
+  "private": true,
+  "description": "QUINI_6 — herramientas de interfaz: estilos de Django, pruebas de punta a punta y (Etapa 2) Next.js",
+  "workspaces": [
+    "ui",
+    "frontend",
+    "e2e"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "css": "tailwindcss -i estilos/django.css -o static/css/app.css --minify",
+    "css:watch": "tailwindcss -i estilos/django.css -o static/css/app.css --watch",
+    "vendor": "node scripts/vendor.mjs",
+    "iconos": "node scripts/iconos.mjs",
+    "build:django": "npm run vendor && npm run css",
+    "e2e": "npm run test -w e2e",
+    "lhci": "node scripts/lhci.mjs",
+    "api:tipos": "npm run api:tipos -w frontend"
+  },
+  "devDependencies": {
+    "@alpinejs/anchor": "^3",
+    "@alpinejs/focus": "^3",
+    "@lhci/cli": "^0.16.1",
+    "@tailwindcss/cli": "^4",
+    "alpinejs": "^3",
+    "cally": "^0",
+    "htmx.org": "^2",
+    "lucide-static": "^0",
+    "tailwindcss": "^4"
+  }
+}

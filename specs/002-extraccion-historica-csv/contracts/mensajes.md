@@ -1,5 +1,7 @@
 # Catálogo de mensajes visibles: Extracción histórica de sorteos
 
+> **Nota ([003] R-13)**: desde [003], los textos vigentes son los de `specs/003-modernizacion-ui-ux/contracts/mensajes.md` y `dominio/mensajes.py`.
+
 **Plan**: [../plan.md](../plan.md) | **Rutas**: [rutas.md](rutas.md) | **Catálogo general**: [001] [contracts/mensajes.md](../../001-quini6-mvp/contracts/mensajes.md)
 
 La implementación usa estos textos **literalmente** y las pruebas de integración los verifican (Const. VI y VII). Marcas:
@@ -23,7 +25,6 @@ Variables: `{N}` número de sorteo, `{fecha}` `dd/mm/aaaa`, `{n}` cantidad, `{te
 | `ext.periodo_largo` † | El período no puede superar los 12 meses | AC-1.6, RN-04 |
 | `ext.anteriores` † | Extracciones anteriores | AC-1.14 |
 | `ext.boton_descargar` † | Descargar CSV | AC-5.1 |
-| `ext.enlace_oficial` † | Ver extracto oficial (Lotería de Santa Fe) | AC-1.13 |
 | `ext.col_fecha` | Fecha | AC-1.14 (20/11/2026, D-24; antes "Inicio") |
 | `ext.acciones` | Acciones de la extracción del {fecha y hora} | AC-1.18 (20/11/2026, D-24); nombre accesible del menú ⋮ |
 | `ext.eliminar` | Eliminar | AC-1.18 (D-24) |
@@ -89,7 +90,7 @@ Rótulos del resumen (RN-33): "Período consultado", "Sorteos identificados", "R
 | Clave | Texto | Origen |
 |-------|-------|--------|
 | `obs.importe_invalido` † | Importe con formato no reconocido: «{texto}» | RN-16, AC-3.8 |
-| `obs.importe_corregido` | Importe corregido: «{texto}» → {importe} | RN-16, AC-3.16 y AC-3.18 (20/11/2026; D-18 y D-20); informativa |
+| `obs.importe_corregido` | Importe corregido: «{texto}» → {importe} | RN-16, AC-3.16, AC-3.18, AC-3.19 y AC-3.20 (20/11/2026 y 23/11/2026; D-18, D-20, D-31 y D-32); informativa |
 | `obs.premio_extra_no_coincide` † | Los números de Pozo Extra de la fuente no coinciden con sus extracciones | RN-12, AC-3.13 |
 | `obs.sin_fuente` † | Ninguna fuente informa este número de sorteo | RN-05, AC-1.16 |
 | `obs.numeros_cantidad` † | {modalidad}: la fuente publica {n} números en lugar de seis. No se usan. | RN-24, AC-3.9 |

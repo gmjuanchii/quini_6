@@ -9,7 +9,9 @@ import re
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-FECHA_INVALIDA = "Ingresá una fecha válida (dd/mm/aaaa)"
+from dominio.mensajes import MENSAJES
+
+FECHA_INVALIDA = MENSAJES["ext.fecha_invalida"]
 INICIO_POSTERIOR = "La fecha de inicio no puede ser posterior a la fecha de finalización"
 FIN_FUTURA = "La fecha de finalización no puede ser posterior a hoy"
 PERIODO_LARGO = "El período no puede superar los 12 meses"

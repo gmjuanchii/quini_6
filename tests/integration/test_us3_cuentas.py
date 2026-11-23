@@ -7,11 +7,13 @@ from django.contrib.sessions.models import Session
 from django.utils import timezone
 
 from cuentas.models import Usuario
+from dominio.mensajes import MENSAJES, mensaje
 from tests.fabricas import CLAVE, crear_usuario
 
 pytestmark = pytest.mark.django_db
 
-CORREO_EXISTENTE = "Ya existe una cuenta con este correo electrónico. Iniciá sesión."
+# [003] D-01, contracts/mensajes.md § 2: textos neutros del catálogo (antes con voseo).
+CORREO_EXISTENTE = MENSAJES["cuenta.correo_existente"]
 CREDENCIALES = "Correo electrónico o contraseña incorrectos"
 
 
@@ -37,7 +39,7 @@ class TestRegistro:
     def test_ac_3_2_correo_invalido(self, client):
         r = client.post("/registrarse/", {"email": "no-es-correo", "password": "12345678"})
         assert r.status_code == 200
-        assert "Ingresá un correo electrónico válido." in r.content.decode()
+        assert MENSAJES["cuenta.correo_invalido"] in r.content.decode()  # [003] D-01
         assert not Usuario.objects.exists()
 
     def test_ac_3_2_contrasena_corta(self, client):
@@ -81,10 +83,7 @@ class TestIngreso:
         contenido = r.content.decode()
         usuario.refresh_from_db()
         hora = timezone.localtime(usuario.bloqueado_hasta).strftime("%H:%M")
-        assert (
-            "Por seguridad, bloqueamos el acceso por 15 minutos. "
-            f"Podés volver a intentar a las {hora}."
-        ) in contenido
+        assert mensaje("cuenta.bloqueada", hora=hora) in contenido  # [003] D-01
         assert client.get("/mis-jugadas/").status_code == 302
 
         usuario.bloqueado_hasta = timezone.now() - timedelta(seconds=1)

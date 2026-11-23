@@ -1,31 +1,37 @@
 {% extends "base.html" %}
-{% load static formato_ar %}
-{% block titulo %}Extracción {{ extraccion.pk }}{% endblock %}
+{% load static formato_ar ui %}
+{% block titulo %}Extracción del {{ extraccion.iniciada_en|fecha_hora_ar }}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/extracciones/">← Extracción histórica de sorteos</a></p>
+{% msg "nav.volver_extracciones" as t %}{% include "ui/_volver.html" with href="/administracion/extracciones/" texto=t %}
 <h1>Extracción histórica de sorteos</h1>
+{# [003] AC-1.5: la misma etiqueta que en el listado y, debajo, su explicación (RN-02). #}
+<div class="mt-2 flex flex-col gap-2">
+  <div>{% include "ui/_insignia_estado.html" with etiqueta=etiqueta id="detalle" %}</div>
+  <p class="text-muted-foreground">{% msg etiqueta.clave_explicacion %}</p>
+</div>
+{% if ninguna_fuente %}{% msg "ext.ninguna_fuente" as texto_ninguna %}{% include "ui/_aviso.html" with variante="danger" texto=texto_ninguna extra="mt-4" %}{% endif %}
 
 {% if avance.en_curso %}
   {% include "extracciones/_avance.html" %}
 {% elif sin_sorteos %}
-  <div class="vacio" role="status"><p>No se identificaron sorteos en el período consultado</p></div>
+  <div class="rounded-card bg-surface px-6 py-8 text-center text-muted-foreground shadow-1" role="status"><p>No se identificaron sorteos en el período consultado</p></div>
   {% if extraccion.cobertura_desde %}
-    <p class="mensaje mensaje--aviso">Las fuentes no cubren el período anterior al {{ extraccion.cobertura_desde|fecha_ar }}</p>
+    <div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">Las fuentes no cubren el período anterior al {{ extraccion.cobertura_desde|fecha_ar }}</p></div>
   {% endif %}
 {% else %}
-  <div class="mensaje {{ clase_estado }}" role="status"><p><strong>{{ estado_texto }}</strong></p></div>
+  <div class="{% clases 'aviso' variante='info' extra='{{ clase_estado }}' %}" role="status">{% icono "info" %}<div class="m-0 min-w-0 flex-1"><p><strong>{{ estado_texto }}</strong></p></div></div>
   {% if extraccion.cobertura_desde %}
-    <p class="mensaje mensaje--aviso">Las fuentes no cubren el período anterior al {{ extraccion.cobertura_desde|fecha_ar }}</p>
+    <div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">Las fuentes no cubren el período anterior al {{ extraccion.cobertura_desde|fecha_ar }}</p></div>
   {% endif %}
   {% if resumen.huecos %}
-    <p class="mensaje mensaje--aviso">Hay números de sorteo que ninguna fuente informa: {{ resumen.huecos|join:", " }}</p>
+    <div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">Hay números de sorteo que ninguna fuente informa: {{ resumen.huecos|join:", " }}</p></div>
   {% endif %}
   {% if puede_descargar %}
-    <p><a class="boton" href="/administracion/extracciones/{{ extraccion.pk }}/csv/">Descargar CSV</a></p>
+    <p><a class="{% clases 'boton' variante='principal' %}" href="/administracion/extracciones/{{ extraccion.pk }}/csv/">Descargar CSV</a></p>
   {% endif %}
 
   <h2>Resumen</h2>
-  <table class="tabla tabla--apilable">
+  <table class="apilable">
     <caption class="visualmente-oculto">Resumen de la extracción</caption>
     <tbody>
       <tr><th scope="row">Período consultado</th><td>{{ extraccion.desde|fecha_ar }} al {{ extraccion.hasta|fecha_ar }}</td></tr>
@@ -38,7 +44,7 @@
   </table>
 
   <h3>Fuentes utilizadas</h3>
-  <table class="tabla tabla--apilable">
+  <table class="apilable">
     <caption class="visualmente-oculto">Fuentes utilizadas</caption>
     <thead><tr><th scope="col">Fuente</th><th scope="col">Sorteos aportados</th><th scope="col">Intentos fallidos</th></tr></thead>
     <tbody>
@@ -51,7 +57,7 @@
           <td data-rotulo="Sorteos aportados">{{ f.aportados }}</td>
           <td data-rotulo="Intentos fallidos">
             {% if f.fallidos %}
-              <ul class="lista-simple">{% for x in f.fallidos %}<li>{{ x.texto }}: {{ x.cantidad }}</li>{% endfor %}</ul>
+              <ul class="m-0 list-none divide-y divide-border p-0 [&>li]:py-3">{% for x in f.fallidos %}<li>{{ x.texto }}: {{ x.cantidad }}</li>{% endfor %}</ul>
             {% else %}0{% endif %}
           </td>
         </tr>
@@ -61,13 +67,13 @@
 
   {% if resumen.a_revisar %}
     <h3>Sorteos que requieren revisión</h3>
-    <ul class="lista-simple">
+    <ul class="m-0 list-none divide-y divide-border p-0 [&>li]:py-3">
       {% for s in resumen.a_revisar %}
         <li>
           <a href="/administracion/extracciones/{{ extraccion.pk }}/sorteos/{{ s.numero }}/">Sorteo N.º {{ s.numero }}</a>
           {% if s.fecha %}· {{ s.fecha|fecha_ar }}{% endif %}
           · <span class="estado {{ s.clase }}">{{ s.estado_texto }}</span>
-          {% if s.motivos %}<ul>{% for m in s.motivos %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+          {% if s.motivos %}<ul class="break-words">{% for m in s.motivos %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
         </li>
       {% endfor %}
     </ul>
@@ -76,19 +82,22 @@
 
 {% if sorteos %}
   <h2>Sorteos</h2>
-  <table class="tabla tabla--apilable">
+  {# [003] HU-09: tabla apilable con los nombres de RN-05 y fila entera clicable (AC-9.3 a AC-9.5). #}
+  <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-1 max-md:overflow-visible max-md:border-0 max-md:bg-transparent max-md:shadow-none">
+  <table class="apilable">
     <caption class="visualmente-oculto">Sorteos de la extracción con su estado</caption>
-    <thead><tr><th scope="col">Sorteo</th><th scope="col">Fecha</th><th scope="col">Estado</th></tr></thead>
+    <thead><tr><th scope="col" class="px-3 py-2 text-left">Sorteo</th><th scope="col" class="px-3 py-2 text-left">Fecha del sorteo</th><th scope="col" class="px-3 py-2 text-left">Estado</th></tr></thead>
     <tbody>
       {% for s in sorteos %}
-        <tr>
-          <td data-rotulo="Sorteo"><a href="/administracion/extracciones/{{ extraccion.pk }}/sorteos/{{ s.numero }}/">N.º {{ s.numero }}</a></td>
-          <td data-rotulo="Fecha">{% if s.fecha %}{{ s.fecha|fecha_ar }}{% else %}No disponible{% endif %}</td>
+        <tr class="fila-enlace">
+          <td data-rotulo="Sorteo" class="cifras whitespace-nowrap"><a href="/administracion/extracciones/{{ extraccion.pk }}/sorteos/{{ s.numero }}/" data-enlace-fila class="font-semibold text-primary">N.º {{ s.numero }}</a></td>
+          <td data-rotulo="Fecha del sorteo" class="cifras whitespace-nowrap">{% if s.fecha %}{{ s.fecha|fecha_ar }}{% else %}No disponible{% endif %}</td>
           <td data-rotulo="Estado"><span class="estado {{ s.clase }}">{{ s.estado_texto }}</span></td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 {% endif %}
 {% endblock %}
-{% block scripts %}{% if avance.en_curso %}<script src="{% static 'js/avance-extraccion.js' %}" defer></script>{% endif %}{% endblock %}
+

@@ -1,13 +1,19 @@
 """Formularios de administración de resultados (US2, US7). Textos en es-AR."""
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from dominio.importes import ErrorImporte, mensaje_error_importe, parsear_pesos
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.numeros import mensaje_error_extraccion, validar_extraccion
+from dominio.periodos import error_de_fecha
 from dominio.tipos import ORDEN_MODALIDADES, Modalidad, nombre_categoria
+from quini6.fechas import FechaConCalendario
 
-FORMATO_FECHA = ["%d/%m/%Y"]
-FECHA_INVALIDA = "Ingresá una fecha válida con el formato dd/mm/aaaa."
+#: [003] R-07: sin scripts el calendario del navegador envía AAAA-MM-DD; se acepta igual.
+FORMATO_FECHA = ["%d/%m/%Y", "%Y-%m-%d"]
+#: [003] HU-11: texto del catálogo (antes "Ingresá una fecha válida con el formato dd/mm/aaaa.").
+FECHA_INVALIDA = MENSAJES["gral.fecha_invalida"]
 CAMPOS_PREMIO = (
     ("ganadores", "Ganadores"),
     ("importe_categoria", "Importe destinado a la categoría"),
@@ -17,26 +23,35 @@ CAMPOS_PREMIO = (
 
 
 class _CampoFecha(forms.DateField):
+    """Fecha de [001] con el DateField de [003] (FR-010): ``<input type="date">`` que el script
+    convierte en ``dd/mm/aaaa`` con calendario. Las reglas de [001] no cambian."""
+
     def __init__(self, **kwargs):
         kwargs.setdefault("input_formats", FORMATO_FECHA)
         kwargs.setdefault("error_messages", {"invalid": FECHA_INVALIDA, "required": FECHA_INVALIDA})
-        kwargs.setdefault(
-            "widget",
-            forms.DateInput(
-                format="%d/%m/%Y", attrs={"placeholder": "dd/mm/aaaa", "inputmode": "numeric"}
-            ),
-        )
+        kwargs.setdefault("widget", FechaConCalendario(attrs={"autocomplete": "off"}))
         super().__init__(**kwargs)
+
+    def to_python(self, value):
+        try:
+            return super().to_python(value)
+        except ValidationError as error:
+            # [003] AC-4.5, FR-012: "La fecha 31/02/2025 no existe" junto al campo.
+            resultado = error_de_fecha(value)
+            if resultado is None:
+                raise
+            clave, valores = resultado
+            raise ValidationError(mensaje(clave, **valores), code="invalid") from error
 
 
 class ConcursoForm(forms.Form):
     numero = forms.IntegerField(
-        label="Número de concurso",
+        label="Número de sorteo",
         min_value=1,
         error_messages={
-            "required": "Ingresá el número de concurso.",
-            "invalid": "Ingresá un número de concurso válido.",
-            "min_value": "Ingresá un número de concurso válido.",
+            "required": MENSAJES["admin.falta_numero_sorteo"],
+            "invalid": MENSAJES["admin.numero_sorteo_invalido"],
+            "min_value": MENSAJES["admin.numero_sorteo_invalido"],
         },
         widget=forms.TextInput(attrs={"inputmode": "numeric"}),
     )
@@ -46,8 +61,8 @@ class ConcursoForm(forms.Form):
         choices=[(m.value, m.nombre) for m in ORDEN_MODALIDADES],
         widget=forms.CheckboxSelectMultiple,
         error_messages={
-            "required": "Elegí al menos una modalidad aplicable.",
-            "invalid_choice": "Elegí modalidades válidas.",
+            "required": MENSAJES["admin.falta_modalidad"],
+            "invalid_choice": MENSAJES["admin.modalidades_invalidas"],
         },
     )
 
@@ -65,7 +80,7 @@ class _FuenteMixin(forms.Form):
         label="Fuente (descripción)",
         required=False,
         max_length=300,
-        help_text="Por ejemplo: Extracto oficial del concurso N.º 3215.",
+        help_text="Por ejemplo: Extracto oficial del sorteo N.º 3215.",
         error_messages={"max_length": "La descripción no puede superar los 300 caracteres."},
     )
     fuente_fecha_consulta = _CampoFecha(label="Fecha de consulta de la fuente", required=False)
@@ -83,13 +98,13 @@ class _FuenteMixin(forms.Form):
         datos = super().clean()
         if self.es_correccion:
             if not (datos.get("motivo_correccion") or "").strip():
-                self.add_error("motivo_correccion", "Indicá el motivo de la corrección.")
+                self.add_error("motivo_correccion", "Falta el motivo de la corrección.")
             if not (datos.get("fuente_descripcion") or "").strip():
-                self.add_error("fuente_descripcion", "Indicá la fuente de la corrección.")
+                self.add_error("fuente_descripcion", "Falta la fuente de la corrección.")
             if not datos.get("fuente_fecha_consulta") and "fuente_fecha_consulta" not in (
                 self.errors
             ):
-                self.add_error("fuente_fecha_consulta", "Indicá la fecha de consulta de la fuente.")
+                self.add_error("fuente_fecha_consulta", "Falta la fecha de consulta de la fuente.")
         return datos
 
 
@@ -143,7 +158,7 @@ def _parsear_ganadores(texto: str):
         return None
     if texto.isdigit():
         return int(texto)
-    raise forms.ValidationError("Ingresá una cantidad de ganadores válida (0 o más).")
+    raise forms.ValidationError(MENSAJES["admin.ganadores_invalidos"])
 
 
 class PremiosForm(_FuenteMixin):
@@ -237,7 +252,7 @@ class MotivoForm(forms.Form):
     motivo = forms.CharField(
         label="Motivo",
         widget=forms.Textarea(attrs={"rows": 2}),
-        error_messages={"required": "Indicá el motivo."},
+        error_messages={"required": "Falta el motivo."},
     )
 
 
@@ -245,7 +260,7 @@ class CorreccionForm(MotivoForm):
     fuente_descripcion = forms.CharField(
         label="Fuente de la corrección (descripción)",
         max_length=300,
-        error_messages={"required": "Indicá la fuente de la corrección."},
+        error_messages={"required": "Falta la fuente de la corrección."},
     )
     fuente_fecha_consulta = _CampoFecha(label="Fecha de consulta de la fuente")
 

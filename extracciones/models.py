@@ -53,6 +53,13 @@ class Extraccion(models.Model):
                 condition=Q(estado="EN_CURSO"),
                 name="extraccion_una_en_curso_por_admin",
             ),
+            # [003] RN-03, R-09: dos extracciones en curso con el mismo período, de cualquier
+            # administrador, no pueden coexistir (cubre la carrera entre dos cuentas).
+            models.UniqueConstraint(
+                fields=["desde", "hasta"],
+                condition=Q(estado="EN_CURSO"),
+                name="extraccion_periodo_unico_en_curso",
+            ),
             models.CheckConstraint(
                 condition=Q(desde__lte=F("hasta")), name="extraccion_desde_menor_o_igual_hasta"
             ),

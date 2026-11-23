@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block titulo %}{{ titulo|default:"Sin permisos" }}{% endblock %}
+{% load ui %}
+{% block titulo %}{% if titulo %}{{ titulo }}{% else %}{% msg "gral.titulo_sin_permisos" %}{% endif %}{% endblock %}
 {% block contenido %}
-<h1>{{ titulo|default:"Acceso restringido" }}</h1>
-<p class="mensaje mensaje--error">{{ mensaje|default:"No tenés permisos para acceder a esta sección" }}</p>
-<p><a href="/resultados/">Volver a los resultados</a></p>
+<h1>{% if titulo %}{{ titulo }}{% else %}{% msg "gral.titulo_acceso_restringido" %}{% endif %}</h1>
+{% if mensaje %}{% include "ui/_aviso.html" with variante="danger" texto=mensaje %}{% else %}{% msg "admin.sin_permiso" as sin_permiso %}{% include "ui/_aviso.html" with variante="danger" texto=sin_permiso %}{% endif %}
+<p><a href="/resultados/">{% msg "gral.volver_resultados" %}</a></p>
 {% endblock %}

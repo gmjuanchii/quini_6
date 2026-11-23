@@ -1,15 +1,16 @@
 {% extends "base.html" %}
-{% block titulo %}Premios de {{ modalidad.nombre }} · Concurso N.º {{ concurso.numero }}{% endblock %}
+{% load ui %}
+{% block titulo %}Premios de {{ modalidad.nombre }} · Sorteo N.º {{ concurso.numero }}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/concursos/{{ concurso.numero }}/">← Concurso N.º {{ concurso.numero }}</a></p>
+{# [003] D-04: "Sorteo" en los textos visibles. #}{% url "admin_panel" concurso.numero as href %}{% with n=concurso.numero|stringformat:"s" %}{% include "ui/_volver.html" with href=href texto="Sorteo N.º "|add:n %}{% endwith %}
 <h1>Premios de {{ modalidad.nombre }}</h1>
 <p>{% if es_correccion %}<span class="estado estado--corregido">Corrección en preparación</span> El público sigue viendo los valores publicados hasta que publiques la corrección.{% else %}Lo que guardes queda en Borrador y no es visible para el público.{% endif %}</p>
 <p>Las categorías son fijas. Dejá vacío un dato para registrarlo como <strong>no disponible</strong>. Importes con coma decimal (por ejemplo, 1.500,50).</p>
 {% include "resultados/admin/_errores_form.html" %}
-<form method="post" class="formulario tarjeta" style="max-width:none" novalidate>
+<form method="post" action="{% accion_formulario %}" class="grid max-w-xl gap-4 my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" style="max-width:none" novalidate data-validar-formulario data-trabajando>
   {% csrf_token %}
   {% if form.aciertos_categoria_ganadora %}{% include "_campo.html" with campo=form.aciertos_categoria_ganadora %}{% endif %}
-  <table class="tabla tabla--apilable">
+  <table class="apilable">
     <caption>Datos por categoría (vacío = no disponible)</caption>
     <thead><tr><th scope="col">Categoría</th><th scope="col">Ganadores</th><th scope="col">Importe destinado a la categoría</th><th scope="col">Importe individual por ganador</th><th scope="col">Pozo vacante o acumulado</th></tr></thead>
     <tbody>
@@ -30,8 +31,8 @@
   {% include "_campo.html" with campo=form.fuente_descripcion %}
   {% include "_campo.html" with campo=form.fuente_fecha_consulta %}
   {% if form.motivo_correccion %}{% include "_campo.html" with campo=form.motivo_correccion %}{% endif %}
-  <div class="acciones">
-    <button type="submit" class="boton">Guardar borrador</button>
+  <div class="my-3 flex flex-wrap items-center gap-2">
+    <button type="submit" class="{% clases 'boton' variante='principal' %}" data-texto-trabajando="{% msg 'form.trabajando_guardar' %}">Guardar borrador</button>
     <a href="/administracion/concursos/{{ concurso.numero }}/">Cancelar</a>
   </div>
 </form>

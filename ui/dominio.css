@@ -1,0 +1,464 @@
+/*
+ * QUINI_6 — base y componentes propios del dominio, comunes a Django y Next.js ([003] R-02, RN-11).
+ * Escritos solo con los tokens de ui/tokens.css. Los importan estilos/django.css y
+ * frontend/src/app/globals.css: el mismo aspecto en ambas interfaces por construcción (CHK013).
+ */
+
+/*
+ * [003] HU-13, T127, RN-11: base y componentes propios del dominio, escritos solo con los tokens de
+ * ui/tokens.css (radios, sombras, alturas, colores de ambos temas). Reemplazan a estilos/legado.css
+ * (retirado en T141). Los componentes genéricos (botones, avisos, tarjetas, tablas) usan
+ * ui/variantes.json o utilidades en las plantillas.
+ */
+@layer base {
+  body {
+    overflow-wrap: anywhere;
+  }
+  a {
+    color: var(--q-primary);
+    text-underline-offset: 2px;
+  }
+  a:hover {
+    color: var(--q-primary-hover);
+  }
+  h1,
+  h2,
+  h3 {
+    line-height: 1.25;
+    font-weight: 600;
+  }
+  h1 {
+    margin: 0 0 1rem;
+    font-size: var(--text-3xl);
+  }
+  h2 {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 1.5rem;
+  }
+  h3 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 1.125rem;
+  }
+  p {
+    margin: 0 0 0.75rem;
+  }
+  img,
+  svg {
+    max-width: 100%;
+  }
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--q-border);
+    border-radius: var(--radius-control);
+  }
+}
+
+@layer components {
+  /* Estructura de la página. */
+  .contenedor {
+    width: 100%;
+    max-width: var(--container-lectura);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  .principal {
+    min-height: 60vh;
+    padding-block: 1.5rem 3rem;
+  }
+  .cargando {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 40;
+    padding: 0.5rem;
+    background-color: var(--q-warning-soft);
+    color: var(--q-warning-on-soft);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* Campos de formulario (Field, contracts/componentes.md). */
+  .campo {
+    display: grid;
+    gap: 0.375rem;
+  }
+  .campo > label,
+  .campo > legend {
+    font-weight: 500;
+  }
+  .campo :is(input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], select, textarea),
+  .control {
+    width: 100%;
+    min-height: var(--spacing-control);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--q-border-input);
+    border-radius: var(--radius-control);
+    background-color: var(--q-surface);
+    color: var(--q-foreground);
+    font: inherit;
+  }
+  .campo .ayuda {
+    margin: 0;
+    color: var(--q-muted-foreground);
+    font-size: 0.875rem;
+  }
+  .campo .error {
+    margin: 0;
+    color: var(--q-danger-text);
+    font-weight: 500;
+  }
+  .campo--error :is(input, select, textarea) {
+    border-width: 2px;
+    border-color: var(--q-danger-text);
+  }
+  .casilla {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .casilla input {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.25rem;
+    accent-color: var(--q-primary);
+  }
+
+  /* Estados de un dato (siempre con texto, NFR-003): misma forma que la insignia (RN-11). */
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background-color: var(--q-neutral-soft);
+    color: var(--q-neutral-on-soft);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .estado--con-premio {
+    background-color: var(--q-success-soft);
+    color: var(--q-success-on-soft);
+  }
+  .estado--sin-premio {
+    background-color: var(--q-neutral-soft);
+    color: var(--q-neutral-on-soft);
+  }
+  .estado--pendiente {
+    background-color: var(--q-warning-soft);
+    color: var(--q-warning-on-soft);
+  }
+  .estado--revision {
+    background-color: var(--q-danger-soft);
+    color: var(--q-danger-on-soft);
+  }
+  .estado--corregido {
+    background-color: var(--q-info-soft);
+    color: var(--q-info-on-soft);
+  }
+  .resumen {
+    font-weight: 700;
+  }
+
+  /* Números sorteados y de la jugada. */
+  .numeros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bolilla {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.25rem;
+    border: 2px solid var(--q-primary);
+    border-radius: 999px;
+    background-color: var(--q-surface);
+    color: var(--q-primary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .bolilla--acertada {
+    border: 3px solid var(--q-success-text);
+    background-color: var(--q-success-soft);
+    color: var(--q-success-on-soft);
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .grilla-numeros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+    gap: 0.5rem;
+  }
+  .grilla-numeros label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--spacing-control);
+    border: 2px solid var(--q-border);
+    border-radius: var(--radius-control);
+    background-color: var(--q-surface);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+  }
+  .grilla-numeros input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+  .grilla-numeros label:has(input:checked) {
+    border-color: var(--q-primary-hover);
+    background-color: var(--q-primary-solid);
+    color: var(--q-primary-foreground);
+  }
+  .grilla-numeros label:has(input:focus-visible) {
+    outline: 2px solid var(--q-ring);
+    outline-offset: 2px;
+  }
+
+  /* Comparación de una jugada: un bloque por modalidad, apilados a 360 px. */
+  .comparacion {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  }
+  .comparacion__bloque {
+    padding: 1rem;
+    border: 1px solid var(--q-border);
+    border-radius: var(--radius-card);
+    background-color: var(--q-surface);
+    box-shadow: var(--q-shadow-1);
+  }
+  .comparacion__bloque h3 {
+    margin-top: 0;
+  }
+  .comparacion__dato {
+    margin: 0.25rem 0;
+  }
+
+  /* Pares rótulo/valor. */
+  dl.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0.5rem 0;
+  }
+  dl.datos dt {
+    font-weight: 600;
+  }
+  dl.datos dd {
+    margin: 0;
+  }
+  @media (max-width: 30rem) {
+    dl.datos {
+      grid-template-columns: 1fr;
+    }
+    dl.datos dd {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  /* Barra de avance de una extracción ([002] D-26; [003] AC-3.2). */
+  .barra-avance {
+    display: block;
+    width: 100%;
+    height: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--q-primary);
+    border-radius: var(--radius-control);
+    background-color: var(--q-surface);
+    color: var(--q-primary);
+    appearance: none;
+  }
+  .barra-avance::-webkit-progress-bar {
+    background-color: var(--q-surface);
+  }
+  .barra-avance::-webkit-progress-value {
+    background-color: var(--q-primary-solid);
+    transition: width var(--duration-normal) var(--ease-standard);
+  }
+  .barra-avance::-moz-progress-bar {
+    background-color: var(--q-primary-solid);
+  }
+}
+
+/*
+ * [003] HU-09, T103: DataTable (contracts/componentes.md), común a Django y Next.js (T175). Por debajo de 768 px, una tabla
+ * "apilable" muestra cada fila como tarjeta rotulada (AC-9.3, sin desplazamiento horizontal); la fila
+ * entera abre el detalle con el enlace "Ver detalle →" estirado, salvo el menú ⋮ (AC-9.4, FR-027).
+ * Los selectores son de hijo directo para no alcanzar a una tabla anidada dentro de una celda.
+ */
+@layer components {
+  table.apilable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  table.apilable > caption {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+  }
+  table.apilable > thead > tr > th {
+    background-color: var(--q-muted);
+    color: var(--q-foreground);
+  }
+  table.apilable > tbody > tr > :is(td, th) {
+    border-top: 1px solid var(--q-border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: middle;
+  }
+  table.apilable > tbody > tr > .cifras,
+  table.apilable > tbody > tr > .a-la-derecha {
+    text-align: right;
+  }
+
+  @media (max-width: 767.98px) {
+    table.apilable > thead {
+      display: block; /* un table-header-group no recorta su contenido (SC-006) */
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+    table.apilable,
+    table.apilable > tbody,
+    table.apilable > tbody > tr,
+    table.apilable > tbody > tr > :is(td, th) {
+      display: block;
+      width: 100%;
+    }
+    table.apilable > tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    table.apilable > tbody > tr {
+      border-radius: var(--radius-card);
+      background-color: var(--q-surface);
+      box-shadow: var(--q-shadow-1);
+      border: 1px solid var(--q-border);
+      padding: 0.5rem 0;
+    }
+    table.apilable > tbody > tr > :is(td, th) {
+      border-top: 0;
+      padding: 0.25rem 1rem;
+      text-align: left;
+    }
+    table.apilable > tbody > tr > .cifras,
+    table.apilable > tbody > tr > .a-la-derecha {
+      text-align: left;
+    }
+    table.apilable > tbody > tr > td[data-rotulo]::before {
+      content: attr(data-rotulo);
+      display: block;
+      color: var(--q-muted-foreground);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+
+  /* Fila clicable: el enlace de la fila cubre toda la fila; el ⋮ queda por encima. */
+  tr.fila-enlace {
+    position: relative;
+  }
+  tr.fila-enlace:hover > :is(td, th) {
+    background-color: var(--q-muted);
+  }
+  tr.fila-enlace [data-enlace-fila]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  tr.fila-enlace .sobre-fila {
+    position: relative;
+    z-index: 10;
+  }
+  @media (min-width: 768px) {
+    /* "Ver detalle →" se ve al cursor y al foco (componentes.md); en el teléfono, siempre. */
+    tr.fila-enlace .ver-detalle {
+      opacity: 0;
+    }
+    tr.fila-enlace:hover .ver-detalle,
+    tr.fila-enlace .ver-detalle:focus-visible {
+      opacity: 1;
+    }
+  }
+  tr.fila-enlace:has([data-enlace-fila]:focus-visible) {
+    outline: 2px solid var(--q-ring);
+    outline-offset: -2px;
+  }
+}
+
+/*
+ * [003] HU-13, T125, R-15: transiciones breves (comunes a Django y Next.js, T180) con los tokens (máximo 250 ms, AC-13.1). Menús y
+ * popovers: opacidad y escala; diálogo y fondo; avisos al entrar y al salir. "Reducir movimiento"
+ * las anula desde ui/base.css (AC-13.2).
+ */
+@layer components {
+  .menu-acciones [role="menu"],
+  .menu-cuenta__panel > *,
+  .calendario-popover > div {
+    transform-origin: top;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+  dialog {
+    transition:
+      opacity var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard),
+      overlay var(--duration-normal) allow-discrete,
+      display var(--duration-normal) allow-discrete;
+  }
+  dialog::backdrop {
+    transition: opacity var(--duration-normal) var(--ease-standard);
+  }
+  [data-aviso-toast] {
+    transition:
+      opacity var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard);
+  }
+  [data-aviso-toast].saliendo {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  /* T126, AC-13.3: marcadores de posición mientras llega la primera respuesta de HTMX. */
+  .esqueleto-htmx:not(.htmx-request) {
+    display: none !important;
+  }
+}
+
+@starting-style {
+  .menu-acciones[open] [role="menu"],
+  .menu-cuenta__panel.abierto > *,
+  .calendario-popover > div {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  dialog[open] {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+  dialog[open]::backdrop {
+    opacity: 0;
+  }
+  [data-aviso-toast] {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}

@@ -1,21 +1,9 @@
 {% extends "base.html" %}
-{% load formato_ar %}
-{% block titulo %}Eliminar extracción{% endblock %}
+{% load formato_ar ui %}
+{% block titulo %}{% msg "ext.eliminar_titulo" %}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/extracciones/">← Extracción histórica de sorteos</a></p>
-<h1>Eliminar extracción</h1>
-<section class="tarjeta">
-  <dl class="datos">
-    <dt>Fecha</dt><dd>{{ extraccion.iniciada_en|fecha_hora_ar }}</dd>
-    <dt>Ejecutada por</dt><dd>{{ extraccion.creada_por.email }}</dd>
-    <dt>Período consultado</dt><dd>{{ extraccion.desde|fecha_ar }} al {{ extraccion.hasta|fecha_ar }}</dd>
-    <dt>Estado</dt><dd>{{ extraccion.estado_enum.texto }}</dd>
-  </dl>
-  <p class="mensaje mensaje--aviso">¿Querés eliminar esta extracción? Se borran su resumen, el detalle de sus sorteos y su archivo CSV. Esta acción no se puede deshacer.</p>
-  <form method="post" class="acciones">
-    {% csrf_token %}
-    <button type="submit" class="boton boton--peligro">Eliminar</button>
-    <a class="boton boton--secundario" href="/administracion/extracciones/">Cancelar</a>
-  </form>
+{% msg "nav.volver_extracciones" as t %}{% include "ui/_volver.html" with href="/administracion/extracciones/" texto=t %}
+<section class="mx-auto mt-4 max-w-formulario rounded-card bg-surface p-6 shadow-1" role="alertdialog" aria-labelledby="dialogo-titulo" aria-describedby="dialogo-texto">
+  {% include "extracciones/_eliminar_contenido.html" %}
 </section>
 {% endblock %}

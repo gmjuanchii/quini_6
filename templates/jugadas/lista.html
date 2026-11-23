@@ -1,28 +1,34 @@
 {% extends "base.html" %}
-{% load formato_ar %}
+{% load formato_ar ui %}
 {% block titulo %}Mis jugadas{% endblock %}
 {% block contenido %}
-<div class="fila-flex">
+<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
   <h1>Mis jugadas</h1>
-  {% if filas %}<a class="boton" href="/mis-jugadas/nueva/">Registrar una jugada</a>{% endif %}
+  {% if filas %}<a class="{% clases 'boton' variante='principal' %}" href="/mis-jugadas/nueva/">Registrar una jugada</a>{% endif %}
 </div>
 {% if filas %}
-  <ul class="lista-simple">
-    {% for fila in filas %}
-      <li>
-        <div class="fila-flex">
-          <h2 style="margin:0"><a href="/mis-jugadas/{{ fila.jugada.pk }}/">Concurso N.º {{ fila.jugada.concurso.numero }} — sorteo del {{ fila.jugada.concurso.fecha_sorteo|fecha_ar }}</a></h2>
-          <span class="estado resumen {{ fila.estado.clase }}">{{ fila.estado.texto }}</span>
-        </div>
-        {% include "resultados/_bolillas.html" with numeros=fila.jugada.numeros_ordenados rotulo="Números de la jugada" %}
-        <p class="rotulo">Costo: {{ fila.jugada.costo|pesos }} · Participa en: {{ fila.modalidades|join:", " }}</p>
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <div class="vacio">
-    <p>Todavía no registraste jugadas</p>
-    <p><a class="boton" href="/mis-jugadas/nueva/">Registrar mi primera jugada</a></p>
+  {# [003] HU-09: tabla apilable con los nombres de RN-05 y fila entera clicable (AC-9.3 a AC-9.5). #}
+  <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-1 max-md:overflow-visible max-md:border-0 max-md:bg-transparent max-md:shadow-none">
+  <table class="apilable">
+    <caption class="visualmente-oculto">Mis jugadas, de la más reciente a la más antigua</caption>
+    <thead><tr><th scope="col" class="px-3 py-2 text-left">Sorteo</th><th scope="col" class="px-3 py-2 text-left">Fecha del sorteo</th><th scope="col" class="px-3 py-2 text-left">Números</th><th scope="col" class="px-3 py-2 text-left">Aciertos</th><th scope="col" class="px-3 py-2 text-right">Costo</th><th scope="col" class="px-3 py-2"><span class="visualmente-oculto">Acciones</span></th></tr></thead>
+    <tbody>
+      {% for fila in filas %}
+        <tr id="jugada-{{ fila.jugada.pk }}" class="fila-enlace">
+          <td data-rotulo="Sorteo" class="cifras whitespace-nowrap font-semibold">N.º {{ fila.jugada.concurso.numero }}</td>
+          <td data-rotulo="Fecha del sorteo" class="cifras whitespace-nowrap">{{ fila.jugada.concurso.fecha_sorteo|fecha_ar }}</td>
+          <td data-rotulo="Números">{% include "resultados/_bolillas.html" with numeros=fila.jugada.numeros_ordenados rotulo="Números de la jugada" %}<p class="m-0 text-xs text-muted-foreground">Participa en: {{ fila.modalidades|join:", " }}</p></td>
+          <td data-rotulo="Aciertos"><span class="estado resumen {{ fila.estado.clase }}">{{ fila.estado.texto }}</span></td>
+          <td data-rotulo="Costo" class="cifras a-la-derecha whitespace-nowrap">{{ fila.jugada.costo|pesos }}</td>
+          <td class="whitespace-nowrap md:text-right"><a href="/mis-jugadas/{{ fila.jugada.pk }}/" data-enlace-fila class="ver-detalle text-sm font-medium text-primary no-underline hover:underline">{% msg "ext.ver_detalle" %}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   </div>
+{% else %}
+  {# [003] AC-8.2, RN-06: estado vacío con icono de boleta y la acción de registrar. #}
+  {% msg "vacio.jugadas.titulo" as titulo_vacio %}{% msg "vacio.jugadas.explicacion" as explicacion_vacio %}{% msg "vacio.jugadas.accion" as accion_vacio %}
+  {% include "ui/_estado_vacio.html" with variante="sin_datos" icono="ticket" titulo=titulo_vacio explicacion=explicacion_vacio accion_texto=accion_vacio accion_href="/mis-jugadas/nueva/" %}
 {% endif %}
 {% endblock %}

@@ -1,6 +1,11 @@
-{% load formularios %}<div class="campo{% if campo.errors %} campo--error{% endif %}">
-  <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-  {% if campo.help_text %}<p class="ayuda" id="{{ campo.auto_id }}_ayuda">{{ campo.help_text }}</p>{% endif %}
+{% load formularios ui %}{% comment %}
+Field ([003] contracts/componentes.md, FR-033): etiqueta asociada, ayuda y error en aria-describedby,
+aria-invalid si hay error, error con icono junto al campo. "ancho" limita el control (por ejemplo,
+"max-w-[11ch]" en las fechas). Los campos de fecha se presentan con el DateField (ui/_campo_fecha.html,
+[003] FR-010). El control lleva data-validar con sus reglas previas ({{ campo|reglas }}, FR-033).
+{% endcomment %}{% if campo.field.widget.input_type == "date" %}{% campo_fecha campo %}{% else %}<div class="campo flex flex-col gap-1.5{% if campo.errors %} campo--error{% endif %}" data-campo="{{ campo.html_name }}">
+  <label for="{{ campo.id_for_label }}" class="font-medium">{{ campo.label }}</label>
+  {% if campo.help_text %}<p class="ayuda text-sm text-muted-foreground" id="{{ campo.auto_id }}_ayuda">{{ campo.help_text }}</p>{% endif %}
   {{ campo|widget_accesible }}
-  {% if campo.errors %}<p class="error" id="{{ campo.auto_id }}_error">{{ campo.errors|join:" " }}</p>{% endif %}
-</div>
+  <p class="error flex items-start gap-1.5 text-sm font-medium text-danger-text" id="{{ campo.auto_id }}_error"{% if not campo.errors %} hidden{% endif %}>{% icono "circle-x" clase="mt-0.5 size-4 shrink-0" %}<span data-texto-error>{{ campo.errors|join:" " }}</span></p>
+</div>{% endif %}

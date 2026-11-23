@@ -1,0 +1,1 @@
+{% load ui %}{% with partes=texto|pregunta_y_accion %}<p data-alternativa class="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-muted-foreground">{{ partes.0 }} <a href="{{ href }}" class="{% clases 'boton' variante='secundario' tamano='sm' %}">{{ partes.1 }}</a></p>{% endwith %}

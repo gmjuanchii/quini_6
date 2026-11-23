@@ -1,4 +1,4 @@
-{% load formato_ar %}
+{% load formato_ar ui %}
 <div class="comparacion">
   {% for item in comparacion %}{% with r=item.r %}
     <section class="comparacion__bloque" id="comparacion-{{ r.modalidad.slug }}" aria-labelledby="comp-titulo-{{ r.modalidad.slug }}">
@@ -10,24 +10,24 @@
         {% if r.estado_validacion.name == "EN_REVISION" %}
           <p class="comparacion__dato"><span class="estado estado--revision">Publicado · Información en revisión</span></p>
         {% else %}
-          <p class="comparacion__dato rotulo">Resultado publicado</p>
+          <p class="comparacion__dato text-sm text-muted-foreground">Resultado publicado</p>
         {% endif %}
 
         {% if r.conjunto %}
-          <p class="comparacion__dato">Conjunto de números del Premio Extra: {{ r.conjunto|length }} números distintos. Tus números están resaltados.</p>
+          <p class="comparacion__dato">{% msg "comp.numeros_resaltados" n=r.conjunto|length %}</p>
           <ul class="numeros" aria-label="Conjunto de números del Premio Extra">
             {% for n in r.conjunto|ordenados %}
               {% if n in r.numeros_acertados %}<li class="bolilla bolilla--acertada">{{ n|dos_digitos }}<span class="visualmente-oculto"> (acertado)</span></li>{% else %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endif %}
             {% endfor %}
           </ul>
         {% else %}
-          <p class="comparacion__dato">Tu jugada (los números acertados están resaltados):</p>
-          <ul class="numeros" aria-label="Números de tu jugada">
+          <p class="comparacion__dato">{% msg "comp.tu_jugada" %}</p>
+          <ul class="numeros" aria-label="Números de la jugada">
             {% for n in jugada.numeros_ordenados %}
               {% if n in r.numeros_acertados %}<li class="bolilla bolilla--acertada">{{ n|dos_digitos }}<span class="visualmente-oculto"> (acertado)</span></li>{% else %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endif %}
             {% endfor %}
           </ul>
-          <p class="comparacion__dato rotulo">Números oficiales: {% for n in r.numeros_oficiales|ordenados %}{{ n|dos_digitos }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+          <p class="comparacion__dato text-sm text-muted-foreground">Números oficiales: {% for n in r.numeros_oficiales|ordenados %}{{ n|dos_digitos }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
         {% endif %}
 
         <p class="comparacion__dato"><strong>{{ r.aciertos }} aciertos</strong>{% if r.conjunto %} en el conjunto{% endif %}</p>
@@ -49,7 +49,7 @@
         {% endif %}
 
         {% for aviso in r.textos_avisos %}
-          <p class="mensaje mensaje--aviso">{{ aviso }}</p>
+          <div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">{{ aviso }}</p></div>
         {% endfor %}
       {% endif %}
 

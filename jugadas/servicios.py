@@ -9,19 +9,15 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 
+from dominio.mensajes import MENSAJES
 from dominio.numeros import misma_combinacion
 from jugadas.models import Jugada
 from resultados import consultas
 from resultados.models import Concurso, EstadoVersion
 
-NO_DISPONIBLE = "Este concurso todavía no está disponible para registrar jugadas"
-CERRADO = (
-    "Ya no se pueden registrar jugadas para este concurso porque sus resultados fueron publicados"
-)
-FIJA = (
-    "Esta jugada no se puede modificar ni eliminar porque los resultados de su concurso ya fueron "
-    "publicados"
-)
+NO_DISPONIBLE = MENSAJES["jugada.concurso_no_disponible"]
+CERRADO = MENSAJES["jugada.concurso_cerrado"]
+FIJA = MENSAJES["jugada.fija"]
 
 
 @dataclass(frozen=True)
@@ -34,10 +30,7 @@ class ErrorJugada:
             "NO_DISPONIBLE": NO_DISPONIBLE,
             "CERRADO": CERRADO,
             "FIJA": FIJA,
-            "REQUIERE_CONFIRMACION": (
-                "Ya registraste una jugada con estos números para este concurso. "
-                "¿Querés guardarla igual?"
-            ),
+            "REQUIERE_CONFIRMACION": MENSAJES["jugada.duplicada"],
         }[self.codigo]
 
 

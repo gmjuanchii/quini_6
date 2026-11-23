@@ -1,0 +1,13 @@
+{
+  "name": "@quini6/ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "QUINI_6 — tokens de diseño, capa base y variantes de componentes compartidos ([003] R-02, R-04)",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4"
+  }
+}

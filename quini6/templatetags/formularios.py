@@ -2,12 +2,14 @@
 
 from django import template
 
+from quini6.templatetags.ui import reglas
+
 register = template.Library()
 
 
 @register.filter
 def widget_accesible(campo):
-    """Renderiza el control con ``aria-describedby`` hacia su ayuda y su error."""
+    """Control con ``aria-describedby`` hacia su ayuda y su error, y sus reglas previas."""
     ids = []
     if campo.help_text:
         ids.append(f"{campo.auto_id}_ayuda")
@@ -17,4 +19,6 @@ def widget_accesible(campo):
         attrs["aria-invalid"] = "true"
     if ids:
         attrs["aria-describedby"] = " ".join(ids)
+    if datos := reglas(campo):  # [003] FR-033: reglas de la validación previa
+        attrs["data-validar"] = datos
     return campo.as_widget(attrs=attrs)

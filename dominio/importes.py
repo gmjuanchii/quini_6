@@ -10,6 +10,8 @@ import re
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
+from dominio.mensajes import MENSAJES
+
 _CENTAVOS = Decimal("0.01")
 _IMPORTE = re.compile(r"^(?P<entero>\d+|\d{1,3}(?:\.\d{3})+)(?:,(?P<decimales>\d+))?$")
 
@@ -88,15 +90,12 @@ def a_texto_decimal(valor: Decimal | None) -> str | None:
 def mensaje_error_costo(error: ErrorImporte) -> str:
     """Textos de AC-4.16."""
     if error.codigo == "VACIO":
-        return "Ingresá el costo de tu jugada"
-    return (
-        "Ingresá un importe válido, mayor o igual a cero y con hasta dos decimales "
-        "(por ejemplo, 1500,50)"
-    )
+        return MENSAJES["jugada.costo_vacio"]
+    return MENSAJES["jugada.costo_invalido"]
 
 
 def mensaje_error_importe(error: ErrorImporte) -> str:
     """Texto de un importe de premios inválido en la carga administrativa."""
     if error.codigo == "NEGATIVO":
         return "El importe no puede ser negativo"
-    return "Ingresá un importe válido, con hasta dos decimales (por ejemplo, 1500,50)"
+    return MENSAJES["jugada.importe_formato"]

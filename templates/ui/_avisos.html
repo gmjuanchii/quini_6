@@ -1,0 +1,20 @@
+{% load ui %}{% comment %}
+Región de avisos breves (Toast) ([003] RN-09, AC-3.3): los muestra el componente "avisos" de
+static/js/ui.js (evento HTMX "aviso" o mensajes de la página). Se cierran solos a los 6 s salvo los de
+error, que permanecen; todos se cierran con el botón "Cerrar aviso". No roban el foco.
+{% endcomment %}<div class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-center gap-2 p-4 sm:items-end" x-data="avisos" @aviso.window="mostrar($event.detail)">
+  <div class="contents" aria-live="polite" role="status" x-ref="educados"></div>
+  <div class="contents" aria-live="assertive" role="alert" x-ref="urgentes"></div>
+</div>
+<template id="plantilla-aviso">
+  <div class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-card border-l-4 bg-surface p-4 text-sm text-foreground shadow-2" data-aviso-toast>
+    <span data-icono></span>
+    <div class="min-w-0 flex-1"><p data-texto></p><a data-enlace class="font-medium" hidden>{% msg "ext.ver_detalle" %}</a></div>
+    <button type="button" data-cerrar class="{% clases 'boton' variante='fantasma' tamano='sm' extra='-m-2 min-w-9 px-2' %}" aria-label="{% msg 'aviso.cerrar' %}">{% icono "x" clase="size-4" %}</button>
+  </div>
+</template>
+<template id="icono-aviso-success">{% icono "circle-check" clase="size-5 shrink-0 text-success-icon" %}</template>
+<template id="icono-aviso-info">{% icono "info" clase="size-5 shrink-0 text-primary" %}</template>
+<template id="icono-aviso-warning">{% icono "triangle-alert" clase="size-5 shrink-0 text-warning-icon" %}</template>
+<template id="icono-aviso-error">{% icono "circle-x" clase="size-5 shrink-0 text-danger-icon" %}</template>
+<template id="icono-cargando">{% icono "loader-circle" clase="size-5 shrink-0 motion-safe:animate-spin" %}</template>
