@@ -6,6 +6,7 @@ from decimal import Decimal
 import pytest
 from django.db import IntegrityError, transaction
 
+from dominio.mensajes import mensaje
 from dominio.tipos import ORDEN_MODALIDADES
 from resultados import consultas, servicios
 from resultados.models import (
@@ -56,7 +57,7 @@ class TestConcurso:
         servicios.crear_concurso(admin, 3215, FECHA, [PS])
         with pytest.raises(servicios.ConcursoDuplicado) as error:
             servicios.crear_concurso(admin, 3215, FECHA, [PS])
-        assert error.value.mensajes == ["El concurso N.º 3215 ya existe"]
+        assert error.value.mensajes == [mensaje("admin.concurso_duplicado", N=3215)]
 
     def test_sin_modalidades(self, admin):
         with pytest.raises(servicios.ErrorResultados):

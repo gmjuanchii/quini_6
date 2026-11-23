@@ -22,7 +22,7 @@ Las pruebas nunca consultan internet: usan estas copias con el cliente HTTP fals
 | `f3/listado.html` | https://quiniya.com.ar/sorteos |
 | `f3/sorteo-3426.html` | https://quiniya.com.ar/sorteos/3426 |
 | `f3/sorteo-3427.html` | https://quiniya.com.ar/sorteos/3427 |
-| `f3/sorteo-3398.html` | https://quiniya.com.ar/sorteos/3398 (importe "494,443,71") |
+| `f3/sorteo-3398.html` | https://quiniya.com.ar/sorteos/3398 (importe "494,443,71", corregido según D-32) |
 | `f3/sorteo-2787.html` | https://quiniya.com.ar/sorteos/2787 (primer sorteo de F3) |
 
 F3 respondió 404 **sin contenido** a https://quiniya.com.ar/sorteos/9999, por eso no hay copia.

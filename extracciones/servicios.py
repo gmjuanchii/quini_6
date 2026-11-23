@@ -51,6 +51,7 @@ from dominio.extraccion.tipos import (
     SorteoConsolidado,
     Valor,
 )
+from dominio.mensajes import MENSAJES
 from extracciones.cliente_http import (
     ClienteHttp,
     LimitadorPorSitio,
@@ -91,11 +92,32 @@ def extraccion_en_curso(usuario) -> Extraccion | None:
     ).first()
 
 
-def iniciar_extraccion(usuario, periodo: Periodo) -> Extraccion:
-    """Crea una extracción en curso, o devuelve la que el administrador ya tiene (AC-1.11)."""
+@dataclass(frozen=True)
+class ErrorInicio:
+    """[003] RN-03: no se inició porque hay otra idéntica en curso (error como valor)."""
+
+    clave: str
+    existente: Extraccion | None
+
+
+def _extraccion_identica_en_curso(periodo: Periodo) -> Extraccion | None:
+    return Extraccion.objects.filter(
+        estado=EstadoExtraccion.EN_CURSO.value, desde=periodo.desde, hasta=periodo.hasta
+    ).first()
+
+
+def iniciar_extraccion(usuario, periodo: Periodo) -> Extraccion | ErrorInicio:
+    """Crea una extracción en curso, o devuelve la que el administrador ya tiene (AC-1.11).
+
+    [003] RN-03: si otro administrador tiene en curso una con el mismo período, no se crea y se
+    devuelve ``ErrorInicio`` con la existente. Un período que se superpone en parte sí se inicia.
+    """
     existente = extraccion_en_curso(usuario)
     if existente is not None:
         return existente
+    identica = _extraccion_identica_en_curso(periodo)
+    if identica is not None:
+        return ErrorInicio("ext.periodo_en_curso", identica)
     try:
         with transaction.atomic():
             return Extraccion.objects.create(
@@ -106,10 +128,18 @@ def iniciar_extraccion(usuario, periodo: Periodo) -> Extraccion:
                 iniciada_en=timezone.now(),
             )
     except IntegrityError:
-        return Extraccion.objects.get(creada_por=usuario, estado=EstadoExtraccion.EN_CURSO.value)
+        propia = extraccion_en_curso(usuario)
+        if propia is not None:
+            return propia
+        return ErrorInicio(
+            "ext.periodo_en_curso",
+            Extraccion.objects.filter(
+                estado=EstadoExtraccion.EN_CURSO.value, desde=periodo.desde, hasta=periodo.hasta
+            ).first(),
+        )
 
 
-NO_ELIMINABLE_EN_CURSO = "No se puede eliminar una extracción en curso"  # ext.eliminar_en_curso
+NO_ELIMINABLE_EN_CURSO = MENSAJES["ext.eliminar_en_curso"]
 
 
 def eliminar_extraccion(extraccion: Extraccion) -> str | None:

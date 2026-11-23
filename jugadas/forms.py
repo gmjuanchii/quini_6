@@ -4,10 +4,11 @@ JavaScript es solo una mejora progresiva."""
 from django import forms
 
 from dominio.importes import ErrorImporte, mensaje_error_costo, parsear_pesos
+from dominio.mensajes import MENSAJES
 from dominio.numeros import mensaje_error, validar_jugada
 from jugadas import servicios
 
-ELEGI_CONCURSO = "Elegí el concurso de tu jugada"
+ELEGI_CONCURSO = MENSAJES["jugada.elegi_concurso"]
 OPCIONES_NUMEROS = [(f"{n:02d}", f"{n:02d}") for n in range(46)]
 
 
@@ -34,15 +35,15 @@ class NumerosLibres(forms.MultipleChoiceField):
 
 
 class JugadaForm(forms.Form):
-    concurso = forms.CharField(label="Concurso", required=False)
+    concurso = forms.CharField(label=MENSAJES["jugada.campo_sorteo"], required=False)
     numeros = NumerosLibres(
-        label="Elegí seis números",
+        label=MENSAJES["jugada.elegir_numeros"],
         choices=OPCIONES_NUMEROS,
         required=False,
         widget=forms.CheckboxSelectMultiple,
     )
     numero_escrito = forms.CharField(
-        label="Escribí un número",
+        label=MENSAJES["jugada.escribir_numero"],
         required=False,
         max_length=4,
         widget=forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
@@ -66,9 +67,9 @@ class JugadaForm(forms.Form):
         }
         self.modalidades_por_numero = modalidades
         self.fields["concurso"].widget = SelectConcurso(
-            choices=[("", "Elegí un concurso")]
+            choices=[("", MENSAJES["jugada.opcion_sorteo"])]
             + [
-                (str(c.numero), f"Concurso N.º {c.numero} — {c.fecha_sorteo:%d/%m/%Y}")
+                (str(c.numero), f"Sorteo N.º {c.numero} — {c.fecha_sorteo:%d/%m/%Y}")
                 for c in disponibles
             ],
             modalidades_por_numero=modalidades,

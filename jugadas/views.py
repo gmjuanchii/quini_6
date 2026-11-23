@@ -16,9 +16,12 @@ from dominio.comparacion import (
     comparar_jugada,
     resumir_jugada,
 )
+from dominio.mensajes import MENSAJES
 from jugadas import servicios
 from jugadas.forms import JugadaForm
 from jugadas.models import Jugada
+from quini6.formulario_pendiente import con_pendiente, reanudable
+from quini6.idempotencia import con_idempotencia
 from resultados import consultas
 from resultados.models import VersionPremios
 
@@ -135,14 +138,16 @@ def _guardar(request, form, jugada=None):
         form.add_error("concurso", resultado.mensaje)
         return None
     if jugada is None:
-        messages.success(request, "Jugada registrada")
+        messages.success(request, MENSAJES["jugada.registrada"])
         return redirect("/mis-jugadas/")
-    messages.success(request, "Jugada actualizada")
+    messages.success(request, MENSAJES["jugada.actualizada"])
     return redirect("/mis-jugadas/")
 
 
 @sesion_requerida
+@reanudable("jugada.registrar")
 @require_http_methods(["GET", "POST"])
+@con_idempotencia("jugada.registrar")  # [003] FR-031
 def nueva(request):
     error_concurso = None
     inicial = {}
@@ -152,6 +157,7 @@ def nueva(request):
             error_concurso = resultado.mensaje
         else:
             inicial["concurso"] = str(resultado.numero)
+    inicial = con_pendiente(request, inicial, JugadaForm)  # [003] FR-032
     form = JugadaForm(request.POST or None, initial=inicial)
     if request.method == "POST" and form.is_valid():
         respuesta = _guardar(request, form)
@@ -188,6 +194,7 @@ def detalle(request, id: int):
 
 
 @sesion_requerida
+@reanudable("jugada.editar")
 @require_http_methods(["GET", "POST"])
 def editar(request, id: int):
     jugada, error = _jugada_propia(request, id)
@@ -201,6 +208,7 @@ def editar(request, id: int):
         "numeros": [f"{n:02d}" for n in jugada.numeros_ordenados],
         "costo": f"{jugada.costo:.2f}".replace(".", ","),
     }
+    inicial = con_pendiente(request, inicial, JugadaForm)  # [003] FR-032
     form = JugadaForm(request.POST or None, initial=inicial, concurso_actual=jugada.concurso)
     if request.method == "POST" and form.is_valid():
         respuesta = _guardar(request, form, jugada)
@@ -213,6 +221,7 @@ def editar(request, id: int):
 
 @sesion_requerida
 @require_http_methods(["GET", "POST"])
+@con_idempotencia("jugada.eliminar")  # [003] FR-031
 def eliminar(request, id: int):
     jugada, error = _jugada_propia(request, id)
     if error:
@@ -225,6 +234,6 @@ def eliminar(request, id: int):
         if resultado is not None:
             messages.error(request, resultado.mensaje)
             return redirect(f"/mis-jugadas/{jugada.pk}/")
-        messages.success(request, "Jugada eliminada")
+        messages.success(request, MENSAJES["jugada.eliminada"])
         return redirect("/mis-jugadas/")
     return render(request, "jugadas/eliminar.html", {"jugada": jugada})

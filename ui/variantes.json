@@ -1,0 +1,56 @@
+{
+  "$comentario": "[003] R-04: clases de Tailwind de cada componente con variantes. Las leen {% clases %} (Django) y cva (Next.js). Solo tokens semánticos de ui/tokens.css.",
+  "boton": {
+    "base": "inline-flex items-center justify-center gap-2 rounded-control font-semibold no-underline transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60 aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-busy:cursor-progress",
+    "variantes": {
+      "principal": "bg-primary-solid text-primary-foreground hover:bg-primary-hover active:brightness-95",
+      "secundario": "border border-border-input bg-surface text-foreground hover:bg-muted active:brightness-95",
+      "destructivo": "bg-destructive text-destructive-foreground hover:brightness-110 active:brightness-95",
+      "fantasma": "text-primary hover:bg-muted active:brightness-95",
+      "enlace": "text-primary underline-offset-4 hover:underline"
+    },
+    "tamanos": {
+      "md": "min-h-control px-4 text-base",
+      "sm": "min-h-9 px-3 text-sm"
+    }
+  },
+  "insignia": {
+    "base": "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-medium whitespace-nowrap",
+    "variantes": {
+      "info": "bg-info-soft text-info-on-soft",
+      "success": "bg-success-soft text-success-on-soft",
+      "warning": "bg-warning-soft text-warning-on-soft",
+      "danger": "bg-danger-soft text-danger-on-soft",
+      "neutral": "bg-neutral-soft text-neutral-on-soft"
+    },
+    "tamanos": {}
+  },
+  "aviso": {
+    "base": "flex items-start gap-3 rounded-card border-l-4 p-4 text-sm",
+    "variantes": {
+      "info": "border-primary bg-info-soft text-info-on-soft",
+      "success": "border-success bg-success-soft text-success-on-soft",
+      "warning": "border-warning bg-warning-soft text-warning-on-soft",
+      "danger": "border-danger bg-danger-soft text-danger-on-soft"
+    },
+    "tamanos": {}
+  },
+  "toast": {
+    "base": "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-card border-l-4 bg-surface p-4 text-sm text-foreground shadow-2",
+    "variantes": {
+      "success": "border-success",
+      "info": "border-primary",
+      "warning": "border-warning",
+      "error": "border-danger"
+    },
+    "tamanos": {}
+  },
+  "vacio": {
+    "base": "flex flex-col items-center gap-3 rounded-card bg-surface px-6 py-10 text-center shadow-1",
+    "variantes": {
+      "sin_datos": "",
+      "sin_resultados": "border border-dashed border-border"
+    },
+    "tamanos": {}
+  }
+}

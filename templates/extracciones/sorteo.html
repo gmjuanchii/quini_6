@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% load formato_ar %}
-{% block titulo %}Sorteo N.º {{ numero }} · Extracción {{ extraccion.pk }}{% endblock %}
+{% load formato_ar ui %}
+{% block titulo %}Sorteo N.º {{ numero }} · Extracción del {{ extraccion.iniciada_en|fecha_hora_ar }}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/extracciones/{{ extraccion.pk }}/">← Extracción {{ extraccion.pk }}</a></p>
+{% msg "nav.volver_extraccion" fecha_hora=extraccion.iniciada_en|fecha_hora_ar as t %}{% with n=extraccion.pk|stringformat:"s" %}{% include "ui/_volver.html" with href="/administracion/extracciones/"|add:n|add:"/" texto=t %}{% endwith %}
 <h1>Sorteo N.º {{ numero }}</h1>
 <p>
   Fecha: {% include "extracciones/_dato.html" with d=fecha %}
   {% if fecha.sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
 </p>
 {% if fecha.discrepancia %}
-  <div class="mensaje mensaje--error">
+  <div class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<div class="m-0 min-w-0 flex-1">
     <p><strong>Fecha: {{ fecha.discrepancia.tipo }}</strong></p>
     <ul>{% for v in fecha.discrepancia.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
-  </div>
+  </div></div>
 {% endif %}
 
 <p>
@@ -22,14 +22,12 @@
   {% if reglas_no_verificadas %}<span class="estado estado--pendiente">Reglas del período no verificadas</span>{% endif %}
 </p>
 {% if motivos %}
-  <ul class="lista-simple">{% for m in motivos %}<li>{{ m }}</li>{% endfor %}</ul>
+  <ul class="m-0 list-none divide-y divide-border p-0 [&>li]:py-3">{% for m in motivos %}<li>{{ m }}</li>{% endfor %}</ul>
 {% endif %}
-
-<p><a href="{{ enlace_oficial }}" target="_blank" rel="noopener noreferrer">Ver extracto oficial (Lotería de Santa Fe)</a></p>
 
 <h2>Fuentes consultadas</h2>
 {% if fuentes %}
-  <table class="tabla tabla--apilable">
+  <table class="apilable">
     <caption class="visualmente-oculto">Resultado de la consulta a cada fuente</caption>
     <thead><tr><th scope="col">Fuente</th><th scope="col">Resultado</th><th scope="col">Dirección consultada</th><th scope="col">Fecha y hora</th></tr></thead>
     <tbody>
@@ -38,9 +36,9 @@
           <th scope="row" data-rotulo="Fuente">{{ f.nombre }}</th>
           <td data-rotulo="Resultado">
             <span class="estado {{ f.clase }}">{{ f.resultado }}</span>
-            {% if f.observaciones %}<ul class="lista-simple">{% for o in f.observaciones %}<li>{{ o }}</li>{% endfor %}</ul>{% endif %}
+            {% if f.observaciones %}<ul class="m-0 list-none divide-y divide-border p-0 [&>li]:py-3">{% for o in f.observaciones %}<li>{{ o }}</li>{% endfor %}</ul>{% endif %}
           </td>
-          <td data-rotulo="Dirección consultada">{% if f.url %}<span class="url">{{ f.url }}</span>{% else %}No corresponde{% endif %}</td>
+          <td data-rotulo="Dirección consultada">{% if f.url %}<a class="break-all" href="{{ f.url }}" target="_blank" rel="noopener noreferrer">{{ f.url }}</a>{% else %}No corresponde{% endif %}</td>
           <td data-rotulo="Fecha y hora">{% if f.consultado_en %}{{ f.consultado_en|fecha_hora_ar }}{% else %}No corresponde{% endif %}</td>
         </tr>
       {% endfor %}
@@ -49,10 +47,10 @@
 {% endif %}
 
 {% for m in modalidades %}
-  <section class="tarjeta">
+  <section class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6">
     <h2>{{ m.nombre }}</h2>
     {% if not m.informada %}
-      <p class="mensaje mensaje--aviso">{{ no_informada }}</p>
+      <div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">{{ no_informada }}</p></div>
     {% else %}
       <p>
         Números: {% include "extracciones/_dato.html" with d=m.numeros %}
@@ -60,13 +58,13 @@
         {% if m.numeros.sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
       </p>
       {% if m.numeros.discrepancia %}
-        <div class="mensaje mensaje--error">
+        <div class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<div class="m-0 min-w-0 flex-1">
           <p><strong>Números: {{ m.numeros.discrepancia.tipo }}</strong></p>
           <ul>{% for v in m.numeros.discrepancia.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
-        </div>
+        </div></div>
       {% endif %}
       {% for c in m.categorias %}
-        <table class="tabla tabla--apilable">
+        <table class="apilable">
           <caption>{{ c.nombre }} · {{ c.estado_pozo }}</caption>
           <thead><tr><th scope="col">Dato</th><th scope="col">Valor</th></tr></thead>
           <tbody>
@@ -77,16 +75,16 @@
                   {% include "extracciones/_dato.html" with d=d %}
                   {% if d.sin_corroborar %}<span class="estado estado--pendiente">Sin corroborar</span>{% endif %}
                   {% if d.discrepancia %}
-                    <div class="mensaje mensaje--error">
+                    <div class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<div class="m-0 min-w-0 flex-1">
                       <p><strong>{{ d.discrepancia.tipo }}</strong></p>
                       <ul>{% for v in d.discrepancia.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
-                    </div>
+                    </div></div>
                   {% endif %}
                   {% if d.diferencia_tolerada %}
-                    <div class="mensaje mensaje--info">
+                    <div class="{% clases 'aviso' variante='info' %}">{% icono "info" %}<div class="m-0 min-w-0 flex-1">
                       <p>{{ d.diferencia_tolerada.tipo }}</p>
                       <ul>{% for v in d.diferencia_tolerada.valores %}<li>{% include "extracciones/_dato.html" with d=v.valor %} ({{ v.fuente }})</li>{% endfor %}</ul>
-                    </div>
+                    </div></div>
                   {% endif %}
                 </td>
               </tr>
@@ -100,7 +98,7 @@
 
 {% if observaciones %}
   <h2>Observaciones</h2>
-  <ul class="lista-simple">
+  <ul class="m-0 list-none divide-y divide-border p-0 [&>li]:py-3">
     {% for o in observaciones %}<li>{% if o.fuente %}{{ o.fuente }}: {% endif %}{{ o.texto }}</li>{% endfor %}
   </ul>
 {% endif %}

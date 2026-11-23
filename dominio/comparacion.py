@@ -13,6 +13,7 @@ from datetime import date
 from decimal import Decimal
 from enum import Enum
 
+from dominio.mensajes import MENSAJES
 from dominio.numeros import conjunto_premio_extra
 from dominio.tipos import (
     FECHA_VIGENCIA_REGLAS,
@@ -30,11 +31,8 @@ AVISO_EN_REVISION = "AVISO_EN_REVISION"
 AVISO_ACIERTOS_SUPERAN_CATEGORIA = "AVISO_ACIERTOS_SUPERAN_CATEGORIA"
 
 TEXTO_AVISO = {
-    AVISO_EN_REVISION: "Información en revisión: el resultado podría cambiar",
-    AVISO_ACIERTOS_SUPERAN_CATEGORIA: (
-        "Los aciertos de tu jugada superan la categoría ganadora publicada. "
-        "Verificá los números y el concurso de tu jugada."
-    ),
+    AVISO_EN_REVISION: MENSAJES["comp.en_revision"],
+    AVISO_ACIERTOS_SUPERAN_CATEGORIA: MENSAJES["comp.aciertos_superan"],
 }
 
 

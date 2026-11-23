@@ -3,7 +3,20 @@
 __pycache__/
 *.pyc
 db.sqlite3
+*.sqlite3
 staticfiles/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+
+# [003] Node, recursos generados y artefactos de pruebas
+node_modules/
+static/css/app.css
+static/vendor/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.credenciales.json
+frontend/.next/
+frontend/storybook-static/
+.lighthouseci/
+*.log

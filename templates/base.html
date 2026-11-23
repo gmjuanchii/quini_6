@@ -1,34 +1,46 @@
-{% load static %}<!doctype html>
-<html lang="es-AR">
+{% load static ui %}<!doctype html>
+<html lang="es-AR" data-cally="{% static 'vendor/cally.js' %}"{% if tema_actual != "dispositivo" %} data-theme="{{ tema_actual }}"{% endif %}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Resultados del Quini 6{% endblock %} · QUINI_6</title>
+  <link rel="icon" href="{% static 'marca/favicon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {# [003] Con scripts, los menús empiezan cerrados sin saltos de diseño (sin scripts, todo visible). #}
+  <script>document.documentElement.classList.add("js");</script>
+  {# [003] R-06, R-07: interacción como mejora progresiva, servida desde el propio sitio. #}
+  <script defer src="{% static 'vendor/htmx.min.js' %}"></script>
+  <script defer src="{% static 'js/ui.js' %}"></script>
+  <script defer src="{% static 'vendor/alpine-anchor.min.js' %}"></script>
+  <script defer src="{% static 'vendor/alpine-focus.min.js' %}"></script>
+  <script defer src="{% static 'vendor/alpine.min.js' %}"></script>
 </head>
 <body>
-  <a class="saltar" href="#contenido">Saltar al contenido</a>
-  <header class="encabezado">
-    <div class="contenedor encabezado__fila">
-      <a class="marca" href="/resultados/">QUINI_6</a>
-      <nav class="nav" aria-label="Navegación principal">
-        <ul class="nav__lista">
-          <li><a href="/resultados/">Resultados</a></li>
-          <li><a href="/estadisticas/">Estadísticas</a></li>
+  <a class="saltar" href="#contenido">{% msg "nav.saltar" %}</a>
+  {# [003] NavBar (contracts/componentes.md; AC-5.1 a AC-5.5, AC-5.7, FR-014 a FR-018). #}
+  <header class="encabezado-q border-b border-border bg-surface">
+    <div class="contenedor flex min-h-16 flex-wrap items-center gap-x-6 gap-y-2 py-2" x-data="navegacion" @keydown.escape="cerrar(true)">
+      <a href="/" aria-label="{% msg 'nav.logotipo' %}" class="flex min-h-control items-center rounded-control text-primary no-underline">{% marca "logotipo" clase="h-8 w-auto" %}</a>
+      <button type="button" data-boton-menu class="nav-q__boton {% clases 'boton' variante='secundario' extra='ml-auto md:hidden' %}" aria-controls="nav-principal" aria-expanded="false" :aria-expanded="abierto ? 'true' : 'false'" x-ref="boton" @click="alternar()"><span x-show="!abierto">{% icono "menu" %}</span><span x-show="abierto" style="display: none">{% icono "x" %}</span><span>{% msg "nav.menu" %}</span></button>
+      <nav id="nav-principal" aria-label="{% msg 'nav.principal' %}" class="nav-q w-full md:flex md:w-auto md:flex-1 md:items-center md:gap-6" :class="{ 'abierta': abierto }">
+        <ul data-secciones class="flex flex-col gap-1 py-2 md:flex-row md:py-0" role="list">
+          {% with clase_enlace="flex min-h-control min-w-control items-center rounded-control px-3 font-medium text-foreground no-underline transition-colors hover:bg-muted active:bg-border aria-[current=page]:bg-info-soft aria-[current=page]:text-info-on-soft aria-[current=page]:shadow-[inset_0_-3px_0_var(--color-primary)]" %}
+          <li><a href="/resultados/" class="{{ clase_enlace }}"{% if seccion_activa == "resultados" %} aria-current="page"{% endif %}>{% msg "nav.resultados" %}</a></li>
+          <li><a href="/estadisticas/" class="{{ clase_enlace }}"{% if seccion_activa == "estadisticas" %} aria-current="page"{% endif %}>{% msg "nav.estadisticas" %}</a></li>
           {% if user.is_authenticated %}
-            <li><a href="/mis-jugadas/">Mis jugadas</a></li>
-            {% if user.es_administrador %}<li><a href="/administracion/concursos/">Administración</a></li>{% endif %}
-            <li>
-              <form method="post" action="/salir/" class="nav__salir">
-                {% csrf_token %}
-                <button type="submit" class="enlace-boton">Salir</button>
-              </form>
-            </li>
-          {% else %}
-            <li><a href="/ingresar/">Ingresar</a></li>
-            <li><a href="/registrarse/">Crear cuenta</a></li>
+            <li><a href="/mis-jugadas/" class="{{ clase_enlace }}"{% if seccion_activa == "jugadas" %} aria-current="page"{% endif %}>{% msg "nav.mis_jugadas" %}</a></li>
+            {% if user.es_administrador %}<li><a href="/administracion/concursos/" class="{{ clase_enlace }}"{% if seccion_activa == "administracion" %} aria-current="page"{% endif %}>{% msg "nav.administracion" %}</a></li>{% endif %}
           {% endif %}
+          {% endwith %}
         </ul>
+        <div class="flex flex-col gap-2 border-t border-border py-2 md:ml-auto md:flex-row md:items-center md:border-0 md:py-0">
+          {% if user.is_authenticated %}
+            {% include "ui/_menu_cuenta.html" %}
+          {% else %}
+            {% msg "nav.ingresar" as ingresar %}{% include "ui/_boton.html" with href="/ingresar/" texto=ingresar variante="fantasma" %}
+            {% msg "nav.crear_cuenta" as crear_cuenta %}{% include "ui/_boton.html" with href="/registrarse/" texto=crear_cuenta variante="principal" %}
+          {% endif %}
+        </div>
       </nav>
     </div>
   </header>
@@ -36,17 +48,25 @@
   <div class="cargando" id="cargando" role="status" aria-live="polite" hidden>Cargando…</div>
 
   <main id="contenido" class="contenedor principal" tabindex="-1">
-    <div class="mensajes" role="status" aria-live="polite">
-      {% for mensaje in messages %}
-        <p class="mensaje mensaje--{{ mensaje.tags|default:'info' }}">{{ mensaje }}</p>
-      {% endfor %}
-    </div>
+    {% comment %}[003] RN-09, AC-10.3: cada tipo con el mismo icono, color, forma y ubicación (al
+    comienzo del contenido). Sin scripts quedan como Callout; con scripts "avisos" los pasa a Toast.{% endcomment %}
+    {% if messages %}<div class="mb-4 flex flex-col gap-3" data-mensajes>
+      {% for mensaje in messages %}{% with a=mensaje|aviso_de %}{% include "ui/_aviso.html" with variante=a.variante rol=a.rol tipo_aviso=a.tipo texto=mensaje id="" titulo="" contenido="" extra="" %}{% endwith %}{% endfor %}
+    </div>{% endif %}
     {% block contenido %}{% endblock %}
   </main>
 
-  <footer class="pie">
-    <div class="contenedor">
-      <p>Información de consulta. QUINI_6 no vende apuestas ni realiza pagos. La fuente de cada resultado es el extracto oficial indicado.</p>
+  {% include "ui/_avisos.html" %}
+  {# [003] FR-033: resumen de la validación previa al enviar un formulario con errores. #}
+  {# [003] FR-031: sin conexión, el formulario no se envía y "Reintentar" lo reenvía con la misma clave. #}
+  <template id="plantilla-sin-conexion"><div class="{% clases 'aviso' variante='danger' extra='flex-wrap' %}" role="alert" data-sin-conexion>{% icono "wifi-off" %}<p class="m-0 min-w-0 flex-1">{% msg "gral.sin_conexion" %}</p><button type="button" class="{% clases 'boton' variante='secundario' tamano='sm' %}" data-reintentar>{% icono "rotate-cw" clase="size-4 shrink-0" %}<span>{% msg "gral.reintentar" %}</span></button></div></template>
+  <template id="plantilla-no-avanza">{% msg "form.no_avanza" n="{n}" as texto_no_avanza %}{% include "ui/_aviso.html" with variante="danger" rol="alert" texto=texto_no_avanza %}</template>
+
+  {# [003] AC-10.2: pie legal con contraste ≥ 4,5:1 y 14 px (texto secundario), en ambos temas. #}
+  <footer class="mt-12 border-t border-border bg-surface">
+    <div class="contenedor flex flex-col gap-4 py-6">
+      <p class="m-0 text-sm text-muted-foreground" data-pie-legal>{% msg "pie.legal" %}</p>
+      {% include "ui/_selector_tema.html" %}
     </div>
   </footer>
   <script>

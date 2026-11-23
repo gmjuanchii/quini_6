@@ -1,15 +1,16 @@
 {% extends "base.html" %}
-{% block titulo %}Números de {{ modalidad.nombre }} · Concurso N.º {{ concurso.numero }}{% endblock %}
+{% load ui %}
+{% block titulo %}Números de {{ modalidad.nombre }} · Sorteo N.º {{ concurso.numero }}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/concursos/{{ concurso.numero }}/">← Concurso N.º {{ concurso.numero }}</a></p>
+{# [003] D-04: "Sorteo" en los textos visibles. #}{% url "admin_panel" concurso.numero as href %}{% with n=concurso.numero|stringformat:"s" %}{% include "ui/_volver.html" with href=href texto="Sorteo N.º "|add:n %}{% endwith %}
 <h1>Números de {{ modalidad.nombre }}</h1>
 <p>{% if es_correccion %}<span class="estado estado--corregido">Corrección en preparación</span> El público sigue viendo los valores publicados hasta que publiques la corrección.{% else %}Lo que guardes queda en Borrador y no es visible para el público.{% endif %}</p>
 {% include "resultados/admin/_errores_form.html" %}
-<form method="post" class="formulario tarjeta" novalidate>
+<form method="post" action="{% accion_formulario %}" class="grid max-w-xl gap-4 my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" novalidate data-validar-formulario data-trabajando>
   {% csrf_token %}
   <fieldset>
     <legend>Seis números distintos de 00 a 45</legend>
-    <div class="fila-flex" style="justify-content:flex-start">
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2" style="justify-content:flex-start">
       {% for campo in form.campos_numeros %}
         <div class="campo" style="width:4.5rem"><label for="{{ campo.id_for_label }}">{{ campo.label }}</label>{{ campo }}</div>
       {% endfor %}
@@ -18,8 +19,8 @@
   {% include "_campo.html" with campo=form.fuente_descripcion %}
   {% include "_campo.html" with campo=form.fuente_fecha_consulta %}
   {% if form.motivo_correccion %}{% include "_campo.html" with campo=form.motivo_correccion %}{% endif %}
-  <div class="acciones">
-    <button type="submit" class="boton">Guardar borrador</button>
+  <div class="my-3 flex flex-wrap items-center gap-2">
+    <button type="submit" class="{% clases 'boton' variante='principal' %}" data-texto-trabajando="{% msg 'form.trabajando_guardar' %}">Guardar borrador</button>
     <a href="/administracion/concursos/{{ concurso.numero }}/">Cancelar</a>
   </div>
 </form>

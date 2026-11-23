@@ -1,0 +1,73 @@
+{% load formato_ar ui %}{% comment %}
+Parte de la pantalla de Extracción histórica que se actualiza al iniciar con HTMX ([003] AC-3.1,
+FR-004): formulario o avance propio, y el listado. Sin scripts se muestra dentro de inicio.html.
+{% endcomment %}<div id="pantalla-extracciones" class="flex flex-col gap-4">
+{% if error_inicio %}
+  {% msg error_inicio.clave desde=error_inicio.existente.desde|fecha_ar hasta=error_inicio.existente.hasta|fecha_ar as texto_error %}
+  {% include "ui/_aviso.html" with variante="warning" rol="alert" texto=texto_error %}
+  <p><a href="/administracion/extracciones/{{ error_inicio.existente.pk }}/">{% msg "ext.ver_existente" %}</a></p>
+{% endif %}
+{% if en_curso %}
+  {% include "extracciones/_avance.html" with extraccion=en_curso avance=avance %}
+  <p><a class="{% clases 'boton' variante='secundario' %}" href="/administracion/extracciones/{{ en_curso.pk }}/">Ver la extracción en curso</a></p>
+{% else %}
+  {% accion_formulario as accion_inicio %}<form method="post" action="{{ accion_inicio }}" novalidate data-validar-formulario data-trabajando hx-post="{{ accion_inicio }}" hx-target="#pantalla-extracciones" hx-swap="outerHTML" hx-indicator="#esqueleto-avance, #esqueleto-fila" class="flex flex-col gap-4">
+    {% csrf_token %}{% campo_idempotencia %}
+    {% include "resultados/admin/_errores_form.html" %}
+    {# [003] FR-010, FR-011, AC-4.4, AC-4.7: período con calendario de rango, máximo hoy y dos atajos. #}
+    {% periodo form.inicio form.fin atajos=atajos %}
+    {% msg "ext.boton_iniciar" as texto_iniciar %}{% msg "ext.boton_iniciar_trabajando" as texto_iniciando %}
+    <div>{% include "ui/_boton.html" with texto=texto_iniciar texto_trabajando=texto_iniciando %}</div>
+  </form>
+  {# [003] T126, AC-13.3: el alto final del avance reservado mientras llega la respuesta. #}
+  <div id="esqueleto-avance" class="esqueleto-htmx flex min-h-28 flex-col gap-3 rounded-card border-l-4 border-primary bg-surface p-4 shadow-1" aria-busy="true">
+    {% include "ui/_esqueleto.html" with alto="h-6" extra="w-40" %}{% include "ui/_esqueleto.html" with alto="h-4" extra="w-64 max-w-full" %}{% include "ui/_esqueleto.html" with alto="h-3" extra="w-full" %}
+  </div>
+{% endif %}
+
+<h2 class="mt-4 text-2xl font-semibold">Extracciones anteriores</h2>
+
+{# [003] AC-1.4, FR-003: filtro por estado en la dirección (funciona sin scripts). #}
+<form method="get" action="" class="flex flex-wrap items-end gap-3" novalidate data-validar-formulario data-trabajando>
+  {% if orden != "-fecha" %}<input type="hidden" name="orden" value="{{ orden }}">{% endif %}
+  <div class="flex flex-col gap-1.5">
+    <label for="filtro-estado" class="font-medium">{% msg "ext.filtro_estado" %}</label>
+    <select id="filtro-estado" name="estado" class="min-h-control rounded-control border border-border-input bg-surface px-3 text-foreground" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
+      <option value="">{% msg "ext.filtro_todos" %}</option>
+      {% for etiqueta in etiquetas %}<option value="{{ etiqueta.slug }}"{% if filtro == etiqueta %} selected{% endif %}>{% msg etiqueta.clave_texto %}</option>{% endfor %}
+    </select>
+  </div>
+  {% msg "ext.filtrar" as texto_filtrar %}{% include "ui/_boton.html" with texto=texto_filtrar variante="secundario" %}
+  {% if filtro %}<p class="flex min-h-control items-center text-sm text-muted-foreground" role="status">{% msg filtro.clave_texto as nombre_filtro %}{% msg "ext.filtro_aplicado" filtro=nombre_filtro %}</p>{% endif %}
+</form>
+
+{% if extracciones %}
+  {# [003] HU-09: orden por "Fecha", "Período" y "Estado" (AC-9.1), 20 por página (RN-07), tarjetas a 360 px (AC-9.3). #}
+  {% comment %}[003] SC-006: en el teléfono el contenedor llega a los bordes de la pantalla y recorta lo
+  que sobresale sin verse (el menú ⋮ cerrado); el menú abierto queda siempre dentro de la pantalla.{% endcomment %}
+  <div class="rounded-card border border-border bg-surface shadow-1 max-md:-mx-4 max-md:overflow-x-clip max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:px-4 max-md:shadow-none">
+  <table class="apilable">
+    <caption class="visualmente-oculto">Extracciones anteriores</caption>
+    <thead>
+      <tr>
+        {% for e in encabezados %}{% include "ui/_encabezado_ordenable.html" %}{% endfor %}
+        <th scope="col" class="px-3 py-2"><span class="visualmente-oculto">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if not en_curso %}<tr id="esqueleto-fila" class="esqueleto-htmx" aria-busy="true"><td colspan="5" class="!py-3">{% include "ui/_esqueleto.html" with alto="h-6" extra="w-full" %}</td></tr>{% endif %}
+      {% for e in extracciones %}{% include "extracciones/_fila.html" %}{% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% include "ui/_paginacion.html" with pagina=pagina parametros=parametros %}
+  {% include "ui/_dialogo_confirmar.html" %}
+{% elif filtro %}
+  {# [003] AC-8.3: el filtro no devolvió nada; "Limpiar filtros" vuelve al listado completo. #}
+  {% msg "vacio.filtro.titulo" as titulo_vacio %}{% msg filtro.clave_texto as nombre_filtro %}{% msg "vacio.filtro.explicacion" filtro=nombre_filtro as explicacion_vacio %}
+  {% include "ui/_estado_vacio.html" with variante="sin_resultados" titulo=titulo_vacio explicacion=explicacion_vacio limpiar_href="/administracion/extracciones/" %}
+{% else %}
+  {% msg "vacio.extracciones.titulo" as titulo_vacio %}{% msg "vacio.extracciones.explicacion" as explicacion_vacio %}
+  {% include "ui/_estado_vacio.html" with variante="sin_datos" icono="download" titulo=titulo_vacio explicacion=explicacion_vacio %}
+{% endif %}
+</div>

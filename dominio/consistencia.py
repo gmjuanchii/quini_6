@@ -10,6 +10,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date
 
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.numeros import ErrorNumero, formatear, validar_extraccion
 from dominio.tipos import CategoriaPublicada, Modalidad, Numeros, nombre_categoria
 
@@ -36,12 +37,12 @@ def _revisar_fuente(fuente: Fuente) -> list[Observacion]:
 
 def _texto_error_numero(error: ErrorNumero) -> Observacion:
     if error.codigo in ("FALTAN_N", "SOBRAN"):
-        return Observacion("CANTIDAD", "La extracción debe tener exactamente seis números.")
+        return Observacion("CANTIDAD", "Los números sorteados deben ser exactamente seis.")
     if error.codigo == "REPETIDO":
         return Observacion(
-            "REPETIDO", f"El {formatear(error.numero or 0)} está repetido en la extracción."
+            "REPETIDO", mensaje("admin.numero_repetido", nn=formatear(error.numero or 0))
         )
-    return Observacion("FUERA_DE_RANGO", "Los números deben estar entre 00 y 45.")
+    return Observacion("FUERA_DE_RANGO", MENSAJES["admin.numeros_rango"])
 
 
 def revisar_numeros(
@@ -65,8 +66,7 @@ def revisar_numeros(
                 advertencias.append(
                     Observacion(
                         "NUMEROS_IGUALES",
-                        f"Los seis números son iguales a los de {modalidad.nombre} "
-                        "en este concurso.",
+                        f"Los seis números son iguales a los de {modalidad.nombre} en este sorteo.",
                     )
                 )
     bloqueantes.extend(_revisar_fuente(fuente))
@@ -74,7 +74,7 @@ def revisar_numeros(
         advertencias.append(
             Observacion(
                 "FECHA_FUTURA",
-                "La fecha del sorteo es posterior a hoy: verificá que el sorteo ya se realizó.",
+                MENSAJES["admin.fecha_futura"],
             )
         )
     return bloqueantes, advertencias
@@ -159,8 +159,7 @@ def revisar_premios(
             bloqueantes.append(
                 Observacion(
                     "SIN_GANADORES_CON_CATEGORIA",
-                    'Indicaste "sin ganadores" y también una categoría ganadora: elegí una '
-                    "sola opción.",
+                    MENSAJES["admin.sin_ganadores_y_categoria"],
                 )
             )
 

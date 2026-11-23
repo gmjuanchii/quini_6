@@ -1,33 +1,33 @@
 {% extends "base.html" %}
-{% load static formularios %}
+{% load static formularios ui %}
 {% block titulo %}{% if jugada %}Editar jugada{% else %}Registrar una jugada{% endif %}{% endblock %}
 {% block contenido %}
-<p><a href="/mis-jugadas/">← Mis jugadas</a></p>
+{% msg "nav.volver_jugadas" as t %}{% include "ui/_volver.html" with href="/mis-jugadas/" texto=t %}
 <h1>{% if jugada %}Editar jugada{% else %}Registrar una jugada{% endif %}</h1>
-<p>Registrá una jugada que hiciste fuera de la aplicación. QUINI_6 no vende apuestas ni realiza pagos.</p>
-{% if error_concurso %}<p class="mensaje mensaje--error" role="alert">{{ error_concurso }}</p>{% endif %}
+<p>{% msg "jugada.intro" %}</p>
+{% if error_concurso %}<div class="{% clases 'aviso' variante='danger' %}" role="alert">{% icono "circle-x" %}<p class="m-0 min-w-0 flex-1">{{ error_concurso }}</p></div>{% endif %}
 
-<form method="post" class="formulario tarjeta" id="form-jugada" novalidate>
-  {% csrf_token %}
+<form method="post" action="{% accion_formulario %}" class="grid max-w-xl gap-4 my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" id="form-jugada" novalidate data-validar-formulario data-trabajando>
+  {% csrf_token %}{% campo_idempotencia %}
   {% if duplicado %}
-    <div class="mensaje mensaje--aviso" role="alert">
-      <p>Ya registraste una jugada con estos números para este concurso. ¿Querés guardarla igual?</p>
-      <div class="acciones">
-        <button type="submit" class="boton" name="confirmar_duplicado" value="1">Guardar igual</button>
-        <a class="boton boton--secundario" href="/mis-jugadas/">Cancelar</a>
+    <div class="{% clases 'aviso' variante='warning' extra='flex-wrap' %}" role="alert">{% icono "triangle-alert" %}
+      <p>{% msg "jugada.duplicada" %}</p>
+      <div class="my-3 flex flex-wrap items-center gap-2">
+        <button type="submit" class="{% clases 'boton' variante='principal' %}" name="confirmar_duplicado" value="1" data-texto-trabajando="{% msg 'form.trabajando_guardar' %}">Guardar igual</button>
+        <a class="{% clases 'boton' variante='secundario' %}" href="/mis-jugadas/">Cancelar</a>
       </div>
     </div>
   {% endif %}
 
   <div class="campo{% if form.concurso.errors %} campo--error{% endif %}">
-    <label for="{{ form.concurso.id_for_label }}">Concurso</label>
+    <label for="{{ form.concurso.id_for_label }}">{% msg "jugada.campo_sorteo" %}</label>
     {{ form.concurso|widget_accesible }}
     {% if form.concurso.errors %}<p class="error" id="{{ form.concurso.auto_id }}_error">{{ form.concurso.errors|join:" " }}</p>{% endif %}
-    <p class="ayuda" id="vista-modalidades" aria-live="polite">{% if modalidades %}Participará en: {{ modalidades|join:", " }}{% else %}Elegí un concurso para ver en qué modalidades participará tu jugada.{% endif %}</p>
+    <p class="ayuda" id="vista-modalidades" aria-live="polite">{% if modalidades %}Participará en: {{ modalidades|join:", " }}{% else %}{% msg "jugada.ayuda_modalidades" %}{% endif %}</p>
   </div>
 
-  <fieldset class="campo{% if form.numeros.errors %} campo--error{% endif %}" id="selector-numeros"{% if form.numeros.errors %} aria-describedby="numeros_error"{% endif %}>
-    <legend>Elegí seis números (00 a 45)</legend>
+  <fieldset class="campo{% if form.numeros.errors %} campo--error{% endif %}" id="selector-numeros" data-msg-faltan="{% msg 'jugada.faltan' n='{n}' %}" data-msg-completos="Seis números elegidos" data-msg-exactamente-seis="{% msg 'jugada.exactamente_seis' %}" data-msg-fuera-de-rango="{% msg 'jugada.fuera_de_rango' %}" data-msg-repetido="{% msg 'jugada.repetido' nn='{nn}' %}" data-msg-participa="Participará en: {modalidades}" data-msg-ayuda-modalidades="{% msg 'jugada.ayuda_modalidades' %}"{% if form.numeros.errors %} aria-describedby="numeros_error"{% endif %}>
+    <legend>{% msg "jugada.elegir_numeros" %}</legend>
     <p class="ayuda" id="contador-numeros" aria-live="polite"></p>
     {% if form.numeros.errors %}<div class="error" id="numeros_error">{% for e in form.numeros.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>{% endif %}
     <div class="grilla-numeros">
@@ -35,20 +35,20 @@
         <label for="{{ opcion.id_for_label }}">{{ opcion.tag }}<span>{{ opcion.choice_label }}</span></label>
       {% endfor %}
     </div>
-    <div class="busqueda" style="margin-top:var(--espacio-3)">
+    <div class="flex flex-wrap items-end gap-3" style="margin-top:var(--espacio-3)">
       <div class="campo">
         <label for="{{ form.numero_escrito.id_for_label }}">{{ form.numero_escrito.label }}</label>
         {{ form.numero_escrito }}
       </div>
-      <button type="button" class="boton boton--secundario" id="agregar-numero" hidden>Agregar</button>
+      <button type="button" class="{% clases 'boton' variante='secundario' %}" id="agregar-numero" hidden>Agregar</button>
     </div>
     <p class="error" id="mensaje-selector" aria-live="polite"></p>
   </fieldset>
 
   {% include "_campo.html" with campo=form.costo %}
 
-  <div class="acciones">
-    <button type="submit" class="boton">{% if jugada %}Guardar cambios{% else %}Registrar jugada{% endif %}</button>
+  <div class="my-3 flex flex-wrap items-center gap-2">
+    <button type="submit" class="{% if duplicado %}{% clases 'boton' variante='secundario' %}{% else %}{% clases 'boton' variante='principal' %}{% endif %}" data-texto-trabajando="{% if jugada %}{% msg 'form.trabajando_guardar' %}{% else %}{% msg 'form.trabajando_registrar' %}{% endif %}">{% if jugada %}Guardar cambios{% else %}Registrar jugada{% endif %}</button>
     <a href="{% if jugada %}/mis-jugadas/{{ jugada.pk }}/{% else %}/mis-jugadas/{% endif %}">Cancelar</a>
   </div>
 </form>

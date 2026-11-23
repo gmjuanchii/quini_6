@@ -4,6 +4,7 @@ from datetime import date
 
 import pytest
 
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.tipos import Modalidad
 from tests.fabricas import (
     cargar_numeros,
@@ -45,7 +46,7 @@ class TestUltimosResultados:
         c = crear_concurso(3215, date(2025, 3, 2), modalidades=[PS])
         cargar_numeros(c, PS, frozenset({40, 7, 3, 21, 14, 32}))
         contenido = _texto(client, "/resultados/")
-        assert "Concurso N.º 3215" in contenido
+        assert "Sorteo N.º 3215" in contenido
         assert "02/03/2025" in contenido
         posiciones = [contenido.index(f">{n}<") for n in ("03", "07", "14", "21", "32", "40")]
         assert posiciones == sorted(posiciones)
@@ -57,10 +58,10 @@ class TestUltimosResultados:
         crear_concurso(3216, date(2025, 3, 5))
         contenido = _texto(client, "/resultados/")
         bloque_pendiente = contenido[contenido.index('id="concurso-actual"') :]
-        assert "Concurso N.º 3216" in bloque_pendiente[:400]
+        assert "Sorteo N.º 3216" in bloque_pendiente[:400]
         assert "Resultados pendientes" in bloque_pendiente[:600]
         bloque_ultimos = contenido[contenido.index('id="ultimos-resultados"') :]
-        assert "Concurso N.º 3215" in bloque_ultimos[:400]
+        assert "Sorteo N.º 3215" in bloque_ultimos[:400]
 
 
 class TestBusquedas:
@@ -79,24 +80,29 @@ class TestBusquedas:
     def test_ac_1_4_numero_inexistente(self, client):
         crear_concurso(3215, date(2025, 3, 2))
         contenido = _texto(client, "/resultados/buscar/?numero=9999")
-        assert "No hay información del concurso N.º 9999" in contenido
+        assert mensaje("resultados.concurso_inexistente", N=9999) in contenido
         assert "3215" not in contenido
 
     def test_p07_fecha_sin_concursos(self, client):
         crear_concurso(3215, date(2025, 3, 2))
         contenido = _texto(client, "/resultados/buscar/?fecha=01/01/2025")
-        assert "No hay información de concursos del 01/01/2025" in contenido
+        assert mensaje("resultados.fecha_sin_concursos", fecha="01/01/2025") in contenido
         assert "3215" not in contenido
 
-    @pytest.mark.parametrize("consulta", ["numero=abc", "fecha=2025-03-02", "fecha=31/02/2025"])
+    # [003] R-07: "fecha=2025-03-02" ya no es inválida: sin scripts el calendario del navegador
+    # envía AAAA-MM-DD (tests/integration/test_003_us4_fechas.py::test_busqueda_acepta_…).
+    @pytest.mark.parametrize("consulta", ["numero=abc", "fecha=31/02/2025"])
     def test_formato_invalido(self, client, consulta):
         contenido = _texto(client, f"/resultados/buscar/?{consulta}")
-        assert "Ingresá" in contenido
+        assert (
+            MENSAJES["admin.numero_sorteo_invalido"] in contenido
+            or MENSAJES["gral.fecha_invalida"] in contenido
+        )
 
     def test_detalle_inexistente_404(self, client):
         r = client.get("/resultados/9999/")
         assert r.status_code == 404
-        assert "La página que buscás no existe" in r.content.decode()
+        assert MENSAJES["gral.pagina_inexistente"] in r.content.decode()
 
 
 class TestEstados:

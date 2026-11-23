@@ -29,14 +29,14 @@ ESTADOS_EN_TRABAJO = (EstadoVersion.BORRADOR, EstadoVersion.OBSERVADO)
 
 
 class Bloque(models.TextChoices):
-    CONCURSO = "CONCURSO", "Concurso"
+    CONCURSO = "CONCURSO", "Sorteo"  # [003] D-04: "sorteo" en la interfaz; el valor no cambia
     NUMEROS = "NUMEROS", "Números"
     PREMIOS = "PREMIOS", "Premios"
 
 
 class Accion(models.TextChoices):
-    CREAR_CONCURSO = "CREAR_CONCURSO", "Crear concurso"
-    MODIFICAR_CONCURSO = "MODIFICAR_CONCURSO", "Modificar concurso"
+    CREAR_CONCURSO = "CREAR_CONCURSO", "Crear sorteo"
+    MODIFICAR_CONCURSO = "MODIFICAR_CONCURSO", "Modificar sorteo"
     GUARDAR_BORRADOR = "GUARDAR_BORRADOR", "Guardar borrador"
     OBSERVAR = "OBSERVAR", "Observar"
     RESOLVER_OBSERVACION = "RESOLVER_OBSERVACION", "Resolver observación"
@@ -59,7 +59,7 @@ class Concurso(models.Model):
         ordering = ["-fecha_sorteo", "-numero"]
 
     def __str__(self) -> str:
-        return f"Concurso N.º {self.numero}"
+        return f"Sorteo N.º {self.numero}"
 
 
 class ModalidadConcurso(models.Model):

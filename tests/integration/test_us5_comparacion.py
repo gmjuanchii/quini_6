@@ -5,6 +5,7 @@ from decimal import Decimal
 
 import pytest
 
+from dominio.mensajes import MENSAJES
 from dominio.tipos import Modalidad
 from jugadas.models import Jugada
 from tests.fabricas import (
@@ -92,10 +93,7 @@ class TestEjemplosDeReferencia:
         )
         ss = _seccion(_detalle(cliente_a, jugada), SS)
         assert "Premio pendiente de determinación" in ss
-        assert (
-            "Los aciertos de tu jugada superan la categoría ganadora publicada. Verificá los "
-            "números y el concurso de tu jugada."
-        ) in ss
+        assert MENSAJES["comp.aciertos_superan"] in ss
 
 
 class TestDetalle:

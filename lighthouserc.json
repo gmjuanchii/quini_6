@@ -1,0 +1,25 @@
+{
+  "$comentario": "[003] R-24: presupuesto de rendimiento. scripts/lhci.mjs agrega la cookie de sesión y las URL privadas; la línea base se registra en specs/003-modernizacion-ui-ux/linea-base.md.",
+  "ci": {
+    "collect": {
+      "numberOfRuns": 5,
+      "settings": {
+        "preset": "perf",
+        "formFactor": "mobile",
+        "locale": "es-AR"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.05 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
+        "resource-summary:script:size": ["warn", { "maxNumericValue": 204800 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

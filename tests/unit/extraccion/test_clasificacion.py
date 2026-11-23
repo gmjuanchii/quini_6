@@ -102,12 +102,26 @@ def test_ac_3_6_pozo_de_categoria_con_ganadores_no_es_esperado():
     assert estado(intento(datos_reales(F2)))[0] is EstadoSorteo.RECUPERADO
 
 
+def _estado_3398(importe: str | None = None):
+    html = leer("f3/sorteo-3398.html")
+    if importe is not None:
+        html = html.replace("494,443,71", importe)
+    r = normalizar(f3.interpretar_sorteo(html), FICHAS[F3], 3398)
+    return clasificar(consolidar(3398, [(F3, r.resultado, r.datos)], FICHAS))
+
+
 def test_ac_3_8_importe_invalido_impide_recuperado():
-    pagina = f3.interpretar_sorteo(leer("f3/sorteo-3398.html"))
-    r = normalizar(pagina, FICHAS[F3], 3398)
-    est, motivos = clasificar(consolidar(3398, [(F3, r.resultado, r.datos)], FICHAS))
+    est, motivos = _estado_3398("1,234,567")
     assert est is EstadoSorteo.PARCIAL
     assert "Tradicional: Segundo Premio: importe individual" in motivos[0]
+
+
+def test_ac_3_20_importe_con_comas_corregido_no_impide_recuperado():
+    """[002] RN-16, D-32: en el sorteo 3398 «494,443,71» se corrige a $ 494.443,71 y el
+    sorteo deja de quedar "Recuperado parcialmente"."""
+    est, motivos = _estado_3398()
+    assert est is EstadoSorteo.RECUPERADO
+    assert not motivos
 
 
 def test_ac_3_12_modalidad_no_informada_impide_recuperado():
@@ -123,12 +137,10 @@ def test_combina_y_sin_corroborar_no_cambian_el_estado():
 
 
 def test_ac_4_7_combina_fuentes_sin_diferencias_puede_quedar_recuperado():
-    s = consolidar(
-        3426,
-        [intento(datos_reales(F1)), intento(datos_reales(F2)), intento(datos_reales(F3))],
-        FICHAS,
-    )
-    assert s.combina_fuentes  # el pozo de Pozo Extra solo lo publica F1 (I-03)
+    """Revancha solo la aporta F1, y los aciertos de Pozo Extra solo F2 (I-03)."""
+    f2 = quitar_modalidad(datos_reales(F2), M.REVANCHA)
+    s = consolidar(3426, [intento(datos_reales(F1)), intento(f2)], FICHAS)
+    assert s.combina_fuentes
     assert clasificar(s)[0] is EstadoSorteo.RECUPERADO
 
 

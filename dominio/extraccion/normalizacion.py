@@ -34,6 +34,7 @@ from dominio.extraccion.tipos import (
     codigo_aciertos,
     nombre_categoria,
     nombre_modalidad,
+    viola_rn_26,
 )
 from dominio.importes import ErrorImporte, formatear_pesos, parsear_pesos
 from dominio.numeros import formatear
@@ -83,6 +84,12 @@ _MILLONES = re.compile(r"^(\d+(?:,\d+)?)\s+millones?\s+de\s+pesos$", re.I)
 _MAL_CARGADO = re.compile(r"^(\d{1,3}(?:\.\d{3})*)\.(\d{4})(?:,(\d+))?$")
 #: [002] RN-16, D-20: importe con tres o más decimales («1.278.143,114»).
 _DEMASIADOS_DECIMALES = re.compile(r"^(\d+|\d{1,3}(?:\.\d{3})+),(\d{3,})$")
+#: [002] RN-16, D-31: puntos de miles mal puestos en la parte entera, con el último grupo de tres
+#: dígitos («1.0867.330», «2.57.2821.792», «2472.996,80»).
+_MILES_MAL_PUESTOS = re.compile(r"^(\d+(?:\.\d+)*\.\d{3})(?:,(\d+))?$")
+#: [002] RN-16, D-32: coma en lugar de todos los separadores, con dos o más comas y dos decimales
+#: después de la última («494,443,71»).
+_COMAS_EN_TODOS = re.compile(r"^(\d+(?:,\d+)+),(\d{2})$")
 _CENTAVOS = Decimal("0.01")
 _VACANTE = {"vacante", "pozo vacante"}
 _SIN_DATO = {"", "-", "–", "—"}
@@ -159,6 +166,14 @@ def corregir_importe_mal_cargado(texto: str | None) -> Decimal | None:
     - D-18: el último grupo antes de la coma tiene cuatro dígitos; la coma decimal se corre un
       lugar a la izquierda: «410.1156,25» → 410115.63.
     - D-20: tres o más decimales: «1.278.143,114» → 1278143.11.
+    - D-31: puntos de miles mal puestos en la parte entera y el último grupo de tres dígitos;
+      los dígitos se reagrupan en tríos desde la derecha y los decimales se conservan:
+      «1.0867.330» → 10867330, «2.57.2821.792» → 2572821792, «$ 1.0867.330,29» → 10867330.29.
+      Se aplica después de D-18 y D-20, que tienen prioridad.
+    - D-32: coma en lugar de todos los separadores (dos o más comas); de derecha a izquierda, los
+      dos dígitos después de la última coma son los decimales y el resto, la parte entera:
+      «494,443,71» → 494443.71. Si el último grupo no tiene dos dígitos («1,234,567») no se
+      corrige.
     """
     limpio = _limpio(texto).replace("$", "").replace(" ", "")
     coincidencia = _MAL_CARGADO.match(limpio)
@@ -172,6 +187,17 @@ def corregir_importe_mal_cargado(texto: str | None) -> Decimal | None:
         entero, decimales = coincidencia.groups()
         valor = Decimal(f"{entero.replace('.', '')}.{decimales}")
         return valor.quantize(_CENTAVOS, rounding=ROUND_HALF_UP)
+    coincidencia = _MILES_MAL_PUESTOS.match(limpio)
+    if coincidencia and not _ENTERO_MILES.match(coincidencia.group(1)):
+        entero, decimales = coincidencia.groups()
+        entero = entero.replace(".", "")
+        if not decimales:
+            return Decimal(entero)  # RN-16: sin centavos agregados
+        return Decimal(f"{entero}.{decimales}").quantize(_CENTAVOS, rounding=ROUND_HALF_UP)
+    coincidencia = _COMAS_EN_TODOS.match(limpio)
+    if coincidencia:
+        entero, decimales = coincidencia.groups()
+        return Decimal(f"{entero.replace(',', '')}.{decimales}")
     return None
 
 
@@ -548,29 +574,22 @@ def _faltantes_categoria(modalidad, codigo, categoria: DatosCategoriaFuente | No
 
 
 def _validar_ganadora(modalidad: Modalidad, categoria: DatosCategoriaFuente | None, ctx):
-    """[002] RN-26: categoría ganadora de Siempre Sale y de Premio Extra."""
-    if categoria is None:
+    """[002] RN-26: categoría ganadora de Siempre Sale y de Premio Extra. El mismo control
+    descarta el dato en la consolidación (D-29)."""
+    if categoria is None or modalidad not in _OBS_GANADORA_INVALIDA:
         return
-    aciertos = categoria.aciertos.v if isinstance(categoria.aciertos, Valor) else None
-    ganadores = categoria.ganadores.v if isinstance(categoria.ganadores, Valor) else None
-    if modalidad is Modalidad.SIEMPRE_SALE:
-        invalida = aciertos is not None and not (isinstance(aciertos, int) and 0 <= aciertos <= 6)
-        invalida = invalida or (ganadores is not None and ganadores < 1)
-        if invalida:
-            ctx.observar(
-                "obs.siempre_sale_invalida",
-                OBS_SIEMPRE_SALE_INVALIDA,
-                modalidad=modalidad,
-                inconsistencia=True,
-            )
-    elif modalidad is Modalidad.PREMIO_EXTRA:
-        if aciertos is not None and aciertos not in (6, 5, 4, SIN_GANADORES):
-            ctx.observar(
-                "obs.premio_extra_invalida",
-                OBS_PREMIO_EXTRA_INVALIDA,
-                modalidad=modalidad,
-                inconsistencia=True,
-            )
+    if any(
+        viola_rn_26(modalidad, "GANADORA", campo, getattr(categoria, campo))
+        for campo in ("aciertos", "ganadores")
+    ):
+        codigo, texto = _OBS_GANADORA_INVALIDA[modalidad]
+        ctx.observar(codigo, texto, modalidad=modalidad, inconsistencia=True)
+
+
+_OBS_GANADORA_INVALIDA = {
+    Modalidad.SIEMPRE_SALE: ("obs.siempre_sale_invalida", OBS_SIEMPRE_SALE_INVALIDA),
+    Modalidad.PREMIO_EXTRA: ("obs.premio_extra_invalida", OBS_PREMIO_EXTRA_INVALIDA),
+}
 
 
 def _controles_entre_modalidades(modalidades, bloques, ctx: _Contexto):

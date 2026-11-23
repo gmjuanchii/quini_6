@@ -16,10 +16,6 @@ from dominio.extraccion.tipos import Ficha, Fuente, Modalidad, ResultadoIntento
 #: Sorteo más antiguo que cubre alguna ficha (F2, [002] RN-05, AC-1.17).
 PRIMER_CUBIERTO = (2211, date(2014, 12, 17))
 
-#: Enlace "Ver extracto oficial (Lotería de Santa Fe)" ([002] FR-007, AC-1.13). Dirección por
-#: sorteo elegida por el responsable el 19/11/2026 (contracts/fuentes.md, F0).
-ENLACE_EXTRACTO_OFICIAL = "https://numerosganadores.com.ar/sorteos/{numero}"
-
 #: Marcadores de las verificaciones anti-robots de Cloudflare, que usan los tres sitios
 #: (relevamiento del 19/11/2026). "challenge-platform" NO es marcador: aparece en F1 normal.
 MARCADORES_CLOUDFLARE = (
@@ -61,7 +57,8 @@ F1 = Ficha(
     marcadores_antirobots=MARCADORES_CLOUDFLARE,
     publica_numeros_premio_extra=False,
     publica_aciertos_premio_extra=False,  # aciertos "-"
-    publica_pozo_premio_extra=True,  # "N millones de pesos" (RN-17)
+    # "55 millones de pesos" es un texto fijo (igual de 2024 a 2026) y se ignora (RN-17, D-30)
+    publica_pozo_premio_extra=False,
 )
 
 F2 = Ficha(
@@ -124,6 +121,3 @@ def obtener_fichas(urls_base: dict[str, str | None] | None = None) -> dict[Fuent
         fichas[fuente] = replace(ficha, url_base=reemplazo) if reemplazo else ficha
     return fichas
 
-
-def enlace_extracto_oficial(numero: int) -> str:
-    return ENLACE_EXTRACTO_OFICIAL.format(numero=numero)

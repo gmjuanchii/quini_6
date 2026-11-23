@@ -6,9 +6,11 @@ from decimal import Decimal
 
 import pytest
 
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.tipos import Modalidad
 from jugadas.models import Jugada
 from tests.fabricas import cargar_numeros, crear_concurso
+from tests.paginas import sin_variables
 
 pytestmark = pytest.mark.django_db
 
@@ -20,14 +22,9 @@ PS, LS, RV, SS, PE = (
     Modalidad.PREMIO_EXTRA,
 )
 SEIS = ["03", "08", "14", "21", "32", "40"]
-FIJA = (
-    "Esta jugada no se puede modificar ni eliminar porque los resultados de su concurso ya "
-    "fueron publicados"
-)
+FIJA = MENSAJES["jugada.fija"]
 NO_EXISTE = "La jugada no existe o no está disponible"
-DUPLICADA = (
-    "Ya registraste una jugada con estos números para este concurso. ¿Querés guardarla igual?"
-)
+DUPLICADA = MENSAJES["jugada.duplicada"]
 
 
 def _datos(concurso="9001", numeros=SEIS, costo="1500,50", **extra):
@@ -56,7 +53,7 @@ class TestRegistro:
         contenido = r.content.decode()
         assert "Jugada registrada" in contenido
         for texto in (
-            "Concurso N.º 9001",
+            "N.º 9001",  # [003] HU-09: columna "Sorteo" de la tabla
             "02/03/2025",
             "$ 1.500,50",
             "Revancha",
@@ -73,7 +70,7 @@ class TestRegistro:
 
     def test_ac_4_2_faltan(self, cliente_a, concurso):
         r = _registrar(cliente_a, numeros=SEIS[:4])
-        assert "Te faltan 2 números" in r.content.decode()
+        assert mensaje("jugada.faltan", n=2) in r.content.decode()
         assert not Jugada.objects.exists()
 
     def test_ac_4_3_sobran(self, cliente_a, concurso):
@@ -84,17 +81,17 @@ class TestRegistro:
     @pytest.mark.parametrize("valor", ["46", "abc"])
     def test_ac_4_4_fuera_de_rango(self, cliente_a, concurso, valor):
         r = _registrar(cliente_a, numeros=SEIS[:5], numero_escrito=valor)
-        assert "Ingresá un número entre 00 y 45" in r.content.decode()
+        assert MENSAJES["jugada.fuera_de_rango"] in r.content.decode()
         assert not Jugada.objects.exists()
 
     def test_ac_4_5_repetido(self, cliente_a, concurso):
         r = _registrar(cliente_a, numeros=["07", "08", "14", "21", "32"], numero_escrito="7")
-        assert "El 07 ya está en tu jugada" in r.content.decode()
+        assert mensaje("jugada.repetido", nn="07") in r.content.decode()
         assert not Jugada.objects.exists()
 
     def test_ac_4_6_sin_concurso(self, cliente_a, concurso):
         r = _registrar(cliente_a, concurso="")
-        assert "Elegí el concurso de tu jugada" in r.content.decode()
+        assert MENSAJES["jugada.elegi_concurso"] in r.content.decode()
         assert not Jugada.objects.exists()
 
     def test_ac_4_6_muestra_modalidades_sin_elegirlas(self, cliente_a, concurso):
@@ -107,21 +104,14 @@ class TestRegistro:
 class TestConcursoDeLaJugada:
     def test_ac_4_7_inexistente(self, cliente_a, concurso):
         r = cliente_a.get("/mis-jugadas/nueva/?concurso=1234")
-        assert "Este concurso todavía no está disponible para registrar jugadas" in (
-            r.content.decode()
-        )
+        assert MENSAJES["jugada.concurso_no_disponible"] in r.content.decode()
         r = _registrar(cliente_a, concurso="1234")
-        assert "Este concurso todavía no está disponible para registrar jugadas" in (
-            r.content.decode()
-        )
+        assert MENSAJES["jugada.concurso_no_disponible"] in r.content.decode()
         assert not Jugada.objects.exists()
 
     def test_ac_4_8_cerrado(self, cliente_a, concurso):
         cargar_numeros(concurso, SS, frozenset({1, 2, 3, 4, 5, 6}))
-        texto = (
-            "Ya no se pueden registrar jugadas para este concurso porque sus resultados "
-            "fueron publicados"
-        )
+        texto = MENSAJES["jugada.concurso_cerrado"]
         assert texto in cliente_a.get("/mis-jugadas/nueva/?concurso=9001").content.decode()
         assert texto in _registrar(cliente_a).content.decode()
         assert not Jugada.objects.exists()
@@ -155,9 +145,7 @@ class TestEdicionYEliminacion:
     def test_ac_4_11_eliminar(self, cliente_a, concurso, usuario_a):
         j = _jugada(usuario_a, concurso)
         r = cliente_a.get(f"/mis-jugadas/{j.id}/eliminar/")
-        assert "¿Querés eliminar esta jugada? Esta acción no se puede deshacer." in (
-            r.content.decode()
-        )
+        assert MENSAJES["jugada.confirmar_eliminacion"] in r.content.decode()
         assert Jugada.objects.exists()
         r = cliente_a.post(f"/mis-jugadas/{j.id}/eliminar/", follow=True)
         assert "Jugada eliminada" in r.content.decode()
@@ -205,7 +193,7 @@ class TestAislamiento:
             contenido = r.content.decode()
             assert NO_EXISTE in contenido
             assert "777" not in contenido
-            respuestas.append(contenido.split("<main", 1)[1])
+            respuestas.append(sin_variables(contenido.split("<main", 1)[1]))
         assert respuestas[0] == respuestas[1]
         ajena.refresh_from_db()
         assert ajena.numeros == frozenset({3, 8, 14, 21, 32, 40})
@@ -214,7 +202,7 @@ class TestAislamiento:
 class TestHistorial:
     def test_ac_4_13_vacio(self, cliente_a):
         contenido = cliente_a.get("/mis-jugadas/").content.decode()
-        assert "Todavía no registraste jugadas" in contenido
+        assert MENSAJES["vacio.jugadas.titulo"] in contenido
         assert 'href="/mis-jugadas/nueva/"' in contenido
 
     def test_ac_4_14_duplicado(self, cliente_a, concurso):
@@ -244,25 +232,25 @@ class TestHistorial:
     def test_ac_4_15_orden(self, cliente_a, usuario_a):
         viejo = crear_concurso(1, date(2025, 1, 1))
         nuevo = crear_concurso(2, date(2025, 2, 1))
-        _jugada(usuario_a, viejo)
-        _jugada(usuario_a, nuevo)
+        j_viejo = _jugada(usuario_a, viejo)
+        j_nuevo = _jugada(usuario_a, nuevo)
         contenido = cliente_a.get("/mis-jugadas/").content.decode()
-        assert contenido.index("Concurso N.º 2") < contenido.index("Concurso N.º 1")
+        # [003] HU-09: una fila por jugada (id="jugada-<pk>"), de la más reciente a la más antigua.
+        assert contenido.index(f'id="jugada-{j_nuevo.pk}"') < contenido.index(
+            f'id="jugada-{j_viejo.pk}"'
+        )
 
 
 class TestCosto:
     def test_ac_4_16_vacio(self, cliente_a, concurso):
         r = _registrar(cliente_a, costo="")
-        assert "Ingresá el costo de tu jugada" in r.content.decode()
+        assert MENSAJES["jugada.costo_vacio"] in r.content.decode()
         assert not Jugada.objects.exists()
 
     @pytest.mark.parametrize("costo", ["-1", "abc", "10,505"])
     def test_ac_4_16_invalido(self, cliente_a, concurso, costo):
         r = _registrar(cliente_a, costo=costo)
-        assert (
-            "Ingresá un importe válido, mayor o igual a cero y con hasta dos decimales "
-            "(por ejemplo, 1500,50)"
-        ) in r.content.decode()
+        assert MENSAJES["jugada.costo_invalido"] in r.content.decode()
         assert not Jugada.objects.exists()
 
 

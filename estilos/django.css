@@ -1,0 +1,160 @@
+/*
+ * QUINI_6 — entrada de Tailwind CSS 4 para las plantillas de Django ([003] R-03).
+ * Se compila con "npm run css" (o "npm run css:watch") a static/css/app.css, que no se versiona.
+ *
+ * [003] T141: el CSS anterior (legado.css) ya no existe; todo sale de los tokens (RN-11).
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss";
+@import "../ui/tokens.css";
+@import "../ui/base.css";
+@import "../ui/dominio.css";
+
+@source "../templates";
+@source "../ui/variantes.json";
+@source "../static/js";
+
+/*
+ * [003] T070, R-07, AC-4.2, AC-4.7, AC-12.4: calendario Cally con los tokens (ambos temas).
+ * Las partes internas se estilan con ::part(); los días fuera de min/max quedan deshabilitados
+ * (atenuados y tachados) y no se pueden elegir.
+ */
+@layer components {
+  .calendario {
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+  }
+  .calendario::part(header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-block-end: 0.5rem;
+  }
+  .calendario::part(heading) {
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .calendario::part(button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    cursor: pointer;
+  }
+  .calendario::part(button):hover {
+    background: var(--color-muted);
+  }
+  .calendario::part(button):focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  .calendario::part(disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  calendar-month {
+    --color-accent: var(--color-primary-solid);
+    --color-text-on-accent: var(--color-primary-foreground);
+  }
+  calendar-month::part(heading) {
+    color: var(--color-muted-foreground);
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  calendar-month::part(button) {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--color-foreground);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+  }
+  calendar-month::part(button):hover {
+    background: var(--color-muted);
+  }
+  calendar-month::part(button):focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 1px;
+  }
+  calendar-month::part(today) {
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+    font-weight: 600;
+  }
+  calendar-month::part(selected),
+  calendar-month::part(range-start),
+  calendar-month::part(range-end) {
+    background: var(--color-primary-solid);
+    color: var(--color-primary-foreground);
+    font-weight: 600;
+  }
+  calendar-month::part(range-inner) {
+    border-radius: 0;
+    background: var(--color-info-soft);
+    color: var(--color-info-on-soft);
+  }
+  calendar-month::part(disallowed),
+  calendar-month::part(button):disabled {
+    background: transparent;
+    color: var(--color-muted-foreground);
+    text-decoration: line-through;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  @media (max-width: 380px) {
+    calendar-month::part(button) {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+  }
+}
+
+/*
+ * [003] HU-05: navegación. Sin scripts, la lista de secciones y el menú de cuenta están siempre
+ * visibles (NFR-007); con scripts (html.js) se condensan en "Menú" por debajo de 768 px (AC-5.4)
+ * y el menú de cuenta se despliega con su botón (AC-5.3).
+ */
+@layer components {
+  html:not(.js) .nav-q__boton {
+    display: none;
+  }
+  /* Controles que solo hacen falta sin scripts (p. ej. "Guardar tema", AC-12.2). */
+  html.js .solo-sin-scripts {
+    display: none;
+  }
+  /* Controles que necesitan scripts ("Abrir calendario", "Mostrar"): visibles desde la primera
+     pintura, porque html.js se pone antes de dibujar la página (sin corrimientos, NFR-004). */
+  html:not(.js) .solo-con-scripts {
+    display: none !important;
+  }
+  @media (max-width: 767.98px) {
+    html.js .nav-q:not(.abierta) {
+      display: none;
+    }
+  }
+  html.js .menu-cuenta__panel:not(.abierto) {
+    display: none;
+  }
+  html:not(.js) .menu-cuenta__boton {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    html.js .menu-cuenta__panel {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      z-index: 40;
+      padding-top: 0.25rem;
+    }
+  }
+}
+

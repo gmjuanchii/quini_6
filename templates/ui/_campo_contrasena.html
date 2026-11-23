@@ -1,0 +1,13 @@
+{% load formularios ui %}{% comment %}
+PasswordField ([003] contracts/componentes.md, AC-6.2): campo de contraseña con "Mostrar"/"Ocultar"
+(aria-pressed) y anuncio del cambio en una región aria-live. Sin scripts, sin botón (siempre oculta).
+{% endcomment %}<div class="campo flex flex-col gap-1.5{% if campo.errors %} campo--error{% endif %}" data-campo="{{ campo.html_name }}" x-data="campoContrasena">
+  <label for="{{ campo.id_for_label }}" class="font-medium">{{ campo.label }}</label>
+  {% if campo.help_text %}<p class="ayuda text-sm text-muted-foreground" id="{{ campo.auto_id }}_ayuda">{{ campo.help_text }}</p>{% endif %}
+  <div class="flex items-center gap-2">
+    <div class="min-w-0 flex-1">{{ campo|widget_accesible }}</div>
+    <button type="button" data-mostrar-contrasena class="{% clases 'boton' variante='secundario' extra='solo-con-scripts shrink-0 px-3' %}" aria-controls="{{ campo.id_for_label }}" aria-pressed="false" :aria-pressed="visible ? 'true' : 'false'" @click="alternar()" data-texto-visible="{% msg 'cuenta.contrasena_visible' %}" data-texto-oculta="{% msg 'cuenta.contrasena_oculta' %}"><span class="flex items-center gap-2" x-show="!visible">{% icono "eye" %}{% msg "cuenta.mostrar" %}</span><span class="flex items-center gap-2" x-show="visible" style="display: none">{% icono "eye-off" %}{% msg "cuenta.ocultar" %}</span></button>
+  </div>
+  <p class="visualmente-oculto" aria-live="polite" x-text="anuncio"></p>
+  <p class="error flex items-start gap-1.5 text-sm font-medium text-danger-text" id="{{ campo.auto_id }}_error"{% if not campo.errors %} hidden{% endif %}>{% icono "circle-x" clase="mt-0.5 size-4 shrink-0" %}<span data-texto-error>{{ campo.errors|join:" " }}</span></p>
+</div>

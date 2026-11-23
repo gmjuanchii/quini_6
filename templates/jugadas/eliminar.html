@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% load formato_ar %}
+{% load formato_ar ui %}
 {% block titulo %}Eliminar jugada{% endblock %}
 {% block contenido %}
 <h1>Eliminar jugada</h1>
-<section class="tarjeta">
-  <p>Concurso N.º {{ jugada.concurso.numero }} — sorteo del {{ jugada.concurso.fecha_sorteo|fecha_ar }} · {{ jugada.costo|pesos }}</p>
+<section class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6">
+  <p>Sorteo N.º {{ jugada.concurso.numero }} — sorteo del {{ jugada.concurso.fecha_sorteo|fecha_ar }} · {{ jugada.costo|pesos }}</p>
   {% include "resultados/_bolillas.html" with numeros=jugada.numeros_ordenados rotulo="Números de la jugada" %}
-  <p class="mensaje mensaje--aviso">¿Querés eliminar esta jugada? Esta acción no se puede deshacer.</p>
-  <form method="post" class="acciones">
-    {% csrf_token %}
-    <button type="submit" class="boton boton--peligro">Eliminar</button>
-    <a class="boton boton--secundario" href="/mis-jugadas/{{ jugada.pk }}/">Cancelar</a>
+  <div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">{% msg "jugada.confirmar_eliminacion" %}</p></div>
+  <form method="post" action="{% accion_formulario %}" class="my-3 flex flex-wrap items-center gap-2" novalidate data-validar-formulario data-trabajando>
+    {% csrf_token %}{% campo_idempotencia %}
+    <button type="submit" class="{% clases 'boton' variante='destructivo' %}" data-texto-trabajando="{% msg 'form.trabajando_eliminar' %}">Eliminar</button>
+    <a class="{% clases 'boton' variante='secundario' %}" href="/mis-jugadas/{{ jugada.pk }}/">Cancelar</a>
   </form>
 </section>
 {% endblock %}

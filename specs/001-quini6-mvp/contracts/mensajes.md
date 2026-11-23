@@ -1,5 +1,7 @@
 # Catálogo de mensajes visibles
 
+> **Nota ([003] R-13)**: desde [003], los textos vigentes son los de `specs/003-modernizacion-ui-ux/contracts/mensajes.md` y `dominio/mensajes.py`.
+
 **Plan**: [../plan.md](../plan.md) | **Rutas**: [rutas.md](rutas.md)
 
 Estos son los textos exactos que fija la especificación. La implementación los usa **literalmente** y las pruebas de integración los verifican (Const. VI y VII). Los textos marcados con † los propuso el plan a partir de la spec y el responsable del proyecto los aprobó tal como están el 13/11/2026 (spec.md, Clarifications). La marca se conserva solo para la trazabilidad.

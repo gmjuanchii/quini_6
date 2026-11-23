@@ -1,0 +1,7 @@
+{% comment %}
+ConfirmDialog ([003] AC-2.3, AC-2.4): se incluye una vez por página. El componente dialogoConfirmar
+de static/js/ui.js carga en él, con HTMX, el contenido de la página de confirmación del enlace
+pulsado (data-confirmar). Sin scripts, ese enlace lleva a la página aparte.
+{% endcomment %}<dialog id="dialogo-confirmar" role="alertdialog" aria-modal="true" aria-labelledby="dialogo-titulo" aria-describedby="dialogo-texto" x-data="dialogoConfirmar" @click="alHacerClic($event)" @cancel="alCancelar($event)" @close="alCerrar()" class="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-card bg-surface p-0 text-foreground shadow-2 backdrop:bg-black/50">
+  <div x-ref="contenido" class="p-6" aria-busy="true"></div>
+</dialog>

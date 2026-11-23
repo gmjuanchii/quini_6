@@ -1,0 +1,6 @@
+{% load ui %}{% comment %}
+StatusBadge ([003] FR-001, FR-002, contracts/componentes.md). Parámetros: etiqueta (EtiquetaEstado) e
+id (único en la página, para asociar la explicación). Texto + icono + color; la explicación (RN-02)
+aparece al pasar el cursor o al enfocar, y el lector de pantalla la lee por aria-describedby.
+{% endcomment %}<span class="group relative inline-flex" data-insignia-estado="{{ etiqueta.slug }}"><span tabindex="0" class="{% clases 'insignia' variante=etiqueta.variante extra='cursor-help focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring' %}" aria-describedby="explicacion-{{ id }}">{% if etiqueta.icono == "loader-circle" %}{% icono etiqueta.icono clase="size-4 shrink-0 motion-safe:animate-spin" %}{% else %}{% icono etiqueta.icono clase="size-4 shrink-0" %}{% endif %}<span>{% msg etiqueta.clave_texto %}</span></span>
+  <span role="tooltip" id="explicacion-{{ id }}" class="absolute top-full left-0 z-20 mt-2 hidden w-64 max-w-[calc(100vw-2rem)] rounded-control bg-foreground px-3 py-2 text-sm font-normal text-background shadow-2 group-hover:block group-focus-within:block">{% msg etiqueta.clave_explicacion %}</span></span>

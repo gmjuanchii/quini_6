@@ -1,0 +1,16 @@
+{% load ui %}{% comment %}
+ThemeSelect ([003] contracts/componentes.md, AC-12.1 a AC-12.3, FR-036, R-14). Sin scripts es un
+formulario POST /preferencias/tema/ con "Guardar tema"; con scripts, el componente "selectorTema" de
+static/js/ui.js aplica el tema al instante al elegir una opción, escribe la misma cookie y no recarga.
+{% endcomment %}<form method="post" action="{% accion_formulario "/preferencias/tema/" %}" class="m-0" x-data="selectorTema">
+  {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <fieldset class="m-0 flex flex-wrap items-center gap-x-4 gap-y-2 border-0 p-0">
+    <legend class="float-left mr-2 p-0 text-sm font-medium">{% msg "tema.titulo" %}</legend>
+    {% with clase_opcion="inline-flex min-h-control cursor-pointer items-center gap-2 rounded-control px-2 text-sm text-foreground hover:bg-muted has-[:checked]:bg-info-soft has-[:checked]:text-info-on-soft has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring" %}
+    <label class="{{ clase_opcion }}"><input type="radio" name="tema" value="claro" class="size-4 accent-[var(--q-primary)]"{% if tema_actual == "claro" %} checked{% endif %} @change="aplicar($event.target.value)">{% icono "sun" clase="size-4 shrink-0" %}{% msg "tema.claro" %}</label>
+    <label class="{{ clase_opcion }}"><input type="radio" name="tema" value="oscuro" class="size-4 accent-[var(--q-primary)]"{% if tema_actual == "oscuro" %} checked{% endif %} @change="aplicar($event.target.value)">{% icono "moon" clase="size-4 shrink-0" %}{% msg "tema.oscuro" %}</label>
+    <label class="{{ clase_opcion }}"><input type="radio" name="tema" value="dispositivo" class="size-4 accent-[var(--q-primary)]"{% if tema_actual == "dispositivo" %} checked{% endif %} @change="aplicar($event.target.value)">{% icono "monitor" clase="size-4 shrink-0" %}{% msg "tema.dispositivo" %}</label>
+    {% endwith %}
+    <span class="solo-sin-scripts">{% msg "tema.guardar" as guardar_tema %}{% include "ui/_boton.html" with texto=guardar_tema variante="secundario" tamano="sm" icono="" href="" tipo="submit" extra="" id="" etiqueta="" texto_trabajando="" %}</span>
+  </fieldset>
+</form>

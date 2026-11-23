@@ -1,12 +1,13 @@
 {% extends "base.html" %}
-{% block titulo %}Buscar concursos{% endblock %}
+{% load ui %}
+{% block titulo %}Buscar sorteos{% endblock %}
 {% block contenido %}
-<p><a href="/resultados/">← Resultados</a></p>
-<h1>Buscar concursos</h1>
-{% if error %}<p class="mensaje mensaje--error" role="alert">{{ error }}</p>{% endif %}
-{% if mensaje %}<div class="vacio"><p>{{ mensaje }}</p></div>{% endif %}
+{% msg "nav.volver_sorteos" as t %}{% include "ui/_volver.html" with href="/resultados/" texto=t %}
+<h1>Buscar sorteos</h1>
+{% if error %}<div class="{% clases 'aviso' variante='danger' %}" role="alert">{% icono "circle-x" %}<p class="m-0 min-w-0 flex-1">{{ error }}</p></div>{% endif %}
+{% if mensaje %}{# [003] AC-8.3: la búsqueda sin coincidencias, distinta de "sin datos". #}{% msg "vacio.filtro.titulo" as titulo_vacio %}{% include "ui/_estado_vacio.html" with variante="sin_resultados" titulo=titulo_vacio explicacion=mensaje limpiar_href="/resultados/" %}{% endif %}
 {% if resultados %}
-  <h2>Concursos del {{ fecha }}</h2>
+  <h2>Sorteos del {{ fecha }}</h2>
   {% include "resultados/_listado.html" with concursos=resultados %}
 {% endif %}
 {% include "resultados/_busqueda_form.html" %}

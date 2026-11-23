@@ -1,10 +1,11 @@
 """Consolidación de las fuentes de un sorteo ([002] RN-07, RN-09, RN-12, RN-18, RN-22, RN-23,
-RN-27 a RN-30, RN-32, I-03, I-06; Clarifications 20/11/2026, D-14 a D-19).
+RN-27 a RN-30, RN-32, I-03, I-06; Clarifications 20/11/2026, D-14 a D-19, D-29).
 
 Cada dato se compara entre las fuentes que lo informan. Si difieren, prevalece el valor de la
 fuente de mayor prioridad (RN-07) y la diferencia queda registrada como discrepancia, salvo los
-importes: con una diferencia menor al 1 % se toma el de mayor prioridad redondeado a pesos
-enteros, con una nota informativa; desde el 1 % quedan "Sin determinar" (RN-30). Los únicos
+importes: coinciden si difieren en menos de $ 1,00 (D-28); con una diferencia menor al 1 % se
+toma el de mayor prioridad sin centavos, con una nota informativa; desde el 1 % quedan "Sin
+determinar" (RN-30). Un dato que viola RN-26 no se compara (D-29). Los únicos
 datos calculados (pozo con ganadores, importe individual de una vacante y números de Pozo Extra)
 llevan el texto de su cálculo. No importa Django.
 """
@@ -13,7 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import replace
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_DOWN, Decimal
 
 from dominio.extraccion.tipos import (
     CALCULO_POZO,
@@ -42,6 +43,7 @@ from dominio.extraccion.tipos import (
     categorias_esperadas,
     orden_categorias,
     prioridad,
+    viola_rn_26,
 )
 from dominio.tipos import FECHA_VIGENCIA_REGLAS, MODALIDADES_PREMIO_EXTRA, ORDEN_MODALIDADES
 
@@ -49,7 +51,8 @@ OBS_NO_CORRELATIVO = "El número y la fecha no son correlativos con el sorteo N.
 
 #: [002] RN-30: una diferencia de importes menor al 1 % del valor prioritario se tolera.
 TOLERANCIA_IMPORTES = Decimal("0.01")
-_PESOS_ENTEROS = Decimal("1")
+#: [002] RN-30, D-28: dos importes que difieren en menos de un peso coinciden.
+_UN_PESO = Decimal("1")
 
 CAMPOS_CATEGORIA = ("aciertos", "ganadores", "pozo_destinado", "importe_individual")
 _CAMPOS_IMPORTE = ("pozo_destinado", "importe_individual")
@@ -85,20 +88,18 @@ def _comparar(candidatos: list[tuple[Fuente, Dato, bool, bool]]) -> DatoConsolid
     if por_mayoria is not None:
         return por_mayoria
     if distintos and es_importe and not omisiones:
-        # RN-30 (aclaración del 20/11/2026): primero se redondea cada importe a pesos enteros
-        # y después se comparan los importes redondeados.
-        redondeados = [(f, _a_pesos_enteros(v)) for f, v in valores]
-        valor = Valor(redondeados[0][1])
+        # RN-30, D-28: coinciden si difieren en menos de $ 1,00; si no, se toleran diferencias
+        # menores al 1 % de los importes sin centavos. El valor es el prioritario sin centavos.
+        valor = Valor(_sin_centavos(referencia))
         fuentes = tuple(f for f, _ in valores)
-        if not _distintos([v for _, v in redondeados]):
-            return DatoConsolidado(valor, fuentes)  # redondeados coinciden: no hay diferencia
-        if _dentro_de_tolerancia(redondeados):
-            # Diferencia menor al 1 %: valor prioritario redondeado y nota informativa.
-            return DatoConsolidado(
-                valor,
-                fuentes,
-                diferencia_tolerada=Discrepancia(TipoDiscrepancia.CENTAVOS, tuple(valores)),
-            )
+        nota = Discrepancia(TipoDiscrepancia.CENTAVOS, tuple(valores))
+        if all(_coinciden_en_pesos(referencia, v) for _, v in valores[1:]):
+            # Sin nota solo si el importe prioritario es el publicado (no tenía centavos).
+            sin_nota = valor.v == referencia
+            return DatoConsolidado(valor, fuentes, diferencia_tolerada=None if sin_nota else nota)
+        if _dentro_de_tolerancia([(f, _sin_centavos(v)) for f, v in valores]):
+            # Diferencia menor al 1 %: valor prioritario sin centavos y nota informativa.
+            return DatoConsolidado(valor, fuentes, diferencia_tolerada=nota)
     tipo = TipoDiscrepancia.VALOR_DISTINTO if distintos else TipoDiscrepancia.OMISION
     todos = sorted(valores + omisiones, key=lambda par: prioridad(par[0]))
     discrepancia = Discrepancia(tipo, tuple(todos))
@@ -114,22 +115,27 @@ def _comparar(candidatos: list[tuple[Fuente, Dato, bool, bool]]) -> DatoConsolid
 def _mayoria(todos: list[tuple[Fuente, object]], es_importe: bool) -> DatoConsolidado | None:
     """[002] RN-07, D-21: con tres o más fuentes, si dos o más coinciden en un valor y ningún
     otro valor reúne la misma cantidad, ese valor resuelve la diferencia, con una nota
-    informativa. Una omisión (``None``) cuenta como una respuesta más, pero nunca gana. Los
-    importes se comparan redondeados a pesos enteros (RN-30). ``None`` si no hay mayoría."""
+    informativa. Una omisión (``None``) cuenta como una respuesta más, pero nunca gana. Dos
+    importes coinciden si difieren en menos de $ 1,00 (RN-30, D-28): cada importe se suma al
+    grupo del primero, en orden de prioridad, con el que coincide. ``None`` si no hay mayoría."""
     if len(todos) < 3:
         return None
     todos = sorted(todos, key=lambda par: prioridad(par[0]))
-    grupos: dict[object, list[tuple[Fuente, object]]] = {}
+    grupos: list[list[tuple[Fuente, object]]] = []
     for fuente, v in todos:
-        clave = None if v is None else (_a_pesos_enteros(v) if es_importe else v)
-        grupos.setdefault(clave, []).append((fuente, v))
-    ordenados = sorted(grupos.items(), key=lambda kv: -len(kv[1]))
-    clave, grupo = ordenados[0]
-    empate = len(ordenados) > 1 and len(ordenados[1][1]) == len(grupo)
-    if clave is None or len(grupo) < 2 or empate:
-        return None
+        grupo = next((g for g in grupos if _misma_respuesta(g[0][1], v, es_importe)), None)
+        if grupo is None:
+            grupos.append([(fuente, v)])
+        else:
+            grupo.append((fuente, v))
+    ordenados = sorted(grupos, key=len, reverse=True)  # estable: a igual tamaño, por prioridad
+    grupo = ordenados[0]
+    empate = len(ordenados) > 1 and len(ordenados[1]) == len(grupo)
+    if grupo[0][1] is None or len(grupo) < 2 or empate or len(grupo) == len(todos):
+        return None  # sin mayoría, o todas coinciden y no hay nada que desempatar
     crudos = [v for _, v in grupo]
-    valor = crudos[0] if not _distintos(crudos) else clave  # redondeado solo si hace falta
+    # Sin centavos solo si las fuentes de la mayoría no publican el mismo importe.
+    valor = crudos[0] if not _distintos(crudos) else _sin_centavos(crudos[0])
     return DatoConsolidado(
         Valor(valor),
         tuple(f for f, _ in grupo),
@@ -151,19 +157,58 @@ def perdedoras_por_mayoria(sorteo: SorteoConsolidado) -> set[tuple[Fuente, Modal
     return perdedoras
 
 
+#: Observaciones de RN-26 sobre la categoría ganadora (``normalizacion._validar_ganadora``).
+_OBS_GANADORA_INVALIDA = ("obs.siempre_sale_invalida", "obs.premio_extra_invalida")
+
+
+def _invalidas_superadas(
+    sorteo: SorteoConsolidado, fuentes_datos: list[tuple[Fuente, DatosFuente]]
+) -> set[tuple[Fuente, Modalidad]]:
+    """[002] D-29: (fuente, modalidad) en las que cada dato que violaba RN-26 se descartó y el
+    consolidado tiene el valor válido de otra fuente."""
+    superado: dict[tuple[Fuente, Modalidad], bool] = {}
+    for modalidad, mc in sorteo.modalidades.items():
+        consolidada = mc.categorias.get("GANADORA")
+        if consolidada is None:
+            continue
+        for fuente, datos in fuentes_datos:
+            md = datos.modalidades.get(modalidad)
+            cat = md.categorias.get("GANADORA") if md else None
+            for campo in ("aciertos", "ganadores"):
+                if cat and viola_rn_26(modalidad, "GANADORA", campo, getattr(cat, campo)):
+                    con_valor = isinstance(getattr(consolidada, campo).dato, Valor)
+                    clave = (fuente, modalidad)
+                    superado[clave] = superado.get(clave, True) and con_valor
+    return {clave for clave, si in superado.items() if si}
+
+
 def _distintos(valores: list) -> bool:
     primero = valores[0]
     return any(v != primero for v in valores[1:])
 
 
-def _a_pesos_enteros(importe: Decimal) -> Decimal:
-    """[002] RN-30: redondeo a pesos enteros, mitad hacia arriba."""
-    return importe.quantize(_PESOS_ENTEROS, rounding=ROUND_HALF_UP)
+def _misma_respuesta(a, b, es_importe: bool) -> bool:
+    """[002] D-21, D-28: dos respuestas coinciden si son iguales o, si son importes, si difieren
+    en menos de $ 1,00. Una omisión (``None``) solo coincide con otra omisión."""
+    if a is None or b is None:
+        return a is b
+    return _coinciden_en_pesos(a, b) if es_importe else a == b
+
+
+def _coinciden_en_pesos(a: Decimal, b: Decimal) -> bool:
+    """[002] RN-30, D-28: unas fuentes redondean los centavos y otras los quitan, así que dos
+    importes que difieren en menos de un peso son el mismo importe."""
+    return abs(a - b) < _UN_PESO
+
+
+def _sin_centavos(importe: Decimal) -> Decimal:
+    """[002] RN-30, D-28: el importe sin centavos (se quitan, no se redondean)."""
+    return importe.quantize(_UN_PESO, rounding=ROUND_DOWN)
 
 
 def _dentro_de_tolerancia(valores: list[tuple[Fuente, Decimal]]) -> bool:
     """[002] RN-30: todos difieren del valor prioritario menos del 1 % de ese valor (sobre los
-    importes ya redondeados)."""
+    importes sin centavos)."""
     referencia = valores[0][1]
     limite = abs(referencia) * TOLERANCIA_IMPORTES
     return all(abs(v - referencia) < limite for _, v in valores[1:])
@@ -185,23 +230,19 @@ def _con_ganadores(categoria) -> bool | None:
     return categoria.ganadores.v > 0
 
 
-def _ganadores_de(datos: DatosFuente, modalidad, codigo) -> Dato:
-    md = datos.modalidades.get(modalidad)
-    cat = md.categorias.get(codigo) if md else None
-    return cat.ganadores if cat else NO_DISPONIBLE
-
-
 def _consolidar_categoria(modalidad, codigo, fuentes_datos, fichas) -> CategoriaConsolidada:
     consolidados: dict[str, DatoConsolidado] = {}
     for campo in CAMPOS_CATEGORIA:
         candidatos = []
         for fuente, datos in fuentes_datos:
-            if campo in _CAMPOS_IMPORTE and _ganadores_en_conflicto(
-                consolidados.get("ganadores"), _ganadores_de(datos, modalidad, codigo)
-            ):
-                continue  # AC-4.9: sus importes tienen otro concepto (RN-17)
             md = datos.modalidades.get(modalidad)
             cat = md.categorias.get(codigo) if md else None
+            ganadores_fuente = cat.ganadores if cat else NO_DISPONIBLE
+            if campo in _CAMPOS_IMPORTE and (
+                viola_rn_26(modalidad, codigo, "ganadores", ganadores_fuente)
+                or _ganadores_en_conflicto(consolidados.get("ganadores"), ganadores_fuente)
+            ):
+                continue  # AC-4.9, D-29: sus importes tienen otro concepto (RN-17)
             dato = getattr(cat, campo) if cat else NO_DISPONIBLE
             # RN-28 / AC-4.2: hay omisión si la fuente presenta la tabla de premios de la
             # modalidad y le falta la categoría o el dato. Si no presenta la tabla, su intento es
@@ -210,10 +251,10 @@ def _consolidar_categoria(modalidad, codigo, fuentes_datos, fichas) -> Categoria
             publica = presenta_tabla and fichas[fuente].publica(
                 campo, modalidad, _con_ganadores(cat)
             )
-            descartado = bool(
-                cat and campo in ("pozo_destinado", "importe_individual") and cat.texto_original
-            )
-            candidatos.append((fuente, dato, publica, descartado))
+            # D-29: un dato que viola RN-26 se descarta como uno con formato inválido.
+            invalido = viola_rn_26(modalidad, codigo, campo, dato)
+            descartado = invalido or bool(cat and campo in _CAMPOS_IMPORTE and cat.texto_original)
+            candidatos.append((fuente, NO_DISPONIBLE if invalido else dato, publica, descartado))
         consolidados[campo] = _comparar(candidatos)
     if consolidados["ganadores"].dato is SIN_DETERMINAR:
         # I-06: con ganadores en conflicto ningún importe se reclasifica.
@@ -249,7 +290,7 @@ def _calcular_importes(consolidados: dict[str, DatoConsolidado]) -> None:
         return
     pozo = consolidados["pozo_destinado"]
     if isinstance(pozo.dato, Valor) or pozo.discrepancia is not None:
-        return  # pozo publicado por una fuente (Pozo Extra en F1): no se calcula
+        return  # pozo publicado por una fuente: no se calcula
     individual = consolidados["importe_individual"].dato
     if isinstance(individual, Valor):
         consolidados["pozo_destinado"] = DatoConsolidado(
@@ -361,9 +402,15 @@ def consolidar(
     # D-21: la observación de inconsistencia de una fuente que quedó en minoría en esa modalidad
     # queda superada por el desempate y pasa a ser informativa.
     perdedoras = perdedoras_por_mayoria(sorteo)
+    # D-29: también la del dato inválido descartado cuando otra fuente aportó el valor válido.
+    superadas = _invalidas_superadas(sorteo, fuentes_datos)
     observaciones = tuple(
         replace(o, es_inconsistencia=False, informativa=True)
-        if o.es_inconsistencia and (o.fuente, o.modalidad) in perdedoras
+        if o.es_inconsistencia
+        and (
+            (o.fuente, o.modalidad) in perdedoras
+            or (o.codigo in _OBS_GANADORA_INVALIDA and (o.fuente, o.modalidad) in superadas)
+        )
         else o
         for o in sorteo.observaciones
     )

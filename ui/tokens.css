@@ -1,0 +1,204 @@
+/*
+ * QUINI_6 — tokens de diseño ([003] R-02, contracts/tokens.md).
+ *
+ * Fuente de diseño: Figma (manda ante una discrepancia, R-02). Este archivo es su transcripción
+ * exacta y el ÚNICO lugar del código donde existen colores, radios, sombras, alturas y duraciones.
+ * Lo importan el CSS de Django (estilos/django.css) y el de Next.js (frontend/src/app/globals.css).
+ *
+ * Los componentes usan solo los tokens semánticos (bg-surface, text-foreground, text-success-text…);
+ * el tema oscuro redefine las variables y no hace falta ninguna variante dark: en las plantillas.
+ * Cambiar un valor exige actualizar contracts/tokens.md y volver a medir el contraste (ui/tokens.test.ts).
+ */
+
+/* ---- Tema claro (por defecto) ---- */
+:root {
+  color-scheme: light;
+  --q-background: #f3f4f6;
+  --q-surface: #ffffff;
+  --q-muted: #e5e7eb;
+  --q-foreground: #1f2937;
+  --q-muted-foreground: #4b5563;
+  --q-primary: #1e40af;
+  --q-primary-solid: #1e40af;
+  --q-primary-foreground: #ffffff;
+  --q-primary-hover: #1e3a8a;
+  --q-accent: #f97316;
+  --q-accent-text: #c2410c;
+  --q-accent-icon: #ea580c;
+  --q-success: #10b981;
+  --q-success-text: #047857;
+  --q-success-icon: #059669;
+  --q-danger: #ef4444;
+  --q-danger-text: #b91c1c;
+  --q-danger-icon: #ef4444;
+  --q-destructive: #b91c1c;
+  --q-destructive-foreground: #ffffff;
+  --q-warning: #d97706;
+  --q-warning-text: #b45309;
+  --q-warning-icon: #b45309;
+  --q-border: #d1d5db;
+  --q-border-input: #6b7280;
+  --q-ring: #1e40af;
+  --q-success-soft: #d1fae5;
+  --q-success-on-soft: #065f46;
+  --q-warning-soft: #fef3c7;
+  --q-warning-on-soft: #92400e;
+  --q-danger-soft: #fee2e2;
+  --q-danger-on-soft: #991b1b;
+  --q-info-soft: #dbeafe;
+  --q-info-on-soft: #1e40af;
+  --q-neutral-soft: #e5e7eb;
+  --q-neutral-on-soft: #374151;
+  --q-shadow-1: 0 1px 2px rgb(0 0 0 / 0.06);
+  --q-shadow-2: 0 4px 12px rgb(0 0 0 / 0.08);
+}
+
+/* ---- Tema oscuro elegido ---- */
+:root[data-theme="oscuro"] {
+  color-scheme: dark;
+  --q-background: #0f172a;
+  --q-surface: #1e293b;
+  --q-muted: #334155;
+  --q-foreground: #f3f4f6;
+  --q-muted-foreground: #94a3b8;
+  --q-primary: #93c5fd;
+  --q-primary-solid: #60a5fa;
+  --q-primary-foreground: #0f172a;
+  --q-primary-hover: #93c5fd;
+  --q-accent: #fb923c;
+  --q-accent-text: #fdba74;
+  --q-accent-icon: #fb923c;
+  --q-success: #34d399;
+  --q-success-text: #6ee7b7;
+  --q-success-icon: #34d399;
+  --q-danger: #f87171;
+  --q-danger-text: #fca5a5;
+  --q-danger-icon: #f87171;
+  --q-destructive: #f87171;
+  --q-destructive-foreground: #0f172a;
+  --q-warning: #fbbf24;
+  --q-warning-text: #fcd34d;
+  --q-warning-icon: #fbbf24;
+  --q-border: #334155;
+  --q-border-input: #94a3b8;
+  --q-ring: #93c5fd;
+  --q-success-soft: #064e3b;
+  --q-success-on-soft: #a7f3d0;
+  --q-warning-soft: #78350f;
+  --q-warning-on-soft: #fde68a;
+  --q-danger-soft: #7f1d1d;
+  --q-danger-on-soft: #fecaca;
+  --q-info-soft: #1e3a8a;
+  --q-info-on-soft: #bfdbfe;
+  --q-neutral-soft: #374151;
+  --q-neutral-on-soft: #e5e7eb;
+  --q-shadow-1: 0 0 0 1px #334155;
+  --q-shadow-2: 0 0 0 1px #334155, 0 8px 24px rgb(0 0 0 / 0.4);
+}
+
+/* ---- Tema oscuro del dispositivo (sin elección o "Según el dispositivo") ----
+ * Mismos valores que el bloque anterior; ui/tokens.test.ts verifica que coincidan. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="claro"]) {
+    color-scheme: dark;
+    --q-background: #0f172a;
+    --q-surface: #1e293b;
+    --q-muted: #334155;
+    --q-foreground: #f3f4f6;
+    --q-muted-foreground: #94a3b8;
+    --q-primary: #93c5fd;
+    --q-primary-solid: #60a5fa;
+    --q-primary-foreground: #0f172a;
+    --q-primary-hover: #93c5fd;
+    --q-accent: #fb923c;
+    --q-accent-text: #fdba74;
+    --q-accent-icon: #fb923c;
+    --q-success: #34d399;
+    --q-success-text: #6ee7b7;
+    --q-success-icon: #34d399;
+    --q-danger: #f87171;
+    --q-danger-text: #fca5a5;
+    --q-danger-icon: #f87171;
+    --q-destructive: #f87171;
+    --q-destructive-foreground: #0f172a;
+    --q-warning: #fbbf24;
+    --q-warning-text: #fcd34d;
+    --q-warning-icon: #fbbf24;
+    --q-border: #334155;
+    --q-border-input: #94a3b8;
+    --q-ring: #93c5fd;
+    --q-success-soft: #064e3b;
+    --q-success-on-soft: #a7f3d0;
+    --q-warning-soft: #78350f;
+    --q-warning-on-soft: #fde68a;
+    --q-danger-soft: #7f1d1d;
+    --q-danger-on-soft: #fecaca;
+    --q-info-soft: #1e3a8a;
+    --q-info-on-soft: #bfdbfe;
+    --q-neutral-soft: #374151;
+    --q-neutral-on-soft: #e5e7eb;
+    --q-shadow-1: 0 0 0 1px #334155;
+    --q-shadow-2: 0 0 0 1px #334155, 0 8px 24px rgb(0 0 0 / 0.4);
+  }
+}
+
+/* ---- Utilidades de Tailwind 4 a partir de los tokens ---- */
+@theme inline {
+  --color-background: var(--q-background);
+  --color-surface: var(--q-surface);
+  --color-muted: var(--q-muted);
+  --color-foreground: var(--q-foreground);
+  --color-muted-foreground: var(--q-muted-foreground);
+  --color-primary: var(--q-primary);
+  --color-primary-solid: var(--q-primary-solid);
+  --color-primary-foreground: var(--q-primary-foreground);
+  --color-primary-hover: var(--q-primary-hover);
+  --color-accent: var(--q-accent);
+  --color-accent-text: var(--q-accent-text);
+  --color-accent-icon: var(--q-accent-icon);
+  --color-success: var(--q-success);
+  --color-success-text: var(--q-success-text);
+  --color-success-icon: var(--q-success-icon);
+  --color-danger: var(--q-danger);
+  --color-danger-text: var(--q-danger-text);
+  --color-danger-icon: var(--q-danger-icon);
+  --color-destructive: var(--q-destructive);
+  --color-destructive-foreground: var(--q-destructive-foreground);
+  --color-warning: var(--q-warning);
+  --color-warning-text: var(--q-warning-text);
+  --color-warning-icon: var(--q-warning-icon);
+  --color-border: var(--q-border);
+  --color-border-input: var(--q-border-input);
+  --color-ring: var(--q-ring);
+  --color-success-soft: var(--q-success-soft);
+  --color-success-on-soft: var(--q-success-on-soft);
+  --color-warning-soft: var(--q-warning-soft);
+  --color-warning-on-soft: var(--q-warning-on-soft);
+  --color-danger-soft: var(--q-danger-soft);
+  --color-danger-on-soft: var(--q-danger-on-soft);
+  --color-info-soft: var(--q-info-soft);
+  --color-info-on-soft: var(--q-info-on-soft);
+  --color-neutral-soft: var(--q-neutral-soft);
+  --color-neutral-on-soft: var(--q-neutral-on-soft);
+  --shadow-1: var(--q-shadow-1);
+  --shadow-2: var(--q-shadow-2);
+}
+
+@theme {
+  /* Tipografía: pila sans de Tailwind (fuentes del sistema, sin descargas). Escala 12/14/16/18/24/32. */
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.25;
+  /* Radios: 8 px controles, 12 px tarjetas. */
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+  /* Alturas y anchos de lectura. */
+  --spacing-control: 2.75rem;
+  --container-lectura: 72rem;
+  --container-formulario: 28rem;
+  /* Movimiento (máximo 250 ms, AC-13.1). */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}

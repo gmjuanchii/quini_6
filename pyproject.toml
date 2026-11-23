@@ -11,10 +11,11 @@ dependencies = [
     "Django==5.2.*",
     "gunicorn==23.*",
     "whitenoise==6.*",
+    "django-ninja==1.*",
 ]
 
 [project.optional-dependencies]
-prod = ["psycopg[binary]==3.2.*"]
+prod = ["psycopg[binary]==3.2.*", "sentry-sdk==2.*"]  # sentry: [003] R-25, P-01
 dev = [
     "pytest==8.*",
     "pytest-django==4.*",
@@ -24,6 +25,9 @@ dev = [
 [tool.setuptools]
 packages = [
     "quini6",
+    "quini6.management",
+    "quini6.management.commands",
+    "quini6.templatetags",
     "dominio",
     "dominio.extraccion",
     "cuentas",

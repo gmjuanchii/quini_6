@@ -1,0 +1,57 @@
+[
+  {
+    "entrada": "2024-02-29",
+    "salida": "29/02/2024",
+    "tipo": "fecha"
+  },
+  {
+    "entrada": "2026-01-01T02:30:00Z",
+    "salida": "31/12/2025 23:30",
+    "tipo": "fecha_hora"
+  },
+  {
+    "entrada": "0",
+    "salida": "$ 0,00",
+    "tipo": "importe"
+  },
+  {
+    "entrada": "1500.5",
+    "salida": "$ 1.500,50",
+    "tipo": "importe"
+  },
+  {
+    "entrada": "999999999999.99",
+    "salida": "$ 999.999.999.999,99",
+    "tipo": "importe"
+  },
+  {
+    "entrada": "-10.00",
+    "salida": "$ -10,00",
+    "tipo": "importe"
+  },
+  {
+    "entrada": "12.345",
+    "salida": "12,35 %",
+    "tipo": "porcentaje"
+  },
+  {
+    "entrada": "12.344",
+    "salida": "12,34 %",
+    "tipo": "porcentaje"
+  },
+  {
+    "entrada": "0",
+    "salida": "00",
+    "tipo": "bolilla"
+  },
+  {
+    "entrada": "1000000",
+    "salida": "1.000.000",
+    "tipo": "cantidad"
+  },
+  {
+    "entrada": "7",
+    "salida": "7",
+    "tipo": "cantidad"
+  }
+]

@@ -82,7 +82,7 @@ Con el administrador, probar y comprobar que la extracción no comienza:
 1. Extraer del 01/11/2026 al 15/11/2026. **Esperado**: "Extracción en curso", el período y "Identificando los sorteos del período…"; luego "N de M sorteos procesados", que avanza solo (AC-1.2).
 2. Recargar la página y volver a abrir la pantalla de extracciones. **Esperado**: el mismo avance y ningún formulario para iniciar otra (AC-1.11).
 3. Al terminar. **Esperado**: 5 sorteos identificados, incluidos el 3422 y el 3426; los cuatro estados suman 5; fuentes utilizadas con sus sorteos aportados (AC-1.7, AC-1.8, AC-2.1). Resultado "Extracción finalizada" o "con advertencias" según los estados, con la lista de sorteos a revisar (AC-1.9).
-4. Abrir el detalle de un sorteo. **Esperado**: cada fuente con su resultado, dirección y fecha y hora; cada dato con sus fuentes; el enlace "Ver extracto oficial (Lotería de Santa Fe)" (AC-1.12, AC-1.13, AC-4.6, AC-4.8).
+4. Abrir el detalle de un sorteo. **Esperado**: cada fuente con su resultado, dirección y fecha y hora; cada dato con sus fuentes; cada dirección consultada es un enlace que abre la página de la fuente en una pestaña nueva, y no figura "Ver extracto oficial (Lotería de Santa Fe)" (AC-1.12, AC-1.13, AC-4.6, AC-4.8; D-33).
 5. Pulsar "Descargar CSV" dos veces. **Esperado**: el nombre incluye 2026-11-01 y 2026-11-15; los dos archivos son idénticos (AC-5.1, AC-5.10).
 6. Abrir el archivo (§4). **Esperado**: acentos correctos en "Tradicional – Primer Sorteo", encabezados de [contracts/csv.md](contracts/csv.md), fechas `2026-11-15`, importes `1100000000.00`, sin columna de precio del cartón, sin filas repetidas, cada sorteo con el mismo estado que en la pantalla y procedencia con fuente, dirección y fecha y hora (AC-5.2 a AC-5.6).
 7. Iniciar sesión con otro administrador y abrir la extracción desde "Extracciones anteriores". **Esperado**: el listado muestra quién la ejecutó, cuándo, el período y el estado; el resumen, el detalle y un archivo idéntico al del paso 5 (AC-1.14, AC-1.15).
@@ -117,14 +117,14 @@ Con el administrador, probar y comprobar que la extracción no comienza:
 | "Vacante · 1.100.000.000" | 0 ganadores, pozo $ 1.100.000.000,00, importe individual "No corresponde", "Vacante" | AC-3.4 |
 | 18 ganadores · 3.013.912 | Importe individual $ 3.013.912,00, pozo "No disponible", "Con ganadores" | AC-3.5, AC-3.6 |
 | Ganadores ausentes en todas | Ganadores e importe "No disponible", "Pendiente" | AC-3.7 |
-| "494,443,71" | "No disponible", observación con el texto original, sorteo no "Recuperado" | AC-3.8 |
+| "494,443,71" (sorteo 3418) | $ 494.443,71 con la nota "Importe corregido: «494,443,71» → $ 494.443,71", sin "Importe con formato no reconocido" (D-32) | AC-3.20 |
 | Número repetido, fuera de rango o cinco números | Números no usados y observación con el motivo | AC-3.9 |
 | Siempre Sale 5 aciertos, 17 ganadores | Así en la categoría ganadora | AC-3.10 |
 | Sorteo anterior al 18/06/2024 | "Reglas del período no verificadas" | AC-3.11 |
 | Modalidad ausente en todas | "No informada por las fuentes" y sorteo no "Recuperado" | AC-3.12 |
 | Premio Extra con números que no coinciden | Observación de AC-3.13 | AC-3.13 |
 | 0 ganadores con "0,00" | Importe individual "No corresponde" | AC-3.14 |
-| F1 con pozo de Premio Extra "55 millones de pesos" | Pozo $ 55.000.000,00 | RN-17 |
+| F1 con pozo de Premio Extra "55 millones de pesos" | Se ignora: pozo calculado como importe individual × ganadores, sin "Sin corroborar" | RN-17, D-30 |
 | Una categoría vacante, una con ganadores sin importe y una sin información | En el archivo se distinguen "No corresponde", "No disponible" y "Sin determinar"; ninguna celda vacía como cero | AC-5.7 |
 | Texto de una fuente que empieza con "=" | En la planilla se ve como texto | AC-5.9 |
 

@@ -1,0 +1,14 @@
+{% load ui %}{% comment %}
+Callout ([003] contracts/componentes.md, RN-09). Parámetros: variante (info | success | warning |
+danger), texto (ya resuelto), titulo (opcional), rol ("status" o "alert" cuando aparece tras una acción;
+vacío para avisos fijos), extra. El contenido adicional se pasa en "contenido" (HTML ya escapado).
+"tipo_aviso" (success | info | warning | error) marca un mensaje de Django que, con scripts, el
+componente "avisos" pasa a Toast al cargar la página (RN-09).
+{% endcomment %}<div class="{% clases 'aviso' variante=variante|default:'info' extra=extra %}"{% if rol %} role="{{ rol }}"{% endif %}{% if id %} id="{{ id }}"{% endif %}{% if tipo_aviso %} data-aviso="{{ tipo_aviso }}"{% endif %}>
+  {% if variante == "success" %}{% icono "circle-check" %}{% elif variante == "warning" %}{% icono "triangle-alert" %}{% elif variante == "danger" %}{% icono "circle-x" %}{% else %}{% icono "info" %}{% endif %}
+  <div class="min-w-0 flex-1">
+    {% if titulo %}<p class="font-semibold">{{ titulo }}</p>{% endif %}
+    <p data-texto-aviso>{{ texto }}</p>
+    {% if contenido %}{{ contenido }}{% endif %}
+  </div>
+</div>

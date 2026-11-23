@@ -4,6 +4,7 @@ from datetime import date
 
 import pytest
 
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.tipos import EstadoBloque, Modalidad
 from resultados import consultas
 from resultados.models import (
@@ -20,7 +21,7 @@ from tests.fabricas import cargar_numeros, crear_concurso
 pytestmark = pytest.mark.django_db
 
 BASE = "/administracion/concursos"
-SIN_PERMISO = "No tenés permisos para acceder a esta sección"
+SIN_PERMISO = MENSAJES["admin.sin_permiso"]
 FECHA = date(2025, 3, 2)
 
 
@@ -89,7 +90,7 @@ class TestConcursos:
             },
         )
         contenido = r.content.decode()
-        assert "El concurso N.º 3215 ya existe" in contenido
+        assert mensaje("admin.concurso_duplicado", N=3215) in contenido
         assert f'href="{BASE}/3215/"' in contenido
         assert Concurso.objects.count() == 1
 
@@ -125,11 +126,11 @@ class TestNumeros:
         r = cliente_admin.post(
             f"{BASE}/1/primer-sorteo/numeros/", _numeros(("03", "03", "14", "21", "32", "40"))
         )
-        assert "El 03 está repetido en la extracción" in r.content.decode()
+        assert mensaje("admin.numero_repetido", nn="03") in r.content.decode()
         r = cliente_admin.post(
             f"{BASE}/1/primer-sorteo/numeros/", _numeros(("03", "08", "14", "21", "32", "46"))
         )
-        assert "Ingresá números entre 00 y 45" in r.content.decode()
+        assert MENSAJES["admin.numeros_rango"] in r.content.decode()
         assert not VersionNumeros.objects.exists()
 
     def test_ac_2_4_borrador_no_publico(self, cliente_admin):

@@ -7,7 +7,10 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
 
 from cuentas.decoradores import administrador_requerido
+from dominio.mensajes import MENSAJES
 from dominio.tipos import EstadoBloque, Modalidad, nombre_categoria
+from quini6.formulario_pendiente import con_pendiente, reanudable
+from quini6.idempotencia import con_idempotencia
 from resultados import consultas, servicios
 from resultados.forms import (
     ConcursoForm,
@@ -106,9 +109,12 @@ def listado(request):
 
 
 @administrador_requerido
+@reanudable("sorteo.crear")
 @require_http_methods(["GET", "POST"])
+@con_idempotencia("sorteo.crear")  # [003] FR-031
 def nuevo(request):
-    form = ConcursoForm(request.POST or None)
+    inicial = con_pendiente(request, {}, ConcursoForm)  # [003] FR-032
+    form = ConcursoForm(request.POST or None, initial=inicial)
     duplicado = None
     if request.method == "POST" and form.is_valid():
         try:
@@ -124,7 +130,7 @@ def nuevo(request):
             for mensaje in error.mensajes:
                 form.add_error("modalidades", mensaje)
         else:
-            messages.success(request, f"Se creó el concurso N.º {concurso.numero}.")
+            messages.success(request, f"Se creó el sorteo N.º {concurso.numero}.")
             return redirect(_url_panel(concurso.numero))
     return render(
         request,
@@ -134,6 +140,7 @@ def nuevo(request):
 
 
 @administrador_requerido
+@reanudable("sorteo.modificar")
 @require_http_methods(["GET", "POST"])
 def modificar(request, numero: int):
     concurso = _concurso(numero)
@@ -141,6 +148,7 @@ def modificar(request, numero: int):
         "fecha_sorteo": concurso.fecha_sorteo,
         "modalidades": [mc.modalidad for mc in concurso.modalidades.all()],
     }
+    inicial = con_pendiente(request, inicial, ConcursoForm)  # [003] FR-032
     form = ConcursoForm(request.POST or None, initial=inicial, modificar=True)
     if request.method == "POST" and form.is_valid():
         try:
@@ -154,7 +162,7 @@ def modificar(request, numero: int):
             for mensaje in error.mensajes:
                 form.add_error(None, mensaje)
         else:
-            messages.success(request, "Se guardaron los cambios del concurso.")
+            messages.success(request, "Se guardaron los cambios del sorteo.")
             return redirect(_url_panel(numero))
     return render(
         request,
@@ -179,9 +187,7 @@ def panel(request, numero: int):
 
 
 def _redirigir_publicado(request, numero):
-    messages.error(
-        request, "Este bloque ya está publicado. Para modificarlo, iniciá una corrección."
-    )
+    messages.error(request, MENSAJES["admin.bloque_publicado"])
     return redirect(_url_panel(numero))
 
 
@@ -196,6 +202,7 @@ def _fuente_inicial(version) -> dict:
 
 
 @administrador_requerido
+@reanudable("sorteo.numeros")
 @require_http_methods(["GET", "POST"])
 def numeros(request, numero: int, modalidad: Modalidad):
     concurso, mc = _contexto_bloque(numero, modalidad, NUMEROS)
@@ -207,6 +214,7 @@ def numeros(request, numero: int, modalidad: Modalidad):
         for i, n in enumerate(sorted(trabajo.numeros), start=1):
             inicial[f"n{i}"] = f"{n:02d}"
     es_correccion = bool(trabajo and trabajo.es_correccion)
+    inicial = con_pendiente(request, inicial, NumerosForm)  # [003] FR-032
     form = NumerosForm(request.POST or None, initial=inicial, es_correccion=es_correccion)
     if request.method == "POST" and form.is_valid():
         try:
@@ -238,6 +246,7 @@ def numeros(request, numero: int, modalidad: Modalidad):
 
 
 @administrador_requerido
+@reanudable("sorteo.premios")
 @require_http_methods(["GET", "POST"])
 def premios(request, numero: int, modalidad: Modalidad):
     concurso, mc = _contexto_bloque(numero, modalidad, PREMIOS)
@@ -260,6 +269,7 @@ def premios(request, numero: int, modalidad: Modalidad):
                 else:
                     inicial[f"{cat.categoria}_{campo}"] = f"{valor:.2f}".replace(".", ",")
     es_correccion = bool(trabajo and trabajo.es_correccion)
+    inicial = con_pendiente(request, inicial, PremiosForm)  # [003] FR-032
     form = PremiosForm(
         request.POST or None, initial=inicial, modalidad=modalidad, es_correccion=es_correccion
     )
@@ -310,7 +320,7 @@ def observar(request, numero: int, modalidad: Modalidad, bloque: str):
         form = MotivoForm(request.POST)
         try:
             if not form.is_valid():
-                raise servicios.ErrorResultados("Indicá el motivo de la observación.")
+                raise servicios.ErrorResultados("Falta el motivo de la observación.")
             servicios.observar(request.user, trabajo, form.cleaned_data["motivo"])
         except servicios.ErrorResultados as error:
             for mensaje in error.mensajes:
@@ -397,7 +407,7 @@ def _con_motivo(request, accion, *args):
     form = MotivoForm(request.POST)
     try:
         if not form.is_valid():
-            raise servicios.ErrorResultados("Indicá el motivo.")
+            raise servicios.ErrorResultados("Falta el motivo.")
         accion(request.user, *args, form.cleaned_data["motivo"])
     except servicios.ErrorResultados as error:
         for mensaje in error.mensajes:

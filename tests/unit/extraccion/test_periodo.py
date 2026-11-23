@@ -13,6 +13,7 @@ from dominio.extraccion.periodo import (
     mismo_dia_anio_siguiente,
     validar_periodo,
 )
+from dominio.mensajes import MENSAJES
 
 HOY = date(2026, 11, 19)
 
@@ -37,7 +38,7 @@ def test_ac_1_3_inicio_posterior():
 def test_ac_1_4_fecha_vacia_o_invalida_junto_al_campo(inicio, fin, campo):
     resultado = validar_periodo(inicio, fin, HOY)
     assert codigos(resultado) == [("FECHA_INVALIDA", campo)]
-    assert resultado[0].texto == FECHA_INVALIDA == "Ingresá una fecha válida (dd/mm/aaaa)"
+    assert resultado[0].texto == FECHA_INVALIDA == MENSAJES["ext.fecha_invalida"]
 
 
 def test_ac_1_5_fin_posterior_a_hoy():

@@ -1,0 +1,16 @@
+{% load ui %}{% comment %}
+AccountMenu ([003] contracts/componentes.md, AC-5.3, FR-015, FR-030): botón con el correo (abreviado;
+completo en "title" y en el nombre accesible) que despliega "Salir" (formulario POST). Con Alpine,
+Escape y un clic afuera lo cierran; sin scripts el correo y "Salir" quedan visibles.
+{% endcomment %}{% msg "nav.cuenta" correo=user.email as nombre_cuenta %}<div class="menu-cuenta relative" data-menu-cuenta x-data="menuCuenta" @keydown.escape.prevent.stop="cerrar(true)" @click.outside="cerrar(false)">
+  <button type="button" class="menu-cuenta__boton {% clases 'boton' variante='fantasma' extra='max-w-full gap-2 px-3' %}" aria-label="{{ nombre_cuenta }}" title="{{ user.email }}" aria-haspopup="true" aria-controls="menu-cuenta" :aria-expanded="abierto ? 'true' : 'false'" x-ref="boton" @click="alternar()">{% icono "circle-user-round" %}<span class="truncate max-w-[16ch]">{{ user.email }}</span></button>
+  <div id="menu-cuenta" class="menu-cuenta__panel" :class="{ 'abierto': abierto }">
+    <div class="flex flex-col gap-1 rounded-control border border-border bg-surface p-2 md:min-w-56 md:shadow-2">
+      <p class="truncate px-3 py-2 text-sm text-muted-foreground" title="{{ user.email }}">{{ user.email }}</p>
+      <form method="post" action="{% accion_formulario "/salir/" %}">
+        {% csrf_token %}
+        <button type="submit" class="{% clases 'boton' variante='fantasma' extra='w-full justify-start px-3' %}" x-ref="salir">{% msg "nav.salir" %}</button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,21 +1,21 @@
-<details>
+{% load ui %}<details>
   <summary>{{ titulo }}</summary>
-  <form method="post" action="{{ accion }}" class="formulario">
+  <form method="post" action="{% accion_formulario accion %}" class="grid max-w-xl gap-4" novalidate data-validar-formulario data-trabajando>
     {% csrf_token %}
     <div class="campo">
       <label for="{{ id }}-motivo">{{ rotulo }}</label>
-      <textarea id="{{ id }}-motivo" name="motivo" rows="2" required></textarea>
+      <textarea id="{{ id }}-motivo" name="motivo" rows="2" required data-validar="{% reglas_de 'resultados.forms.MotivoForm' 'motivo' %}" aria-describedby="{{ id }}-motivo_error"></textarea>
+      <p class="error" id="{{ id }}-motivo_error" hidden><span data-texto-error></span></p>
     </div>
     {% if con_fuente %}
       <div class="campo">
         <label for="{{ id }}-fuente">Fuente de la corrección (descripción)</label>
-        <input type="text" id="{{ id }}-fuente" name="fuente_descripcion" required>
+        <input type="text" id="{{ id }}-fuente" name="fuente_descripcion" required data-validar="{% reglas_de 'resultados.forms.CorreccionForm' 'fuente_descripcion' %}" aria-describedby="{{ id }}-fuente_error">
+        <p class="error" id="{{ id }}-fuente_error" hidden><span data-texto-error></span></p>
       </div>
-      <div class="campo">
-        <label for="{{ id }}-fecha">Fecha de consulta de la fuente</label>
-        <input type="text" id="{{ id }}-fecha" name="fuente_fecha_consulta" placeholder="dd/mm/aaaa" inputmode="numeric" required>
-      </div>
+      {# [003] FR-010: el mismo campo de fecha que en el resto de la aplicación. #}
+      {% campo_fecha nombre="fuente_fecha_consulta" id=id|add:"-fecha" etiqueta="Fecha de consulta de la fuente" %}
     {% endif %}
-    <div class="acciones"><button type="submit" class="boton boton--secundario">{{ boton }}</button></div>
+    <div class="my-3 flex flex-wrap items-center gap-2"><button type="submit" class="{% clases 'boton' variante='secundario' %}" data-texto-trabajando="{% msg 'form.trabajando_guardar' %}">{{ boton }}</button></div>
   </form>
 </details>

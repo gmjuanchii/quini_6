@@ -7,14 +7,16 @@ from decimal import Decimal
 import pytest
 from django.test import Client
 
+from dominio.mensajes import MENSAJES
 from dominio.tipos import Modalidad
 from jugadas.models import Jugada
 from resultados.models import Concurso, ModalidadConcurso, RegistroCambio, VersionNumeros
 from tests.fabricas import cargar_numeros, crear_concurso, crear_usuario
+from tests.paginas import es_ingreso_con_pendiente, es_reanudable, sin_variables
 
 pytestmark = pytest.mark.django_db
 
-SIN_PERMISO = "No tenés permisos para acceder a esta sección"
+SIN_PERMISO = MENSAJES["admin.sin_permiso"]
 NO_EXISTE = "La jugada no existe o no está disponible"
 A = "/administracion/concursos"
 
@@ -100,6 +102,15 @@ def _foto():
     )
 
 
+def _sin_sesion(r, metodo, ruta):
+    """Visitante: redirección al ingreso o, en un POST a un formulario reanudable, "Ingresar" con
+    lo escrito firmado ([003] FR-032, R-12). En ningún caso cambia algún dato."""
+    if metodo == "POST" and es_reanudable(ruta):
+        assert es_ingreso_con_pendiente(r)
+    else:
+        assert r.status_code == 302 and r["Location"] == f"/ingresar/?next={ruta}"
+
+
 def _pedir(cliente, metodo, ruta):
     if metodo == "GET":
         return cliente.get(ruta)
@@ -111,8 +122,7 @@ def test_sesion_visitante(escenario, metodo, ruta):
     clientes, _ = escenario
     antes = _foto()
     r = _pedir(clientes["visitante"], metodo, ruta)
-    assert r.status_code == 302
-    assert r["Location"].startswith("/ingresar/?next=")
+    _sin_sesion(r, metodo, ruta)
     assert _foto() == antes
 
 
@@ -124,7 +134,7 @@ def test_propietario(escenario, rol, metodo, sufijo):
     antes = _foto()
     r = _pedir(clientes[rol], metodo, ruta)
     if rol == "visitante":
-        assert r.status_code == 302 and r["Location"].startswith("/ingresar/?next=")
+        _sin_sesion(r, metodo, ruta)
     else:
         assert r.status_code == 404
         contenido = r.content.decode()
@@ -132,7 +142,9 @@ def test_propietario(escenario, rol, metodo, sufijo):
         assert "4.242,42" not in contenido and ">40<" not in contenido
         inexistente = _pedir(clientes[rol], metodo, f"/mis-jugadas/999999/{sufijo}")
         assert inexistente.status_code == 404
-        assert contenido.split("<main", 1)[1] == inexistente.content.decode().split("<main", 1)[1]
+        assert sin_variables(contenido.split("<main", 1)[1]) == sin_variables(
+            inexistente.content.decode().split("<main", 1)[1]
+        )
     assert _foto() == antes
 
 
@@ -149,8 +161,7 @@ def test_admin(escenario, rol, metodo, ruta):
     antes = _foto()
     r = _pedir(clientes[rol], metodo, ruta)
     if rol == "visitante":
-        assert r.status_code == 302
-        assert r["Location"] == f"/ingresar/?next={ruta}"
+        _sin_sesion(r, metodo, ruta)
     else:
         assert r.status_code == 403
         contenido = r.content.decode()

@@ -2,9 +2,9 @@
 
 from django.shortcuts import render
 
-FORMULARIO_VENCIDO = (
-    "No pudimos procesar el formulario porque venció. Volvé a cargar la página e intentá de nuevo."
-)
+from dominio.mensajes import MENSAJES
+
+FORMULARIO_VENCIDO = MENSAJES["gral.csrf_vencido"]
 
 
 def csrf_fallido(request, reason=""):
@@ -12,6 +12,6 @@ def csrf_fallido(request, reason=""):
     return render(
         request,
         "403.html",
-        {"mensaje": FORMULARIO_VENCIDO, "titulo": "Formulario vencido"},
+        {"mensaje": FORMULARIO_VENCIDO, "titulo": MENSAJES["api.titulo_csrf"]},
         status=403,
     )

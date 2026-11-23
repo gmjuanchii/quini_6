@@ -1,25 +1,41 @@
-"""Formularios de cuentas: solo correo y contraseña (RN-39)."""
+"""Formularios de cuentas: solo correo y contraseña (RN-39).
+
+[003] HU-06, HU-11: textos del catálogo único; reglas previas (FR-033) que el servidor repite.
+"""
 
 from django import forms
 
-CORREO_INVALIDO = "Ingresá un correo electrónico válido."
-CONTRASENA_CORTA = "La contraseña debe tener al menos 8 caracteres."
+from dominio.mensajes import MENSAJES
+from quini6.fechas import regla
+
+CORREO_INVALIDO = MENSAJES["cuenta.correo_invalido"]
+CONTRASENA_CORTA = MENSAJES["cuenta.contrasena_corta"]
+
+
+def _correo() -> forms.EmailField:
+    campo = forms.EmailField(
+        label="Correo electrónico",
+        max_length=254,
+        error_messages={"required": MENSAJES["cuenta.falta_correo"], "invalid": CORREO_INVALIDO},
+        widget=forms.EmailInput(attrs={"autocomplete": "email", "spellcheck": "false"}),
+    )
+    campo.reglas_previas = [regla("correo", "cuenta.correo_invalido")]  # AC-6.4
+    return campo
+
+
+def _contrasena(autocompletar: str, **extra) -> forms.CharField:
+    return forms.CharField(
+        label="Contraseña",
+        strip=False,
+        error_messages={"required": MENSAJES["cuenta.falta_contrasena"]},
+        widget=forms.PasswordInput(attrs={"autocomplete": autocompletar}),  # AC-6.5
+        **extra,
+    )
 
 
 class RegistroForm(forms.Form):
-    email = forms.EmailField(
-        label="Correo electrónico",
-        max_length=254,
-        error_messages={"required": CORREO_INVALIDO, "invalid": CORREO_INVALIDO},
-        widget=forms.EmailInput(attrs={"autocomplete": "email"}),
-    )
-    password = forms.CharField(
-        label="Contraseña",
-        strip=False,
-        error_messages={"required": CONTRASENA_CORTA},
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
-        help_text="Al menos 8 caracteres.",
-    )
+    email = _correo()
+    password = _contrasena("new-password", help_text="Al menos 8 caracteres.")
 
     def clean_password(self):
         password = self.cleaned_data["password"]
@@ -29,14 +45,8 @@ class RegistroForm(forms.Form):
 
 
 class IngresoForm(forms.Form):
-    email = forms.CharField(
-        label="Correo electrónico",
-        error_messages={"required": "Ingresá tu correo electrónico."},
-        widget=forms.EmailInput(attrs={"autocomplete": "email"}),
-    )
-    password = forms.CharField(
-        label="Contraseña",
-        strip=False,
-        error_messages={"required": "Ingresá tu contraseña."},
-        widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
-    )
+    """El formato del correo se valida igual que en el navegador; un correo bien escrito que no
+    existe recibe el mismo mensaje que una contraseña incorrecta ([001] AC-3.5)."""
+
+    email = _correo()
+    password = _contrasena("current-password")

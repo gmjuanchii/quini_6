@@ -4,10 +4,13 @@ from datetime import datetime
 
 from django.shortcuts import redirect, render
 
+from dominio.extraccion.periodo import parsear_fecha
+from dominio.mensajes import MENSAJES, mensaje
+from dominio.periodos import error_de_fecha
 from resultados import consultas
 from resultados.models import Concurso
 
-PAGINA_INEXISTENTE = "La página que buscás no existe"
+PAGINA_INEXISTENTE = MENSAJES["gral.pagina_inexistente"]
 
 
 def inicio(request):
@@ -44,16 +47,22 @@ def buscar(request):
     contexto = {"numero": numero, "fecha": fecha_texto}
     if numero:
         if not numero.isdigit():
-            contexto["error"] = "Ingresá un número de concurso válido."
+            contexto["error"] = MENSAJES["admin.numero_sorteo_invalido"]
         elif Concurso.objects.filter(numero=int(numero)).exists():
             return redirect(f"/resultados/{int(numero)}/")
         else:
-            contexto["mensaje"] = f"No hay información del concurso N.º {int(numero)}"
+            contexto["mensaje"] = mensaje("resultados.concurso_inexistente", N=int(numero))
     elif fecha_texto:
         try:
             fecha = datetime.strptime(fecha_texto, "%d/%m/%Y").date()
         except ValueError:
-            contexto["error"] = "Ingresá una fecha válida con el formato dd/mm/aaaa."
+            # [003] R-07: sin scripts el calendario del navegador envía AAAA-MM-DD.
+            fecha = parsear_fecha(fecha_texto) if "-" in fecha_texto else None
+        if fecha is None:
+            contexto["error"] = MENSAJES["gral.fecha_invalida"]
+            # [003] AC-4.5, FR-012: el mensaje concreto junto al campo.
+            clave, valores = error_de_fecha(fecha_texto) or ("gral.fecha_invalida", {})
+            contexto["error_fecha"] = mensaje(clave, **valores)
         else:
             concursos = consultas.con_versiones(
                 Concurso.objects.filter(fecha_sorteo=fecha).order_by("-numero")
@@ -66,8 +75,8 @@ def buscar(request):
                 for c in concursos
             ]
             if not contexto["resultados"]:
-                contexto["mensaje"] = (
-                    f"No hay información de concursos del {fecha.strftime('%d/%m/%Y')}"
+                contexto["mensaje"] = mensaje(
+                    "resultados.fecha_sin_concursos", fecha=fecha.strftime("%d/%m/%Y")
                 )
     else:
         return redirect("/resultados/")

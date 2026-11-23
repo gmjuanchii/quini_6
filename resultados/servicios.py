@@ -14,6 +14,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from dominio.consistencia import Observacion, revisar_numeros, revisar_premios
+from dominio.mensajes import MENSAJES, mensaje
 from dominio.numeros import mensaje_error_extraccion, validar_extraccion
 from dominio.tipos import MODALIDADES_PREMIO_EXTRA, ORDEN_MODALIDADES, CategoriaPublicada, Modalidad
 from resultados import consultas
@@ -46,7 +47,7 @@ class ErrorResultados(Exception):
 class ConcursoDuplicado(ErrorResultados):
     def __init__(self, numero: int):
         self.numero = numero
-        super().__init__(f"El concurso N.º {numero} ya existe")
+        super().__init__(mensaje("admin.concurso_duplicado", N=numero))
 
 
 # --- Utilidades ------------------------------------------------------------------------
@@ -102,7 +103,7 @@ def _bloquear_mc(mc: ModalidadConcurso) -> ModalidadConcurso:
 def _validar_modalidades(modalidades: Iterable[Modalidad]) -> list[Modalidad]:
     elegidas = [m for m in ORDEN_MODALIDADES if m in set(modalidades)]
     if not elegidas:
-        raise ErrorResultados("Elegí al menos una modalidad aplicable.")
+        raise ErrorResultados(MENSAJES["admin.falta_modalidad"])
     if Modalidad.PREMIO_EXTRA in elegidas and not all(
         m in elegidas for m in MODALIDADES_PREMIO_EXTRA
     ):
@@ -168,8 +169,7 @@ def modificar_concurso(autor, concurso: Concurso, fecha_sorteo: date, modalidade
                 )
         if fecha_sorteo != concurso.fecha_sorteo and not consultas.admite_jugadas(concurso):
             errores.append(
-                "No se puede cambiar la fecha del sorteo porque el concurso ya tiene números "
-                "publicados."
+                "No se puede cambiar la fecha del sorteo porque ya tiene números publicados."
             )
         if errores:
             raise ErrorResultados(errores)
@@ -202,9 +202,7 @@ def _version_para_editar(mc: ModalidadConcurso, bloque: str, autor):
     if trabajo is not None:
         return trabajo, False
     if modelo.objects.filter(modalidad_concurso=mc, estado=EstadoVersion.PUBLICADA).exists():
-        raise ErrorResultados(
-            "Este bloque ya está publicado. Para modificarlo, iniciá una corrección."
-        )
+        raise ErrorResultados(MENSAJES["admin.bloque_publicado"])
     return modelo(modalidad_concurso=mc, estado=EstadoVersion.BORRADOR, creada_por=autor), True
 
 
@@ -213,9 +211,9 @@ def _validar_correccion(version, motivo_correccion: str, descripcion: str, fecha
         return
     errores = []
     if not (motivo_correccion or "").strip():
-        errores.append("Indicá el motivo de la corrección.")
+        errores.append("Falta el motivo de la corrección.")
     if not (descripcion or "").strip() or fecha is None:
-        errores.append("Indicá la fuente de la corrección (descripción y fecha de consulta).")
+        errores.append("Falta la fuente de la corrección (descripción y fecha de consulta).")
     if errores:
         raise ErrorResultados(errores)
 
@@ -345,7 +343,7 @@ def _recargar(version):
 
 def observar(autor, version, motivo: str):
     if not (motivo or "").strip():
-        raise ErrorResultados("Indicá el motivo de la observación.")
+        raise ErrorResultados("Falta el motivo de la observación.")
     with transaction.atomic():
         mc = _bloquear_mc(version.modalidad_concurso)
         version = _recargar(version)
@@ -502,7 +500,7 @@ def publicar(
 def marcar_revision(autor, mc: ModalidadConcurso, bloque: str, motivo: str) -> ModalidadConcurso:
     """RN-16 y AC-7.1: solo sobre un bloque con versión publicada, con motivo."""
     if not (motivo or "").strip():
-        raise ErrorResultados("Indicá el motivo de la revisión.")
+        raise ErrorResultados("Falta el motivo de la revisión.")
     with transaction.atomic():
         mc = _bloquear_mc(mc)
         vigente = (
@@ -532,7 +530,7 @@ def marcar_revision(autor, mc: ModalidadConcurso, bloque: str, motivo: str) -> M
 def quitar_revision(autor, mc: ModalidadConcurso, bloque: str, motivo: str) -> ModalidadConcurso:
     """P-01 (b): quita la marca con un motivo, sin cambiar valores."""
     if not (motivo or "").strip():
-        raise ErrorResultados("Indicá el motivo para quitar la revisión.")
+        raise ErrorResultados("Falta el motivo para quitar la revisión.")
     with transaction.atomic():
         mc = _bloquear_mc(mc)
         if not getattr(mc, f"{bloque}_en_revision"):
@@ -562,9 +560,9 @@ def iniciar_correccion(
     """RN-23 y AC-7.2: crea una versión en trabajo con los valores de la publicada."""
     errores = []
     if not (motivo or "").strip():
-        errores.append("Indicá el motivo de la corrección.")
+        errores.append("Falta el motivo de la corrección.")
     if not (fuente_descripcion or "").strip() or fuente_fecha_consulta is None:
-        errores.append("Indicá la fuente de la corrección (descripción y fecha de consulta).")
+        errores.append("Falta la fuente de la corrección (descripción y fecha de consulta).")
     if errores:
         raise ErrorResultados(errores)
     modelo = _modelo(bloque)

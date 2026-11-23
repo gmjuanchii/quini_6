@@ -1,10 +1,22 @@
-{% load formato_ar %}<div id="avance-extraccion" class="mensaje mensaje--info" role="status" aria-live="polite"{% if avance.en_curso %} data-en-curso="1"{% endif %}>
-  <p><strong>Extracción en curso</strong></p>
-  <p>Período consultado: {{ extraccion.desde|fecha_ar }} al {{ extraccion.hasta|fecha_ar }}</p>
-  {% if avance.identificando %}
-    <p>Identificando los sorteos del período…</p>
+{% load formato_ar ui %}{% comment %}
+ProgressPanel ([003] AC-3.2, AC-3.3, AC-13.3, R-10). Mientras la extracción está en curso se pide de
+nuevo cada 3 s con HTMX (el servidor responde solo este bloque); al terminar, el bloque final ya no
+trae el disparador y la respuesta lleva el aviso en la cabecera HX-Trigger. Sin scripts, el avance
+se actualiza al recargar la página.
+{% endcomment %}<div id="avance-extraccion" class="flex min-h-28 flex-col gap-2 rounded-card border-l-4 {% if avance.en_curso %}border-primary{% else %}border-border{% endif %} bg-surface p-4 shadow-1" role="status" aria-live="polite"{% if avance.en_curso %} data-en-curso="1" hx-get="/administracion/extracciones/{{ extraccion.pk }}/" hx-trigger="every 3s" hx-swap="outerHTML"{% endif %}>
+  <div class="flex flex-wrap items-center gap-3">
+    {% include "ui/_insignia_estado.html" with etiqueta=avance.etiqueta id="avance" %}
+    <p class="font-semibold">{% if avance.en_curso %}{% msg "ext.en_curso" %}{% else %}{{ avance.aviso_final.texto }}{% endif %}</p>
+  </div>
+  <p class="text-sm text-muted-foreground">Período consultado: {{ extraccion.desde|fecha_ar }} al {{ extraccion.hasta|fecha_ar }}</p>
+  {% if avance.en_curso %}
+    {% if avance.identificando %}
+      <p class="flex items-center gap-2">{% icono "loader-circle" clase="size-4 shrink-0 motion-safe:animate-spin" %}<span>{% msg "ext.identificando" %}</span></p>
+    {% else %}
+      <p id="avance-texto">{% msg "ext.avance" n=avance.procesados m=avance.total %}</p>
+      {% if avance.total %}<progress class="barra-avance h-3 w-full accent-primary" value="{{ avance.procesados }}" max="{{ avance.total }}" aria-labelledby="avance-texto">{{ avance.procesados }} de {{ avance.total }}</progress>{% endif %}
+    {% endif %}
   {% else %}
-    <p id="avance-texto">{{ avance.procesados }} de {{ avance.total }} sorteos procesados</p>
-    {% if avance.total %}<progress class="barra-avance" value="{{ avance.procesados }}" max="{{ avance.total }}" aria-labelledby="avance-texto">{{ avance.procesados }} de {{ avance.total }}</progress>{% endif %}
+    <p><a href="/administracion/extracciones/{{ extraccion.pk }}/">{% msg "ext.ver_detalle" %}</a></p>
   {% endif %}
 </div>

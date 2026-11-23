@@ -45,7 +45,7 @@ Los identificadores F1, F2 y F3 se conservan del relevamiento y no indican la pr
 | Verificación (RN-21) | El número y la fecha de la página deben coincidir con los de la dirección; si no, "Estructura no reconocida" |
 | Orden de los números | Ascendente |
 | Columnas de premios | Aciertos · Ganadores · Premio |
-| Premio Extra | Sin números propios. Aciertos "-": **no publica** los aciertos de la categoría ganadora. Pozo como texto "N millones de pesos" → N × 1.000.000,00 exactos (RN-17, Clarifications 19/11/2026, planificación); cualquier otro texto → RN-16 |
+| Premio Extra | Sin números propios. Aciertos "-": **no publica** los aciertos de la categoría ganadora. Pozo: **no lo publica**; el texto "55 millones de pesos" es fijo (igual en todos los sorteos de 2024 a 2026) y se ignora, como el de F2 (RN-17, D-30) |
 | Datos que publica | Número, fecha, seis números de Primer Sorteo, La Segunda, Revancha y Siempre Sale, ganadores e importe por categoría, aciertos de la categoría ganadora de Siempre Sale, pozo de Premio Extra |
 | Codificación | `Content-Type: text/html` sin juego de caracteres; la página declara `charset=utf-8` en `<meta http-equiv>` |
 | Selectores HTML (relevado) | **Listado**: cada `<a href=".../quini6/sorteo-{N}-del-dia-{dd-mm-aaaa}.htm">` con el texto "Sorteo {N} del {dd-mm-aaaa}". **Sorteo**: número y fecha en el `<h2>` "Sorteo Nro. {N} del dia {día} {dd-mm-aaaa}". Números: cada `<h3 class="verdeyblanco">` (rótulo) seguido de `<p class="numeros">` ("01 - 02 - 10 - 13 - 38 - 39"); el rótulo de Premio Extra trae el pozo entre paréntesis: "POZO EXTRA (55 millones de pesos)" y no tiene `<p class="numeros">`. Premios: una sola `<table class="table">` donde cada `<tr class="verde">` con `<span class="lblSorteo">` abre un bloque y las filas siguientes tienen tres `<td>` (aciertos, ganadores, premio "$ 1.100.000.000") |
@@ -110,9 +110,9 @@ La comparación es exacta sobre el rótulo completo, sin distinguir mayúsculas 
 | Siempre Sale | Siempre Sale |
 | Pozo Extra | Premio Extra |
 
-## F0 — Extracto oficial de la Lotería de Santa Fe (solo enlace)
+## F0 — Extracto oficial de la Lotería de Santa Fe (no se consulta)
 
-No se consulta automáticamente (FR-007, D-02). El detalle de cada sorteo muestra el enlace "Ver extracto oficial (Lotería de Santa Fe)", que abre la página general de extractos en una pestaña nueva, porque el sitio oficial no tiene una dirección por sorteo (AC-1.13).
+No se consulta automáticamente (FR-007, D-02). **Desde el 23/11/2026 (D-33) el detalle del sorteo ya no muestra el enlace "Ver extracto oficial (Lotería de Santa Fe)"**: para el cotejo manual, cada dirección consultada de "Fuentes consultadas" es un enlace a la página de esa fuente, que se abre en una pestaña nueva (AC-1.13). La tabla siguiente queda como antecedente.
 
 | Aspecto | Valor |
 |---------|-------|

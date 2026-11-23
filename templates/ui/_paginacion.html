@@ -1,0 +1,11 @@
+{% load ui %}{% comment %}
+Pagination ([003] contracts/componentes.md, AC-9.2, RN-07). Recibe "pagina" (quini6.tablas.Pagina) y
+"parametros" (filtro y orden actuales, que se conservan). Enlaces: funciona sin scripts. Solo se
+muestra si hay más de una página.
+{% endcomment %}{% if pagina.paginas > 1 %}<nav aria-label="Paginación" class="flex flex-wrap items-center justify-between gap-3">
+  {% with enlace="inline-flex min-h-control items-center gap-2 rounded-control border border-border bg-surface px-3 font-medium text-foreground no-underline hover:bg-muted" %}
+  {% if pagina.tiene_anterior %}<a href="{% url_con parametros pagina=pagina.pagina|add:-1 %}" class="{{ enlace }}" rel="prev">{% icono "arrow-left" %}<span>{% msg "pag.anterior" %}</span></a>{% else %}<a class="{{ enlace }} pointer-events-none opacity-50" aria-disabled="true">{% icono "arrow-left" %}<span>{% msg "pag.anterior" %}</span></a>{% endif %}
+  <p class="m-0 text-sm text-muted-foreground">{% msg "pag.pagina" n=pagina.pagina m=pagina.paginas %}</p>
+  {% if pagina.tiene_siguiente %}<a href="{% url_con parametros pagina=pagina.pagina|add:1 %}" class="{{ enlace }}" rel="next"><span>{% msg "pag.siguiente" %}</span>{% icono "arrow-right" %}</a>{% else %}<a class="{{ enlace }} pointer-events-none opacity-50" aria-disabled="true"><span>{% msg "pag.siguiente" %}</span>{% icono "arrow-right" %}</a>{% endif %}
+  {% endwith %}
+</nav>{% endif %}

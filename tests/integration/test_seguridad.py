@@ -6,6 +6,7 @@ import pytest
 from django.test import Client
 
 from cuentas.models import Usuario
+from dominio.mensajes import MENSAJES
 from tests.fabricas import CLAVE, crear_concurso, crear_usuario
 
 pytestmark = pytest.mark.django_db
@@ -38,7 +39,7 @@ def test_post_sin_csrf_rechazado(ruta):
         },
     )
     assert r.status_code == 403
-    assert "No pudimos procesar el formulario porque venció" in r.content.decode()
+    assert MENSAJES["gral.csrf_vencido"] in r.content.decode()
     assert Usuario.objects.count() == 1
 
 
@@ -101,7 +102,7 @@ def test_error_500_sin_detalles(client, settings, monkeypatch):
     r = client.get("/resultados/")
     assert r.status_code == 500
     contenido = r.content.decode()
-    assert "Ocurrió un error. Intentá de nuevo en unos minutos." in contenido
+    assert MENSAJES["gral.error"] in contenido
     assert "detalle-tecnico-secreto" not in contenido
     assert "Traceback" not in contenido
 
@@ -110,7 +111,7 @@ def test_404_generico(client, settings):
     settings.DEBUG = False
     r = client.get("/no-existe/")
     assert r.status_code == 404
-    assert "La página que buscás no existe" in r.content.decode()
+    assert MENSAJES["gral.pagina_inexistente"] in r.content.decode()
 
 
 def test_sin_admin_de_django(client):

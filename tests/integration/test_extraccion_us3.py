@@ -1,8 +1,8 @@
 """[002] Historia 3: normalizar y validar números y premios, verificado en la pantalla (T049).
 
 Usa la variante editada ``tests/fixtures/fuentes/f2/variantes/sorteo-3426-normalizacion.html``:
-importe "494,443,71" en La Segunda, ganadores sin informar en el Tercer Premio de Tradicional y
-sin la tarjeta de Revancha.
+importe "1,234,567" en La Segunda (no corregible según D-32), ganadores sin informar en el
+Tercer Premio de Tradicional y sin la tarjeta de Revancha.
 """
 
 from datetime import date
@@ -77,7 +77,7 @@ def test_variante_con_importe_invalido_ganadores_ausentes_y_modalidad_no_informa
     )
     extraccion = extraer(cliente_admin, cliente)
     texto = cliente_admin.get(f"{INICIO}{extraccion.pk}/sorteos/3426/").content.decode()
-    assert "Importe con formato no reconocido: «494,443,71»" in texto  # AC-3.8
+    assert "Importe con formato no reconocido: «1,234,567»" in texto  # AC-3.8
     assert "Pendiente" in texto  # AC-3.7
     assert "No informada por las fuentes" in texto  # AC-3.12
     assert "Incompleto" in texto

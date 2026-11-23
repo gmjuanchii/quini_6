@@ -166,13 +166,30 @@ def test_ac_3_13_premio_extra_con_repetidos_en_f2_coincide_como_conjunto():
 
 
 def test_ac_3_8_importe_invalido():
-    pagina = f3.interpretar_sorteo(leer("f3/sorteo-3398.html"))
-    r = normalizar(pagina, F3, 3398)
-    cat = categoria(r, M.PRIMER_SORTEO, "SEGUNDO")
+    """[002] RN-16: «1,234,567» no tiene ninguna de las formas corregibles (D-32 exige dos
+    decimales después de la última coma)."""
+    filas = (FilaPremioCruda("5", "17", "1,234,567"),)
+    r = normalizar(cambiar(pagina_f2(), "SIEMPRE SALE", filas_premios=filas), F2, 3426)
+    cat = categoria(r, M.SIEMPRE_SALE, "GANADORA")
     assert cat.importe_individual is NO_DISPONIBLE
-    assert cat.texto_original == "494,443,71"
-    assert "Importe con formato no reconocido: «494,443,71»" in textos(r)
+    assert cat.texto_original == "1,234,567"
+    assert "Importe con formato no reconocido: «1,234,567»" in textos(r)
     assert r.resultado is ResultadoIntento.INCOMPLETO
+
+
+@pytest.mark.parametrize("fuente, ficha, interprete", [("f2", F2, f2), ("f3", F3, f3)])
+def test_ac_3_20_comas_en_todos_los_separadores_se_corrigen(fuente, ficha, interprete):
+    """[002] RN-16, D-32: sorteo 3398 (09/08/2026), Tradicional, Segundo Premio: las fuentes
+    publican «494,443,71» → $ 494.443,71, con nota informativa y sin "Falta: … importe
+    individual"."""
+    pagina = interprete.interpretar_sorteo(leer(f"{fuente}/sorteo-3398.html"))
+    r = normalizar(pagina, ficha, 3398)
+    cat = categoria(r, M.PRIMER_SORTEO, "SEGUNDO")
+    assert cat.importe_individual == Valor(Decimal("494443.71"))
+    assert cat.texto_original is None
+    assert "Importe corregido: «494,443,71» → $ 494.443,71" in textos(r)
+    assert not any(o.codigo == "obs.importe_invalido" for o in r.observaciones)
+    assert not any("importe individual" in t and t.startswith("Falta") for t in textos(r))
 
 
 def test_ac_3_16_importe_mal_cargado_se_corrige_con_nota_informativa():
@@ -198,6 +215,27 @@ def test_d_20_importe_con_tres_decimales_se_redondea_con_nota_informativa():
     assert "Importe corregido: «1.278.143,114» → $ 1.278.143,11" in textos(r)
     assert not any(o.codigo == "obs.importe_invalido" for o in r.observaciones)
     assert r.resultado is ResultadoIntento.OBTENIDO
+
+
+def test_ac_3_19_puntos_de_miles_mal_puestos_se_reagrupan_con_nota_informativa():
+    """[002] RN-16, D-31: sorteo 3383, «1.0867.330» → $ 10.867.330,00 (Segundo Premio)."""
+    filas = (FilaPremioCruda("5", "21", "1.0867.330"),)
+    r = normalizar(cambiar(pagina_f2(), "SIEMPRE SALE", filas_premios=filas), F2, 3426)
+    cat = categoria(r, M.SIEMPRE_SALE, "GANADORA")
+    assert cat.importe_individual == Valor(Decimal("10867330"))
+    assert cat.texto_original is None
+    assert "Importe corregido: «1.0867.330» → $ 10.867.330,00" in textos(r)
+    assert not any(o.codigo == "obs.importe_invalido" for o in r.observaciones)
+    assert r.resultado is ResultadoIntento.OBTENIDO
+
+
+def test_ac_3_19_vacante_con_puntos_mal_puestos_es_su_pozo():
+    """[002] RN-16, RN-17, D-31: sorteo 3415, Revancha vacante «2.57.2821.792»."""
+    filas = (FilaPremioCruda("6", "0", "2.57.2821.792"),)
+    r = normalizar(cambiar(pagina_f2(), "REVANCHA", filas_premios=filas), F2, 3426)
+    cat = categoria(r, M.REVANCHA, "UNICO")
+    assert cat.pozo_destinado == Valor(Decimal("2572821792"))
+    assert "Importe corregido: «2.57.2821.792» → $ 2.572.821.792,00" in textos(r)
 
 
 @pytest.mark.parametrize("numeros, esperado", [
@@ -248,15 +286,14 @@ def test_d_22_sin_dato_de_acumulacion():
     assert not hasattr(cat, "se_acumula")
 
 
-def test_rn_17_pozo_de_premio_extra_de_f1_en_millones():
+def test_d_30_texto_fijo_de_f1_se_ignora():
+    """[002] RN-17, D-30: "55 millones de pesos" es fijo en F1 (igual de 2024 a 2026)."""
     pagina = f1.interpretar_sorteo(leer("f1/sorteo-3426.html"))
     r = normalizar(pagina, F1, 3426, FECHA)
     cat = categoria(r, M.PREMIO_EXTRA, "GANADORA")
-    assert cat.pozo_destinado == Valor(Decimal("55000000"))
+    assert cat.pozo_destinado is NO_DISPONIBLE
     assert cat.aciertos is NO_DISPONIBLE  # F1 publica "-": no lo publica por diseño
-    obs = [o for o in r.observaciones if o.codigo == "obs.pozo_premio_extra_texto"]
-    assert obs[0].texto == "Pozo Extra publicado como «55 millones de pesos»"
-    assert obs[0].informativa
+    assert not [o for o in r.observaciones if o.codigo == "obs.pozo_premio_extra_texto"]
     assert r.resultado is ResultadoIntento.OBTENIDO
 
 

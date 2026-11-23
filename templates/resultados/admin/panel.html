@@ -1,45 +1,45 @@
 {% extends "base.html" %}
-{% load formato_ar %}
-{% block titulo %}Concurso N.º {{ concurso.numero }} · Administración{% endblock %}
+{% load formato_ar ui %}
+{% block titulo %}Sorteo N.º {{ concurso.numero }} · Administración{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/concursos/">← Concursos</a></p>
-<div class="fila-flex">
-  <h1>Concurso N.º {{ concurso.numero }}</h1>
-  <div class="acciones">
-    <a class="boton boton--secundario" href="/administracion/concursos/{{ concurso.numero }}/modificar/">Modificar concurso</a>
-    <a class="boton boton--secundario" href="/administracion/concursos/{{ concurso.numero }}/historial/">Ver historial</a>
-    <a class="boton boton--secundario" href="/resultados/{{ concurso.numero }}/">Ver página pública</a>
+{% msg "nav.volver_sorteos" as t %}{% include "ui/_volver.html" with href="/administracion/concursos/" texto=t %}
+<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+  <h1>Sorteo N.º {{ concurso.numero }}</h1>
+  <div class="my-3 flex flex-wrap items-center gap-2">
+    <a class="{% clases 'boton' variante='secundario' %}" href="/administracion/concursos/{{ concurso.numero }}/modificar/">Modificar sorteo</a>
+    <a class="{% clases 'boton' variante='secundario' %}" href="/administracion/concursos/{{ concurso.numero }}/historial/">Ver historial</a>
+    <a class="{% clases 'boton' variante='secundario' %}" href="/resultados/{{ concurso.numero }}/">Ver página pública</a>
   </div>
 </div>
 <p>Sorteo del {{ concurso.fecha_sorteo|fecha_ar }} · Completitud: <strong>{{ completitud }}</strong> · {% if admite_jugadas %}Admite jugadas{% else %}Ya no admite jugadas{% endif %}</p>
 
 {% for fila in filas %}
-  <section class="tarjeta" aria-labelledby="mod-{{ fila.modalidad.slug }}">
+  <section class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" aria-labelledby="mod-{{ fila.modalidad.slug }}">
     <h2 id="mod-{{ fila.modalidad.slug }}">{{ fila.modalidad.nombre }}</h2>
-    {% if not fila.modalidad.tiene_extraccion_propia %}<p class="rotulo">Premio Extra no tiene números propios: su conjunto surge de Primer Sorteo, La Segunda y Revancha.</p>{% endif %}
+    {% if not fila.modalidad.tiene_extraccion_propia %}<p class="text-sm text-muted-foreground">Premio Extra no tiene números propios: su conjunto surge de Primer Sorteo, La Segunda y Revancha.</p>{% endif %}
     {% for b in fila.bloques %}
-      <div class="tarjeta">
+      <div class="my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6">
         <h3>{{ b.nombre }}: {% include "resultados/admin/_estado.html" %}</h3>
         {% if b.vigente %}
-          <p class="rotulo">Publicado el {{ b.vigente.publicada_en|fecha_hora_ar }}{% if b.vigente.fuente_descripcion %} · Fuente: {{ b.vigente.fuente_descripcion }}{% endif %}</p>
+          <p class="text-sm text-muted-foreground">Publicado el {{ b.vigente.publicada_en|fecha_hora_ar }}{% if b.vigente.fuente_descripcion %} · Fuente: {{ b.vigente.fuente_descripcion }}{% endif %}</p>
           {% if b.bloque == "numeros" %}<ul class="numeros" aria-label="Números publicados">{% for n in b.vigente.numeros|ordenados %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endfor %}</ul>{% endif %}
         {% endif %}
-        {% if b.en_revision %}<p class="mensaje mensaje--aviso">En revisión: {{ b.motivo_revision }}</p>{% endif %}
+        {% if b.en_revision %}<div class="{% clases 'aviso' variante='warning' %}">{% icono "triangle-alert" %}<p class="m-0 min-w-0 flex-1">En revisión: {{ b.motivo_revision }}</p></div>{% endif %}
         {% if b.trabajo %}
           <p>{% if b.trabajo.es_correccion %}Corrección en preparación{% else %}{{ b.texto_estado }}{% endif %} — actualizado el {{ b.trabajo.actualizada_en|fecha_hora_ar }}.</p>
           {% if b.bloque == "numeros" %}<ul class="numeros" aria-label="Números en preparación">{% for n in b.trabajo.numeros|ordenados %}<li class="bolilla">{{ n|dos_digitos }}</li>{% endfor %}</ul>{% endif %}
-          {% if b.trabajo.estado == "OBSERVADO" %}<p class="mensaje mensaje--error">Observado: {{ b.trabajo.motivo_observacion }}</p>{% endif %}
+          {% if b.trabajo.estado == "OBSERVADO" %}<div class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<p class="m-0 min-w-0 flex-1">Observado: {{ b.trabajo.motivo_observacion }}</p></div>{% endif %}
         {% endif %}
 
-        <div class="acciones">
+        <div class="my-3 flex flex-wrap items-center gap-2">
           {% if b.trabajo or not b.vigente %}
-            <a class="boton boton--secundario" href="{{ b.url }}/">{% if b.trabajo %}Editar{% else %}Cargar{% endif %}</a>
+            <a class="{% clases 'boton' variante='secundario' %}" href="{{ b.url }}/">{% if b.trabajo %}Editar{% else %}Cargar{% endif %}</a>
           {% endif %}
           {% if b.trabajo and b.trabajo.estado == "BORRADOR" %}
-            <a class="boton" href="{{ b.url }}/publicar/">{% if b.trabajo.es_correccion %}Publicar corrección{% else %}Revisar y publicar{% endif %}</a>
+            <a class="{% clases 'boton' variante='secundario' %}" href="{{ b.url }}/publicar/">{% if b.trabajo.es_correccion %}Publicar corrección{% else %}Revisar y publicar{% endif %}</a>
           {% endif %}
           {% if b.trabajo and b.trabajo.estado == "OBSERVADO" %}
-            <form method="post" action="{{ b.url }}/resolver/">{% csrf_token %}<button type="submit" class="boton">Resolver observación</button></form>
+            <form method="post" action="{% accion_formulario b.url "/resolver/" %}" novalidate data-validar-formulario data-trabajando>{% csrf_token %}<button type="submit" class="{% clases 'boton' variante='secundario' %}" data-texto-trabajando="{% msg 'form.trabajando_guardar' %}">Resolver observación</button></form>
           {% endif %}
         </div>
 
@@ -61,6 +61,6 @@
     {% endfor %}
   </section>
 {% empty %}
-  <div class="vacio"><p>El concurso no tiene modalidades aplicables.</p></div>
+  <div class="rounded-card bg-surface px-6 py-8 text-center text-muted-foreground shadow-1"><p>El sorteo no tiene modalidades aplicables.</p></div>
 {% endfor %}
 {% endblock %}

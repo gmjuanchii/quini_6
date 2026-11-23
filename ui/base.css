@@ -1,0 +1,92 @@
+/*
+ * QUINI_6 — capa base común a Django y Next.js ([003] R-02, R-15, R-29).
+ * Foco visible, movimiento reducido, transiciones entre pantallas y cifras tabulares.
+ */
+
+@layer base {
+  html {
+    background-color: var(--q-background);
+    color: var(--q-foreground);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--q-background);
+    color: var(--q-foreground);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Foco siempre visible (NFR-001): 2 px del color de anillo con 2 px de separación. */
+  :focus-visible {
+    outline: 2px solid var(--q-ring);
+    outline-offset: 2px;
+  }
+
+  /* El contenido principal recibe el foco desde "Saltar al contenido" sin dibujar un marco. */
+  main:focus {
+    outline: none;
+  }
+
+  /* Texto que solo leen los lectores de pantalla. */
+  .visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* "Saltar al contenido" (AC-5.5): oculto hasta recibir el foco. */
+  .saltar {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 50;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--q-primary-solid);
+    color: var(--q-primary-foreground);
+    font-weight: 600;
+  }
+
+  .saltar:focus {
+    top: 1rem;
+  }
+
+  /* Cifras de bolillas e importes alineadas. */
+  .cifras {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Transición entre pantallas donde el navegador la soporte (spec, Supuestos; R-15). */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+}
+
+/* Movimiento reducido (AC-13.2): sin transiciones, animaciones ni desplazamientos. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
+}

@@ -1,0 +1,23 @@
+{% load ui %}{% comment %}
+DateRangePicker ([003] contracts/componentes.md, R-07; AC-4.3, AC-4.4, FR-011, RN-04): dos DateField,
+un único calendario de rango (Cally <calendar-range>) y los atajos como enlaces "?atajo=<clave>": sin
+scripts recargan el formulario con las fechas precargadas por el servidor; con scripts el componente
+"periodo" de static/js/ui.js completa ambos campos sin navegar y se pueden modificar antes de enviar.
+{% endcomment %}<fieldset class="periodo m-0 flex min-w-0 flex-col gap-3 border-0 p-0" data-periodo x-data="periodo" @abrir-periodo="abrir($event.detail)">
+  <legend class="visualmente-oculto" id="{{ desde.id }}_periodo">{{ leyenda }}</legend>
+  <div class="flex flex-wrap items-start gap-x-4 gap-y-3" x-ref="campos">
+    {% include "ui/_campo_fecha.html" with f=desde %}
+    {% include "ui/_campo_fecha.html" with f=hasta %}
+  </div>
+  <div style="display: none" x-show="abierto" x-anchor.bottom-start="$refs.campos" @keydown.escape.prevent.stop="cerrar(true)" @click.outside="cerrar(false)" role="dialog" aria-labelledby="{{ desde.id }}_periodo" class="calendario-popover z-50 py-1"><div class="rounded-card border border-border bg-surface p-3 shadow-2">
+    <calendar-range class="calendario" locale="es-AR" first-day-of-week="1"{% if min %} min="{{ min }}"{% endif %}{% if max %} max="{{ max }}"{% endif %} x-ref="calendario" @change="elegir($event.target.value)">
+      {% include "ui/_calendario_flechas.html" %}
+      <calendar-month></calendar-month>
+    </calendar-range>
+  </div></div>
+  {% if atajos %}
+  <ul class="flex flex-wrap gap-2" role="list">
+    {% for atajo in atajos %}<li><a href="?atajo={{ atajo.clave }}{{ parametros }}" class="{% clases 'boton' variante='secundario' tamano='sm' %}" data-atajo="{{ atajo.clave }}" data-desde="{{ atajo.desde|date:'Y-m-d' }}" data-hasta="{{ atajo.hasta|date:'Y-m-d' }}" @click.prevent="aplicar($el)">{% msg atajo.clave_texto %}</a></li>{% endfor %}
+  </ul>
+  {% endif %}
+</fieldset>

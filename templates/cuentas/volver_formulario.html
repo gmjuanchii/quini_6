@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block titulo %}{% msg "cuenta.volver_formulario" %}{% endblock %}
+{% block contenido %}
+{# [003] AC-14.4, R-12: el formulario pendiente vive en Next.js. El POST va sin ?_interfaz=django #}
+{# para que el enrutador lo entregue a Next.js, que solo reabre el formulario precargado. #}
+<div class="mx-auto w-full max-w-[28rem]" data-tarjeta-cuenta>
+  <h1 class="mb-6 text-center text-3xl font-semibold">{% msg "cuenta.volver_formulario" %}</h1>
+  <form method="post" action="{{ ruta }}" class="flex flex-col gap-5 rounded-card border border-border bg-surface p-6 shadow-1" novalidate data-validar-formulario data-trabajando data-volver-formulario>
+    {% msg "cuenta.volver_formulario_texto" as texto %}{% include "ui/_aviso.html" with variante="success" rol="status" texto=texto %}
+    {% csrf_token %}
+    <input type="hidden" name="pendiente" value="{{ pendiente }}">
+    {% msg "cuenta.volver_formulario" as boton %}{% msg "gral.cargando" as trabajando %}{% include "ui/_boton.html" with texto=boton texto_trabajando=trabajando extra="w-full" %}
+  </form>
+</div>
+{% endblock %}

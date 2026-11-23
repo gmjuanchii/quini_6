@@ -1,17 +1,18 @@
 {% extends "base.html" %}
-{% block titulo %}{% if modificar %}Modificar concurso{% else %}Crear concurso{% endif %}{% endblock %}
+{% load ui %}
+{% block titulo %}{% if modificar %}Modificar sorteo{% else %}{% msg "admin.crear" %}{% endif %}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/concursos/">← Concursos</a></p>
-<h1>{% if modificar %}Modificar el concurso N.º {{ concurso.numero }}{% else %}Crear concurso{% endif %}</h1>
+{% msg "nav.volver_sorteos" as t %}{% include "ui/_volver.html" with href="/administracion/concursos/" texto=t %}
+<h1>{% if modificar %}Modificar el sorteo N.º {{ concurso.numero }}{% else %}{% msg "admin.crear" %}{% endif %}</h1>
 {% if duplicado %}
-  <p class="mensaje mensaje--error" role="alert">El concurso N.º {{ duplicado }} ya existe. <a href="/administracion/concursos/{{ duplicado }}/">Ir al concurso existente</a></p>
+  <div class="{% clases 'aviso' variante='danger' %}" role="alert">{% icono "circle-x" %}<p class="m-0 min-w-0 flex-1">El sorteo N.º {{ duplicado }} ya existe. <a href="/administracion/concursos/{{ duplicado }}/">Ir al sorteo existente</a></p></div>
 {% endif %}
 {% include "resultados/admin/_errores_form.html" %}
 {% if modificar %}
-  <p class="ayuda">Podés agregar modalidades en cualquier momento. Solo podés quitar una modalidad sin información cargada y cambiar la fecha mientras ninguna extracción esté publicada.</p>
+  <p class="ayuda">{% msg "admin.ayuda_modalidades" %}</p>
 {% endif %}
-<form method="post" class="formulario tarjeta" novalidate>
-  {% csrf_token %}
+<form method="post" action="{% accion_formulario %}" class="grid max-w-xl gap-4 my-4 rounded-card border border-border bg-surface p-4 shadow-1 sm:p-6" novalidate data-validar-formulario data-trabajando>
+  {% csrf_token %}{% campo_idempotencia %}
   {% if form.numero %}{% include "_campo.html" with campo=form.numero %}{% endif %}
   {% include "_campo.html" with campo=form.fecha_sorteo %}
   <fieldset class="campo{% if form.modalidades.errors %} campo--error{% endif %}"{% if form.modalidades.errors %} aria-describedby="modalidades_error"{% endif %}>
@@ -22,8 +23,8 @@
     {% endfor %}
     {% if form.modalidades.errors %}<p class="error" id="modalidades_error">{{ form.modalidades.errors|join:" " }}</p>{% endif %}
   </fieldset>
-  <div class="acciones">
-    <button type="submit" class="boton">{% if modificar %}Guardar cambios{% else %}Crear concurso{% endif %}</button>
+  <div class="my-3 flex flex-wrap items-center gap-2">
+    <button type="submit" class="{% clases 'boton' variante='principal' %}" data-texto-trabajando="{% msg 'form.trabajando_guardar' %}">{% if modificar %}Guardar cambios{% else %}{% msg "admin.crear" %}{% endif %}</button>
     <a href="/administracion/concursos/{% if modificar %}{{ concurso.numero }}/{% endif %}">Cancelar</a>
   </div>
 </form>

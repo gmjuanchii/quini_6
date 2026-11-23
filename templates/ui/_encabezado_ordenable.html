@@ -1,0 +1,5 @@
+{% load ui %}{% comment %}
+Encabezado de columna de DataTable ([003] contracts/componentes.md, AC-7.5, AC-9.1). Recibe "e"
+(quini6.tablas.Encabezado). Ordenable: enlace que alterna ascendente/descendente (sin scripts),
+aria-sort solo en la columna ordenada e icono + texto oculto con el orden actual.
+{% endcomment %}<th scope="col"{% if e.sentido %} aria-sort="{{ e.sentido }}"{% endif %} class="px-3 py-2 text-left font-semibold{% if e.alineacion == 'derecha' %} text-right{% endif %}">{% if e.ordenable %}<a href="{{ e.href }}" class="-mx-1 inline-flex min-h-control items-center gap-1.5 rounded-control px-1 text-foreground no-underline hover:underline{% if e.alineacion == 'derecha' %} flex-row-reverse{% endif %}">{{ e.texto }}{% if e.sentido == "ascending" %}{% icono "arrow-up" clase="size-4 shrink-0" %}<span class="visualmente-oculto">, {% msg "tabla.orden_asc" %}</span>{% elif e.sentido == "descending" %}{% icono "arrow-down" clase="size-4 shrink-0" %}<span class="visualmente-oculto">, {% msg "tabla.orden_desc" %}</span>{% else %}{% icono "arrow-up-down" clase="size-4 shrink-0 text-muted-foreground" %}{% endif %}</a>{% else %}{{ e.texto }}{% endif %}</th>

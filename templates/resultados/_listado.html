@@ -1,8 +1,19 @@
-{% load formato_ar %}<ul class="lista-simple">
-  {% for item in concursos %}
-    <li class="fila-flex">
-      <a href="/resultados/{{ item.concurso.numero }}/">Concurso N.º {{ item.concurso.numero }} — {{ item.concurso.fecha_sorteo|fecha_ar }}</a>
-      <span class="estado {% if item.completitud == 'Completo' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ item.completitud }}</span>
-    </li>
-  {% endfor %}
-</ul>
+{% load formato_ar ui %}{% comment %}
+Listado de sorteos ([001] AC-1.3; [003] HU-09): tabla apilable con los nombres de RN-05 y fila entera
+clicable (AC-9.3 a AC-9.5).
+{% endcomment %}<div class="overflow-x-auto rounded-card border border-border bg-surface shadow-1 max-md:overflow-visible max-md:border-0 max-md:bg-transparent max-md:shadow-none">
+<table class="apilable">
+  <caption class="visualmente-oculto">Sorteos, del más reciente al más antiguo</caption>
+  <thead><tr><th scope="col" class="px-3 py-2 text-left">Sorteo</th><th scope="col" class="px-3 py-2 text-left">Fecha del sorteo</th><th scope="col" class="px-3 py-2 text-left">Estado</th><th scope="col" class="px-3 py-2"><span class="visualmente-oculto">Acciones</span></th></tr></thead>
+  <tbody>
+    {% for item in concursos %}
+      <tr class="fila-enlace">
+        <td data-rotulo="Sorteo" class="cifras whitespace-nowrap font-semibold">N.º {{ item.concurso.numero }}</td>
+        <td data-rotulo="Fecha del sorteo" class="cifras whitespace-nowrap">{{ item.concurso.fecha_sorteo|fecha_ar }}</td>
+        <td data-rotulo="Estado"><span class="estado {% if item.completitud == 'Completo' %}estado--con-premio{% else %}estado--pendiente{% endif %}">{{ item.completitud }}</span></td>
+        <td class="whitespace-nowrap md:text-right"><a href="/resultados/{{ item.concurso.numero }}/" data-enlace-fila class="ver-detalle text-sm font-medium text-primary no-underline hover:underline">{% msg "ext.ver_detalle" %}</a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>

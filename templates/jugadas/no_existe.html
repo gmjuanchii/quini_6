@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load ui %}
 {% block titulo %}Jugada no disponible{% endblock %}
 {% block contenido %}
 <h1>Jugada no disponible</h1>
-<p class="mensaje mensaje--error">La jugada no existe o no está disponible</p>
+<div class="{% clases 'aviso' variante='danger' %}">{% icono "circle-x" %}<p class="m-0 min-w-0 flex-1">La jugada no existe o no está disponible</p></div>
 <p><a href="/mis-jugadas/">Volver a mis jugadas</a></p>
 {% endblock %}

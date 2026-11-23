@@ -53,7 +53,8 @@ def ejecutar() -> str:
 
 def test_procesa_por_orden_de_inicio_e_imprime_una_linea_por_extraccion(admin, inyectar):
     otro = crear_usuario("admin2@prueba.local", admin=True)
-    segunda = crear(admin, minutos=5)
+    # [003] RN-03: dos extracciones en curso no pueden tener el mismo período.
+    segunda = crear(admin, desde=date(2026, 11, 2), minutos=5)
     primera = crear(otro, minutos=0)
     inyectar(cliente_con_sorteos(SORTEOS), fichas_de(F2))
     salida = ejecutar().splitlines()

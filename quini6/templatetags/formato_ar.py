@@ -67,6 +67,14 @@ def porcentaje_ar(valor):
 
 
 @register.filter
+def cantidad_ar(valor):
+    """``1500`` → ``1.500`` (cantidades enteras, [003] contracts/formatos.md)."""
+    if valor is None or valor == "":
+        return ""
+    return f"{int(valor):,}".replace(",", ".")
+
+
+@register.filter
 def ordenados(valor):
     """Números en orden ascendente (Supuestos de la spec)."""
     if not valor:

@@ -5,6 +5,7 @@ from decimal import Decimal
 
 import pytest
 
+from dominio.mensajes import MENSAJES
 from dominio.tipos import Modalidad
 from jugadas.models import Jugada
 from resultados import servicios
@@ -22,7 +23,7 @@ pytestmark = pytest.mark.django_db
 PS, LS = Modalidad.PRIMER_SORTEO, Modalidad.LA_SEGUNDA
 BASE = "/administracion/concursos/1/primer-sorteo/numeros"
 ORIGINAL = frozenset({3, 8, 14, 21, 32, 40})
-SIN_PERMISO = "No tenés permisos para acceder a esta sección"
+SIN_PERMISO = MENSAJES["admin.sin_permiso"]
 
 
 @pytest.fixture
@@ -148,7 +149,7 @@ class TestCorreccion:
                 "motivo_correccion": "",
             },
         )
-        assert "Indicá el motivo de la corrección." in r.content.decode()
+        assert "Falta el motivo de la corrección." in r.content.decode()
 
     def test_ac_7_4_publicada(self, cliente_admin, client, concurso):
         cliente_admin.post(f"{BASE}/revision/", {"motivo": "Posible error"})

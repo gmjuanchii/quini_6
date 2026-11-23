@@ -191,7 +191,7 @@ def test_ac_4_2_omision():
 
 
 def test_ac_4_3_dato_no_publicado_por_diseno_no_es_omision():
-    """F1 no publica los aciertos de Premio Extra; F2 y F3 no publican su pozo."""
+    """F1 no publica los aciertos de Premio Extra y ninguna publica su pozo (D-30)."""
     s = consolidar(
         3426,
         [intento(datos_reales(F1)), intento(datos_reales(F2)), intento(datos_reales(F3))],
@@ -199,8 +199,8 @@ def test_ac_4_3_dato_no_publicado_por_diseno_no_es_omision():
     )
     extra = cat(s, M.PREMIO_EXTRA, "GANADORA")
     assert extra.aciertos.dato == Valor(6) and extra.aciertos.discrepancia is None
-    assert extra.pozo_destinado.dato == Valor(Decimal("55000000"))
-    assert extra.pozo_destinado.discrepancia is None and extra.pozo_destinado.sin_corroborar
+    assert extra.pozo_destinado.calculo == CALCULO_POZO
+    assert extra.pozo_destinado.discrepancia is None and not extra.pozo_destinado.sin_corroborar
 
 
 def test_ac_4_4_fechas_distintas_prevalece_la_fuente_prioritaria():
@@ -227,16 +227,16 @@ def _importes(pozo_f2, pozo_f3):
     ("657151589", "657151588.80"),  # sorteo 3232 (ejemplo del responsable)
     ("756099026", "756099025.92"),  # sorteo 3233 (ejemplo del responsable)
 ])  # fmt: skip
-def test_ac_4_5_redondeados_iguales_no_hay_diferencia(f2, f3):
-    """[002] RN-30, D-17 (aclaración del 20/11/2026): primero se redondea a pesos enteros y
-    después se compara; redondeados coinciden, así que no hay discrepancia ni nota."""
+def test_ac_4_5_diferencia_menor_a_un_peso_no_hay_diferencia(f2, f3):
+    """[002] RN-30, D-28: difieren en menos de $ 1,00 y el importe prioritario no tiene
+    centavos, así que no hay discrepancia ni nota."""
     pozo = _importes(f2, f3)
     assert pozo.dato == Valor(Decimal(f2))
     assert pozo.discrepancia is None and pozo.diferencia_tolerada is None
     assert pozo.fuentes == (F2, F3) and not pozo.sin_corroborar
 
 
-def test_ac_4_5_redondeados_distintos_menos_del_1_por_ciento_dejan_nota():
+def test_ac_4_5_sin_centavos_distintos_menos_del_1_por_ciento_dejan_nota():
     pozo = _importes("1000000", "1000500.40")
     assert pozo.dato == Valor(Decimal("1000000")) and pozo.discrepancia is None
     assert pozo.diferencia_tolerada.tipo is TipoDiscrepancia.CENTAVOS
@@ -246,17 +246,28 @@ def test_ac_4_5_redondeados_distintos_menos_del_1_por_ciento_dejan_nota():
     )
 
 
-def test_rn_30_el_valor_prioritario_se_redondea_a_pesos_enteros():
+def test_d_28_el_valor_prioritario_pierde_los_centavos_con_nota():
+    """[002] RN-30, D-28: se quitan (no se redondean) y, como el valor no es el publicado,
+    queda la nota informativa."""
     pozo = _importes("12060.50", "12060")
-    assert pozo.dato == Valor(Decimal("12061")) and pozo.diferencia_tolerada is not None
+    assert pozo.dato == Valor(Decimal("12060")) and pozo.discrepancia is None
+    assert pozo.diferencia_tolerada.tipo is TipoDiscrepancia.CENTAVOS
+    assert pozo.fuentes == (F2, F3)
+    assert _importes("12060.99", "12061.40").dato == Valor(Decimal("12060"))  # < $ 1,00
+
+
+def test_d_28_diferencia_de_un_peso_ya_no_es_coincidencia():
+    pozo = _importes("12060", "12061")
+    assert pozo.dato == Valor(Decimal("12060"))
+    assert pozo.diferencia_tolerada.tipo is TipoDiscrepancia.CENTAVOS  # tolerada: < 1 %
 
 
 def test_rn_30_desde_el_1_por_ciento_es_valor_distinto_y_sin_determinar():
     pozo = _importes("10000", "10100")
     assert pozo.dato is SIN_DETERMINAR
     assert pozo.discrepancia.tipo is TipoDiscrepancia.VALOR_DISTINTO
-    assert _importes("10000", "10099.99").dato is SIN_DETERMINAR  # redondeado: 10.100 (1 %)
-    assert _importes("10000", "10099.49").discrepancia is None  # redondeado: 10.099
+    assert _importes("10000", "10100.99").dato is SIN_DETERMINAR  # sin centavos: 10.100 (1 %)
+    assert _importes("10000", "10099.99").discrepancia is None  # sin centavos: 10.099
 
 
 def test_ac_4_6_coincidencia_con_la_lista_de_fuentes():
@@ -391,14 +402,42 @@ def test_d_21_sin_mayoria_vale_la_regla_anterior():
     assert ganadores.diferencia_tolerada is None
 
 
-def test_d_21_importes_de_la_mayoria_se_comparan_redondeados():
+def test_d_21_importes_de_la_mayoria_coinciden_por_menos_de_un_peso():
     f2 = cambiar_categoria(datos_reales(F2), M.PRIMER_SORTEO, "TERCER",
                            importe_individual=Valor(Decimal("20000")))  # fmt: skip
     f1 = cambiar_categoria(datos_reales(F1), M.PRIMER_SORTEO, "TERCER",
                            importe_individual=Valor(Decimal("18685.70")))  # fmt: skip
     importe = cat(_tres(f2, datos_reales(F3), f1), M.PRIMER_SORTEO, "TERCER").importe_individual
-    assert importe.dato == Valor(Decimal("18686"))  # 18.685,56 y 18.685,70 → 18.686
+    assert importe.dato == Valor(Decimal("18685"))  # 18.685,56 y 18.685,70 → 18.685 (D-28)
     assert importe.fuentes == (F3, F1) and importe.discrepancia is None
+
+
+def test_ac_4_12_sorteo_2918_pozo_resuelto_por_dos_de_tres():
+    """[002] RN-30, D-21, D-28 (sorteo 2918, Revancha): 47.930.930,50 y 47.930.930,00 difieren
+    en menos de $ 1,00, así que coinciden frente a los 74.669.257,73 de quiniya."""
+    valores = {F2: "47930930.50", F3: "74669257.73", F1: "47930930.00"}
+    f2, f3, f1 = (
+        cambiar_categoria(datos_reales(f), M.PRIMER_SORTEO, "PRIMER",
+                          pozo_destinado=Valor(Decimal(valores[f])))
+        for f in (F2, F3, F1)
+    )  # fmt: skip
+    pozo = cat(_tres(f2, f3, f1), M.PRIMER_SORTEO, "PRIMER").pozo_destinado
+    assert pozo.dato == Valor(Decimal("47930930")) and pozo.discrepancia is None
+    assert pozo.fuentes == (F2, F1)
+    assert pozo.diferencia_tolerada.tipo is TipoDiscrepancia.MAYORIA
+    assert pozo.diferencia_tolerada.valores == tuple((f, Decimal(valores[f])) for f in (F2, F3, F1))
+
+
+def test_d_28_tres_fuentes_que_coinciden_no_se_desempatan():
+    valores = {F2: "1000000", F3: "1000000.40", F1: "999999.80"}
+    f2, f3, f1 = (
+        cambiar_categoria(datos_reales(f), M.PRIMER_SORTEO, "PRIMER",
+                          pozo_destinado=Valor(Decimal(valores[f])))
+        for f in (F2, F3, F1)
+    )  # fmt: skip
+    pozo = cat(_tres(f2, f3, f1), M.PRIMER_SORTEO, "PRIMER").pozo_destinado
+    assert pozo.dato == Valor(Decimal("1000000")) and pozo.fuentes == (F2, F3, F1)
+    assert pozo.diferencia_tolerada is None and pozo.discrepancia is None
 
 
 def test_d_21_coincidencia_de_dos_frente_a_una_omision():
@@ -412,3 +451,84 @@ def test_d_21_coincidencia_de_dos_frente_a_una_omision():
     ganadores = cat(s, M.PRIMER_SORTEO, "PRIMER").ganadores
     assert ganadores.dato == Valor(0) and ganadores.discrepancia is None
     assert ganadores.diferencia_tolerada.valores == ((F2, 0), (F3, None), (F1, 0))
+
+
+# -- Valores inválidos y pozo de Pozo Extra (D-29, D-30) --------------------------------
+
+
+def _siempre_sale_invalida(fuente):
+    """Como en el sorteo 3425: 5 aciertos y 0 ganadores, y el importe leído como pozo."""
+    invalida = Observacion(
+        codigo="obs.siempre_sale_invalida", texto="Siempre Sale inválida", fuente=fuente,
+        es_inconsistencia=True, modalidad=M.SIEMPRE_SALE,
+    )  # fmt: skip
+    datos = cambiar_categoria(datos_reales(fuente), M.SIEMPRE_SALE, "GANADORA",
+                              aciertos=Valor(5), ganadores=Valor(0),
+                              pozo_destinado=Valor(Decimal("56785482")),
+                              importe_individual=NO_CORRESPONDE)  # fmt: skip
+    return replace(datos, observaciones=(invalida,))
+
+
+def test_ac_4_13_sorteo_3425_dos_fuentes_invalidas_no_ganan_por_mayoria():
+    """[002] RN-07, RN-26, D-29: el 0 de numerosganadores y quiniya viola RN-26 y se descarta;
+    quedan los 6 ganadores de quini-6-resultados, sin corroborar."""
+    f1 = cambiar_categoria(datos_reales(F1), M.SIEMPRE_SALE, "GANADORA", aciertos=Valor(5),
+                           ganadores=Valor(6), pozo_destinado=NO_DISPONIBLE,
+                           importe_individual=Valor(Decimal("56785482")))  # fmt: skip
+    s = _tres(_siempre_sale_invalida(F2), _siempre_sale_invalida(F3), f1)
+    ganadora = cat(s, M.SIEMPRE_SALE, "GANADORA")
+    assert ganadora.ganadores.dato == Valor(6) and ganadora.ganadores.fuentes == (F1,)
+    assert ganadora.ganadores.sin_corroborar
+    assert ganadora.ganadores.diferencia_tolerada is None
+    assert ganadora.ganadores.discrepancia is None
+    assert ganadora.aciertos.dato == Valor(5) and ganadora.aciertos.fuentes == (F2, F3, F1)
+    # Los importes de las fuentes descartadas no se usan (RN-17): su concepto era otro.
+    assert ganadora.importe_individual.dato == Valor(Decimal("56785482"))
+    assert ganadora.importe_individual.fuentes == (F1,)
+    assert ganadora.pozo_destinado.dato == Valor(Decimal("340712892"))
+    assert ganadora.pozo_destinado.calculo == CALCULO_POZO
+    assert ganadora.estado_pozo is EstadoPozo.CON_GANADORES
+    invalidas = [o for o in s.observaciones if o.codigo == "obs.siempre_sale_invalida"]
+    assert len(invalidas) == 2
+    assert all(o.informativa and not o.es_inconsistencia for o in invalidas)
+    assert s.sin_corroborar
+    assert clasificar(s)[0] is EstadoSorteo.RECUPERADO
+
+
+def test_d_29_sin_valor_valido_el_dato_queda_no_disponible_y_es_inconsistencia():
+    s = consolidar(
+        3426,
+        [intento(_siempre_sale_invalida(F2)), intento(_siempre_sale_invalida(F3))],
+        FICHAS,
+    )
+    ganadora = cat(s, M.SIEMPRE_SALE, "GANADORA")
+    assert ganadora.ganadores.dato is NO_DISPONIBLE  # nunca el 0 inválido
+    assert ganadora.pozo_destinado.dato is NO_DISPONIBLE
+    assert ganadora.estado_pozo is EstadoPozo.PENDIENTE
+    invalidas = [o for o in s.observaciones if o.codigo == "obs.siempre_sale_invalida"]
+    assert invalidas and all(o.es_inconsistencia for o in invalidas)
+    assert clasificar(s)[0] is EstadoSorteo.CON_INCONSISTENCIAS
+
+
+def test_d_29_aciertos_invalidos_de_premio_extra_no_se_comparan():
+    f2 = cambiar_categoria(datos_reales(F2), M.PREMIO_EXTRA, "GANADORA", aciertos=Valor(3))
+    s = consolidar(3426, [intento(f2), intento(datos_reales(F3))], FICHAS)
+    aciertos = cat(s, M.PREMIO_EXTRA, "GANADORA").aciertos
+    assert aciertos.dato == Valor(6) and aciertos.fuentes == (F3,)
+    assert aciertos.discrepancia is None
+
+
+def test_ac_4_14_sorteo_3425_pozo_de_pozo_extra_calculado_y_corroborado():
+    """[002] RN-17, RN-18, D-30: el pozo de Pozo Extra es importe individual × ganadores, con
+    los datos en que coinciden las fuentes; F1 ya no aporta el texto fijo de 55 millones."""
+    importes = {F2: "259067", F3: "259067", F1: "259067.36"}
+    f2, f3, f1 = (
+        cambiar_categoria(datos_reales(f), M.PREMIO_EXTRA, "GANADORA", ganadores=Valor(772),
+                          importe_individual=Valor(Decimal(importes[f])))
+        for f in (F2, F3, F1)
+    )  # fmt: skip
+    ganadora = cat(_tres(f2, f3, f1), M.PREMIO_EXTRA, "GANADORA")
+    assert ganadora.importe_individual.dato == Valor(Decimal("259067"))
+    assert ganadora.pozo_destinado.dato == Valor(Decimal("199999724"))  # 772 × 259.067
+    assert ganadora.pozo_destinado.calculo == CALCULO_POZO
+    assert not ganadora.pozo_destinado.sin_corroborar

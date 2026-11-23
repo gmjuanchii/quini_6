@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% load formato_ar cambios %}
-{% block titulo %}Historial del concurso N.º {{ concurso.numero }}{% endblock %}
+{% load formato_ar cambios ui %}
+{% block titulo %}Historial del sorteo N.º {{ concurso.numero }}{% endblock %}
 {% block contenido %}
-<p><a href="/administracion/concursos/{{ concurso.numero }}/">← Concurso N.º {{ concurso.numero }}</a></p>
-<h1>Historial de cambios del concurso N.º {{ concurso.numero }}</h1>
+{# [003] D-04: "Sorteo" en los textos visibles. #}{% url "admin_panel" concurso.numero as href %}{% with n=concurso.numero|stringformat:"s" %}{% include "ui/_volver.html" with href=href texto="Sorteo N.º "|add:n %}{% endwith %}
+<h1>Historial de cambios del sorteo N.º {{ concurso.numero }}</h1>
 {% if cambios %}
-  <table class="tabla tabla--apilable">
+  <table class="apilable">
     <caption>Cambios, del más reciente al más antiguo</caption>
     <thead>
       <tr>
@@ -30,6 +30,6 @@
     </tbody>
   </table>
 {% else %}
-  <div class="vacio"><p>Todavía no hay cambios registrados.</p></div>
+  <div class="rounded-card bg-surface px-6 py-8 text-center text-muted-foreground shadow-1"><p>Todavía no hay cambios registrados.</p></div>
 {% endif %}
 {% endblock %}

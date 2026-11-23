@@ -1,0 +1,14 @@
+{
+  "name": "@quini6/e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "QUINI_6 — recorridos de punta a punta con Playwright y axe ([003] R-23)",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4",
+    "@playwright/test": "^1"
+  }
+}
